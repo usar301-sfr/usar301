@@ -152,6 +152,11 @@ input.in,textarea.in,select.in{width:100%;border:1px solid var(--line);border-ra
 .sheet.open{transform:none}
 .sheet h3{font-family:var(--head);font-size:23px;margin:0 0 2px;text-transform:uppercase;letter-spacing:.4px}
 .grab{width:42px;height:5px;border-radius:9px;background:#d3d8de;margin:0 auto 10px}
+.sheet-top{position:sticky;top:-16px;z-index:3;background:#fff;margin:-16px -16px 6px;padding:8px 16px 0;height:56px;box-sizing:border-box;border-radius:16px 16px 0 0;touch-action:none;box-shadow:0 1px 0 var(--line)}
+.sheet-top .grab{margin:0 auto 4px}
+.sheet-x{position:absolute;right:12px;top:8px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#f3f5f7;color:var(--ink);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.sheet-x:active{background:#e3e7eb}
+.sheet h3{padding-right:52px}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 80px);transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 16px;border-radius:10px;z-index:60;font-size:14px;display:none;max-width:90vw}
 .logrow{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:6px 0;font-size:13.5px}
 .logrow .a{font-weight:700;font-size:11px;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:999px}
@@ -398,8 +403,22 @@ function closeDrawer(){ $('#drawer').classList.remove('open'); $('#drawerBg').st
 $('#menuBtn').onclick = openDrawer; $('#drawerBg').onclick = closeDrawer;
 function go(r){ if(ctxReady()) S.ctxEdit=false; S.route=r; closeDrawer(); closeSheet(); window.scrollTo(0,0); render(); }
 
-function openSheet(html, onMount){ $('#sheet').innerHTML='<div class="grab"></div>'+html; $('#sheet').classList.add('open'); $('#sheetBg').style.display='block'; onMount&&onMount(); }
-function closeSheet(){ $('#sheet').classList.remove('open'); $('#sheetBg').style.display='none'; }
+function openSheet(html, onMount){ const sh=$('#sheet'); sh.style.transform=''; sh.style.transition='';
+  sh.innerHTML='<div class="sheet-top"><div class="grab"></div><button class="sheet-x" aria-label="Close" onclick="closeSheet()">&times;</button></div>'+html;
+  sh.scrollTop=0; sh.classList.add('open'); $('#sheetBg').style.display='block'; onMount&&onMount(); }
+function closeSheet(){ const sh=$('#sheet'); sh.style.transform=''; sh.style.transition=''; sh.classList.remove('open'); $('#sheetBg').style.display='none'; }
+// Swipe down to close: drag from the top bar, or anywhere when the sheet is scrolled to the top
+(function(){ const sh=$('#sheet'); let y0=null, dy=0, drag=false;
+  sh.addEventListener('touchstart',e=>{ if(e.target.closest('.sheet-x')) return;
+    const onTop=!!e.target.closest('.sheet-top');
+    if(onTop || sh.scrollTop<=0){ y0=e.touches[0].clientY; dy=0; drag=onTop; } else y0=null; },{passive:true});
+  sh.addEventListener('touchmove',e=>{ if(y0==null) return; const d=e.touches[0].clientY-y0;
+    if(!drag){ if(d>8 && sh.scrollTop<=0) drag=true; else if(d<0){ y0=null; return; } else return; }
+    dy=Math.max(0,d); sh.style.transition='none'; sh.style.transform='translateY('+dy+'px)'; e.preventDefault(); },{passive:false});
+  const end=()=>{ if(y0==null) return; y0=null; if(!drag) return; drag=false; sh.style.transition='';
+    if(dy>90) closeSheet(); else sh.style.transform=''; dy=0; };
+  sh.addEventListener('touchend',end); sh.addEventListener('touchcancel',end);
+})();
 $('#sheetBg').onclick = closeSheet;
 
 function signIn(after){
