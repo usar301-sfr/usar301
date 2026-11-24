@@ -203,6 +203,23 @@ table.rs td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:t
 .kmini{display:flex;align-items:center;gap:4px;font-size:12.5px;color:#9b1c13;font-weight:700}
 .kmini button{border:1px solid var(--line);background:#fff;border-radius:7px;width:26px;height:26px;font-weight:800}
 .kitmiss{font-size:12.5px;color:#9b1c13;font-weight:700;margin-top:3px}
+.kithead{display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:10px 10px 0 0;padding:12px 14px;margin-top:16px}
+.kithead small{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.7;font-weight:700}
+.kithead b{font-family:var(--head);font-size:20px;text-transform:uppercase;letter-spacing:.4px;line-height:1.1}
+.kithead .kpc{margin-left:auto;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.14);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.kithead + .kitlist{margin-top:0;border-radius:0 0 10px 10px}
+.kitlist .subkit{display:block;padding:0;border:1.5px solid #b9c6d4;border-left:5px solid var(--navy);border-radius:10px;margin:12px 0 6px;background:#fff;overflow:hidden}
+.kitlist .subkit:last-child{border-bottom:1.5px solid #b9c6d4}
+.kitlist .skh{display:flex;align-items:center;gap:10px;width:100%;background:#e9eef4;border:0;padding:12px;text-align:left;cursor:pointer;color:var(--ink);font:inherit}
+.kitlist .subkit.open .skh{border-bottom:1px solid #b9c6d4}
+.skh .skar{font-size:18px;width:16px;color:var(--navy)}
+.skh .skn{flex:1;font-weight:800;font-size:16px}
+.skh .skn small{display:block;font-weight:600;font-size:12px;color:var(--muted);margin-top:2px}
+.skh .skc{font-size:12.5px;font-weight:800;border-radius:999px;padding:4px 9px;background:#fff;border:1px solid #b9c6d4;color:var(--muted);white-space:nowrap}
+.skh .skc.done{background:#1f7a3a;border-color:#1f7a3a;color:#fff}
+.skh .skc.bad{background:#9b1c13;border-color:#9b1c13;color:#fff}
+.kitlist .skb{display:block;padding:2px 12px;border:0}
+.kitlist .skb .kr:last-child{border-bottom:0}
 .kitlist .kgh{display:block;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:9px 0 3px;border-bottom:1px solid var(--line)}
 .pchip.on{background:#fde0dc;border-color:#f3b6af;color:#9b1c13;font-weight:700}
 table.rp{width:100%;border-collapse:collapse;font-size:13px}
@@ -403,9 +420,9 @@ function closeDrawer(){ $('#drawer').classList.remove('open'); $('#drawerBg').st
 $('#menuBtn').onclick = openDrawer; $('#drawerBg').onclick = closeDrawer;
 function go(r){ if(ctxReady()) S.ctxEdit=false; S.route=r; closeDrawer(); closeSheet(); window.scrollTo(0,0); render(); }
 
-function openSheet(html, onMount){ const sh=$('#sheet'); sh.style.transform=''; sh.style.transition='';
+function openSheet(html, onMount){ const sh=$('#sheet'), was=sh.classList.contains('open'), y=sh.scrollTop; sh.style.transform=''; sh.style.transition='';
   sh.innerHTML='<div class="sheet-top"><div class="grab"></div><button class="sheet-x" aria-label="Close" onclick="closeSheet()">&times;</button></div>'+html;
-  sh.scrollTop=0; sh.classList.add('open'); $('#sheetBg').style.display='block'; onMount&&onMount(); }
+  sh.scrollTop=was?y:0; sh.classList.add('open'); $('#sheetBg').style.display='block'; onMount&&onMount(); }
 function closeSheet(){ const sh=$('#sheet'); sh.style.transform=''; sh.style.transition=''; sh.classList.remove('open'); $('#sheetBg').style.display='none'; }
 // Swipe down to close: drag from the top bar, or anywhere when the sheet is scrolled to the top
 (function(){ const sh=$('#sheet'); let y0=null, dy=0, drag=false;
@@ -838,6 +855,11 @@ function bindKind(st, p, redraw){
 
 const isKit = i => Array.isArray(i.kit) && i.kit.length>0;
 /* sub-kit header when a piece starts a new group (kit inside a kit) */
+const kitBody=(kit,row,open,st,ak='sk')=>{ const gs=[]; kit.forEach((k,x)=>{ const g=k.g||''; let G=gs.find(G=>G.g===g); if(!G){ G={g,items:[]}; gs.push(G); } G.items.push([k,x]); });
+  return gs.map(G=>{ if(!G.g) return G.items.map(([k,x])=>row(k,x)).join('');
+    const on=open.has(G.g), n=G.items.length, d=G.items.filter(([k])=>st(k)!==undefined).length, m=G.items.filter(([k])=>st(k)!==undefined&&st(k)!=='ok').length, pcs=G.items.reduce((a,[k])=>a+(+k.q||1),0);
+    return `<div class="subkit ${on?'open':''}"><button class="skh" data-${ak}="${esc(G.g)}" aria-expanded="${on}"><span class="skar">${on?'▾':'▸'}</span><span class="skn">${esc(G.g)}<small>Kit inside this kit · ${n} items · ${pcs} pcs · tap to ${on?'close':'open'}</small></span><span class="skc ${d===n?(m?'bad':'done'):''}">${m?m+' ✕ · ':''}${d}/${n}</span></button>${on?`<div class="skb">${G.items.map(([k,x])=>row(k,x)).join('')}</div>`:''}</div>`; }).join(''); };
+const kitHead=i=>`<div class="kithead"><div><small>Kit contents</small><b>${esc(i.item)}</b></div><span class="kpc">${i.kit.length} items · ${i.kit.reduce((a,k)=>a+(+k.q||1),0)} pcs</span></div>`;
 const kgh = (arr,x) => { const g=arr[x].g||'', pg=x?(arr[x-1].g||''):''; return g!==pg ? `<span class="kgh">${g?'▸ '+esc(g):'Main kit'}</span>` : ''; };
 const kitSummary = i => i.kit.map(k=>(k.q>1?k.q+' ':'')+k.n).join(', ');
 /* who currently has kits out, from the log (Issued to / Returned by in notes) */
@@ -875,7 +897,7 @@ function itemRow(i){
 
 function itemSheet(id){
   const i=S.items.find(x=>x.id===id); if(!i) return;
-  const st=linkCtx({action:'USED'}); let qty=1, note='', who='', missing=new Set(), ck={}, iss=[''], ret=null, rk={};
+  const st=linkCtx({action:'USED'}); let qty=1, note='', who='', missing=new Set(), kOpen=new Set(), rOpen=new Set(), ck={}, iss=[''], ret=null, rk={};
   const kit=isKit(i), names=[...new Set(S.crew.map(c=>c.name))];
   const hist=S.log.filter(l=>l.id===id).slice(0,5);
   const draw=()=>openSheet(`${i.color?`<span class="tag c-${esc(i.color)}" style="margin-bottom:6px">${esc(i.color)}</span>`:''}<h3>${esc(i.item)}</h3>
@@ -885,14 +907,14 @@ function itemSheet(id){
       <div class="tile"><b>${need(i)}</b><span>Short</span></div></div>
     ${i.notes?`<p class="sub" style="margin-top:10px">${esc(i.notes)}</p>`:''}
     ${kit?(()=>{ const vals=Object.values(ck), nk=vals.filter(v=>v!=='ok').reduce((a,b)=>a+b,0), done=i.kit.filter(k=>ck[k.n]!==undefined).length, cur=kitMissing(i), lk=lastKitCheck(i.id);
-      return `<label class="f">In each ${esc(i.item.toLowerCase())}</label>
+      return kitHead(i)+`
       <div class="kitlist">
         <div class="kh"><span class="muted" style="font-size:12px;flex:1">Tap <b style="color:#1f7a3a">✓</b> if it's there or <b style="color:#9b1c13">✕</b> if it's not</span><span class="muted" style="font-size:12px;font-weight:700">${done}/${i.kit.length}</span></div>
-        ${i.kit.map((k,x)=>{ const v=ck[k.n], miss=v!==undefined&&v!=='ok';
-          return kgh(i.kit,x)+`<div class="kr ${miss?'miss':''} ${v==='ok'?'okk':''}"><span class="nm" style="flex:1">${esc(k.n)} <span class="muted" style="font-weight:500">×${k.q}</span>${k.s||k.p?`<span class="muted" style="display:block;font-size:11.5px;font-weight:500;text-decoration:none">${esc([k.s,k.p!=null&&k.p!==''?money(k.p)+' ea':''].filter(Boolean).join(' · '))}</span>`:''}</span>
+        ${kitBody(i.kit,(k,x)=>{ const v=ck[k.n], miss=v!==undefined&&v!=='ok';
+          return `<div class="kr ${miss?'miss':''} ${v==='ok'?'okk':''}"><span class="nm" style="flex:1">${esc(k.n)} <span class="muted" style="font-weight:500">×${k.q}</span>${k.s||k.p?`<span class="muted" style="display:block;font-size:11.5px;font-weight:500;text-decoration:none">${esc([k.s,k.p!=null&&k.p!==''?money(k.p)+' ea':''].filter(Boolean).join(' · '))}</span>`:''}</span>
           ${miss?`<span class="kmini"><button data-km="${x}">−</button>${v} missing<button data-kp="${x}">+</button></span>`:''}
           <button class="kc ${v==='ok'?'on':''}" data-kc="${x}" aria-label="${esc(k.n)} is there">✓</button>
-          <button class="kx ${miss?'on':''}" data-kx="${x}" aria-label="${esc(k.n)} not there">✕</button></div>`; }).join('')}
+          <button class="kx ${miss?'on':''}" data-kx="${x}" aria-label="${esc(k.n)} not there">✕</button></div>`; },kOpen,k=>ck[k.n])}
       </div>
       ${done?`<button class="btn ${done===i.kit.length?'primary':''} block" id="kSave" style="margin-top:8px" ${done<i.kit.length?'disabled':''}>${done<i.kit.length?`Mark every piece to save (${done}/${i.kit.length})`:nk?`Save kit check · ${nk} piece${nk>1?'s':''} missing`:'Save kit check · all there'}</button>`:''}
       ${cur.length?`<p class="sub" style="margin-top:8px;color:#9b1c13"><b>Missing now:</b> ${esc(kitMissTxt(cur))}</p>`:''}
@@ -915,8 +937,8 @@ function itemSheet(id){
           ${ret===n?'':`<button class="btn primary" data-ret="${esc(n)}" style="padding:8px 14px">Check in</button>`}</div>
           ${ret===n?(()=>{ const done=i.kit.filter(k=>rk[k.n]).length, all=done===i.kit.length;
             return `<div class="muted" style="font-size:12.5px;margin-top:8px">Check every piece: <b style="color:#1f7a3a">✓</b> it's there, <b style="color:#9b1c13">✕</b> missing or damaged. <b>${done}/${i.kit.length}</b></div>
-            <div class="kitlist" style="margin-top:6px">${i.kit.map((k,x)=>kgh(i.kit,x)+`<div class="kr ${rk[k.n]==='x'?'miss':''} ${rk[k.n]==='ok'?'okk':''}"><span class="nm" style="flex:1">${esc(k.n)}</span>
-              <button class="kc ${rk[k.n]==='ok'?'on':''}" data-rc="${x}" aria-label="${esc(k.n)} is there">✓</button><button class="kx ${rk[k.n]==='x'?'on':''}" data-rx="${x}" aria-label="${esc(k.n)} missing">✕</button></div>`).join('')}</div>
+            <div class="kitlist" style="margin-top:6px">${kitBody(i.kit,(k,x)=>`<div class="kr ${rk[k.n]==='x'?'miss':''} ${rk[k.n]==='ok'?'okk':''}"><span class="nm" style="flex:1">${esc(k.n)}</span>
+              <button class="kc ${rk[k.n]==='ok'?'on':''}" data-rc="${x}" aria-label="${esc(k.n)} is there">✓</button><button class="kx ${rk[k.n]==='x'?'on':''}" data-rx="${x}" aria-label="${esc(k.n)} missing">✕</button></div>`,rOpen,k=>rk[k.n],'rsk')}</div>
             <div class="row" style="gap:8px;margin-top:10px"><button class="btn" id="retCancel" style="flex:1">Cancel</button><button class="btn ${all?'primary':''}" id="retOk" style="flex:2" ${all?'':'disabled'}>${all?'Confirm check-in'+(i.kit.some(k=>rk[k.n]==='x')?` · ${i.kit.filter(k=>rk[k.n]==='x').length} missing`:''):`Check every piece (${done}/${i.kit.length})`}</button></div>`; })():''}
         </div>`).join('') : `<div class="empty" style="padding:14px">No ${esc(i.item.toLowerCase())}s are checked out right now.</div>`}`; })()
     : `<div class="row" style="margin-top:12px"><span class="muted">Quantity (${esc(i.unit)})</span>
@@ -941,6 +963,8 @@ function itemSheet(id){
         const extra=($('#sNote').value||'').trim();
         const ok=await submit({action:'USED', lines:list.map(n=>({id, qty:1, note:'Issued to: '+n+(extra?' · '+extra:'')})), incident:st.kind==='Incident'?st.incident.trim():'', details:st.details.trim(), notes:'', kind:st.kind});
         if(ok){ closeSheet(); toast(`Issued to ${list.join(', ')}`); } };
+      document.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{ keep(); const g=b.dataset.sk; kOpen.has(g)?kOpen.delete(g):kOpen.add(g); draw(); });
+      document.querySelectorAll('[data-rsk]').forEach(b=>b.onclick=()=>{ const g=b.dataset.rsk; rOpen.has(g)?rOpen.delete(g):rOpen.add(g); draw(); });
       document.querySelectorAll('[data-ret]').forEach(b=>b.onclick=()=>{ ret=b.dataset.ret; rk={}; draw(); });
       document.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{ const n=i.kit[+b.dataset.rc].n; rk[n]=rk[n]==='ok'?undefined:'ok'; if(!rk[n]) delete rk[n]; draw(); });
       document.querySelectorAll('[data-rx]').forEach(b=>b.onclick=()=>{ const n=i.kit[+b.dataset.rx].n; rk[n]=rk[n]==='x'?undefined:'x'; if(!rk[n]) delete rk[n]; draw(); });
