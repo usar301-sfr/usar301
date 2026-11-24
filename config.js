@@ -1,4 +1,1 @@
-// USAR 301 – where the app saves its data.
-// Paste the Apps Script "Web app URL" (ends in /exec) between the quotes.
-// Leave it empty to run in preview mode (saves only on that phone).
-window.USAR301_API = '';
+window.USAR301_API = 'https://script.google.com/macros/s/AKfycbyoH7GjYVtDM1tx47ddw1FexcJ5s2DX__bfvrBsi1CmWZ2mIXByxlgeRK6L0wXi7Rlj/exec';
