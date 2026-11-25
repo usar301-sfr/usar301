@@ -311,7 +311,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795621779";
+<script>window.USAR301_BUILD="1795622415";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -534,10 +534,14 @@ const isAdmin = () => !!(S.me && S.apiv>=3 && (S.admins||[]).some(n=>n.toLowerCa
 function drawMenu(){
   $('#drawer').innerHTML = (isAdmin()? [...MENU.slice(0,2),['ADMIN',[['admin','Admin']]],...MENU.slice(2)] : MENU).map(([h,links])=>`<h4>${h}</h4>`+links.map(([r,t])=>`<a href="#" data-route="${r}" class="${S.route===r?'on':''}">${t}</a>`).join('')).join('')
    + `<h4>Signed in</h4><div class="who" style="margin-top:4px">${S.me? esc(S.me.name)+(S.me.unit?' – '+esc(S.me.unit):'') : 'Not signed in'}</div>
-      <a href="#" id="swapUser">${S.me?'Switch user':'Sign in'}</a>`;
+      <a href="#" id="swapUser">${S.me?'Switch user':'Sign in'}</a>${S.me?'<a href="#" id="signOut">Sign out</a>':''}`;
   document.querySelectorAll('[data-route]').forEach(a=>a.onclick=e=>{ e.preventDefault(); go(a.dataset.route); });
   $('#swapUser').onclick = e=>{ e.preventDefault(); closeDrawer(); signIn(()=>render()); };
+  const so=$('#signOut'); if(so) so.onclick = e=>{ e.preventDefault(); signOut(); };
 }
+function signOut(){ const n=S.me&&S.me.name; S.me=null; sset('usar301_me','null');
+  S.adm={tab:'items', q:''}; try{ sessionStorage.removeItem('usar301_adm'); }catch(e){}
+  S.check=null; closeDrawer(); closeSheet(); S.route='home'; window.scrollTo(0,0); render(); toast((n?n+' signed out':'Signed out')); }
 function openDrawer(){ drawMenu(); $('#drawer').classList.add('open'); $('#drawerBg').style.display='block'; }
 function closeDrawer(){ $('#drawer').classList.remove('open'); $('#drawerBg').style.display='none'; }
 $('#menuBtn').onclick = openDrawer; $('#drawerBg').onclick = closeDrawer;
@@ -601,9 +605,14 @@ function signIn(after){
 function render(){
   const v = $('#view');
   const r = S.route;
+  $('.fab')?.remove();
+  if(!S.me){ v.innerHTML=`<div class="wm" aria-hidden="true"></div><div class="hero"><h1>USAR 301</h1><p class="sub">Summerville Fire-Rescue<br>Special Operations</p></div>
+      <div class="card" style="text-align:center;padding:22px 16px;max-width:440px;margin:0 auto"><h3 style="margin:0 0 6px">You're signed out</h3>
+      <p class="muted" style="margin:0 0 16px">Sign in with your name to use the truck app. Everything you log is saved under your name.</p>
+      <button class="btn primary block" id="soIn" style="font-size:17px;padding:14px">Sign in</button></div>`;
+    $('#soIn').onclick=()=>signIn(()=>render()); return; }
   v.innerHTML = (VIEWS[r]||VIEWS.home)();
   (BIND[r]||BIND.home||(()=>{}))();
-  $('.fab')?.remove();
   if (['home','inventory'].includes(r)){
     const b=document.createElement('button'); b.className='btn primary fab'; b.textContent='+ Log Used / Returned';
     b.onclick=()=>go('quick'); document.body.appendChild(b);
