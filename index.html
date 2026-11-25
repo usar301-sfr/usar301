@@ -334,7 +334,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795635529";
+<script>window.USAR301_BUILD="1795635655";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -1246,8 +1246,10 @@ function raker(p,type){
   return per;
 }
 // ---- nails: logged by count from the open box; a whole box comes off the truck each time one is used up ----
-function nailBox(kind){ const rx=kind==='16d'?/^16d nails/i:/^8d nails/i; const i=S.items.find(x=>rx.test(x.item)&&!/duplex/i.test(x.item)); if(!i) return null;
-  const m=/\(([\d,]+)\s*\/\s*box\)/i.exec(i.item); return m? {i, per:Number(m[1].replace(/,/g,'')), kind} : null; }
+// Collated boxes print the count on the box. 5 lb duplex boxes: ≈425 (8d, 2¼") and ≈219 (16d, 3") nails per box.
+const NAIL_DEF = {'8d':{rx:/^8d nails/i}, '16d':{rx:/^16d nails/i}, '8d duplex':{rx:/^8d duplex/i, per:425}, '16d duplex':{rx:/^16d duplex/i, per:219}};
+function nailBox(kind){ const d=NAIL_DEF[kind]; if(!d) return null; const i=S.items.find(x=>d.rx.test(x.item)&&(d.per?true:!/duplex/i.test(x.item))); if(!i) return null;
+  const m=/\(([\d,]+)\s*\/\s*box\)/i.exec(i.item); const per=m? Number(m[1].replace(/,/g,'')) : d.per; return per? {i, per, kind} : null; }
 function nailOpen(nb){ const l=S.log.find(l=>l.id===nb.i.id && /box=\d+\/\d+/.test(l.notes||'')); const m=l&&/box=(\d+)\/(\d+)/.exec(l.notes); return m? Number(m[1]) : 0; }
 // ---- stock on the truck ----
 function sbStock(){
@@ -1316,7 +1318,8 @@ function sbCompute(def, p){
   let sheets=0, area=0; if(ply.length){ area=ply.reduce((s,x)=>s+x.w*x.h*x.q,0); sheets=Math.ceil(area*1.10/4608);
     if(stock.ply&&stock.ply.price!=null){ wholeCost+=sheets*stock.ply.price; lenCost+=stock.ply.price*area/4608; } else missingPrice=true; }
   from.forEach(f=>{ const pm=priceMap(), k=f.src==='cache'? f.id+'|'+f.piece : f.id, pr=pm[k]&&pm[k].price; if(pr!=null&&pr!==''){ wholeCost+=pr*f.q; lenCost+=pr*f.q; } });
-  const nails={}; Object.entries(one.nails||{}).forEach(([k,q])=>nails[k]=q*n);
+  const nails={'8d':0,'16d':0,'16d duplex':0,'8d duplex':0}; Object.entries(one.nails||{}).forEach(([k,q])=>nails[k]=q*n);
+  nails['16d duplex']=Object.values(one.wedges||{}).reduce((a,q)=>a+q,0)*n*2;   // keeper nails at wedges (FOG p. 2-14), 2 per set – edit to suit
   Object.entries(nails).forEach(([k,q])=>{ const nb=nailBox(k), pr=nb&&nb.i.price; const use=(S.sb&&S.sb.nails&&S.sb.nails[k]!=null)?S.sb.nails[k]:q; if(pr!=null&&pr!==''){ wholeCost+=use*Number(pr)/nb.per; lenCost+=use*Number(pr)/nb.per; } });
   const hw=(one.hw||[]).map(([l,q])=>[l,q*n]);
   return {def,p,one,parts,lumber,ply,sheets,area,from,nails,hw,warn:[...new Set(warn)],wholeCost,lenCost,missingPrice,stock};
@@ -1375,7 +1378,7 @@ function openShoreBuilder(){
       ${R.sheets?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Plywood: ${R.sheets} sheet${R.sheets>1?'s':''} (¾" 4×8)</div><div class="card" style="padding:8px 12px">${R.ply.map(x=>`<div>${x.q} × ${esc(x.label)}</div>`).join('')}</div>`:''}
       ${Object.keys(R.nails).length?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Nails (logged – adjust if you used more or less)</div><div class="card" style="padding:8px 12px">${Object.entries(R.nails).map(([k,q])=>{ const nb=nailBox(k), v=st.nails[k]??q;
         return `<div class="row" style="gap:8px;margin:4px 0"><span style="flex:1"><b>${k}</b> nails${nb?`<div class="muted" style="font-size:12px">${esc(nb.i.item)} · open box ≈ ${(nb.per-nailOpen(nb)).toLocaleString()} left</div>`:'<div class="muted" style="font-size:12px">No collated '+k+' box on the truck list – not logged</div>'}</span><input class="in" inputmode="numeric" data-sbnail="${k}" value="${v}" style="max-width:90px;margin:0"></div>`; }).join('')}
-        <div class="muted" style="font-size:12px;margin-top:4px">Starting counts are estimates from the FOG nail patterns.</div></div>`:''}
+        <div class="muted" style="font-size:12px;margin-top:4px">Starting counts are estimates from the FOG nail patterns (16d duplex = 2 keeper nails per wedge set). Set to 0 for any you didn't use.</div></div>`:''}
       ${R.hw.length?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Hardware (not logged)</div><div class="card" style="padding:8px 12px">${R.hw.map(([l,q])=>`<div>${q} × ${esc(l)}</div>`).join('')}</div>`:''}
       <div class="card grandtot" style="margin-top:12px"><div class="row"><span>Cost – whole boards / sheets</span><b>${money(R.wholeCost)}</b></div><div class="row"><span>Cost – length used only</span><b>${money(R.lenCost)}</b></div>
         ${R.missingPrice?'<div class="muted" style="font-size:12px">Some stock has no price on file – not in the totals.</div>':''}<div class="muted" style="font-size:12px;margin-top:4px">Whole boards are logged off the truck so restocking matches. Reports can charge either way.</div></div>
@@ -1568,8 +1571,8 @@ function cutFor(name){ const n=String(name||'').trim(); const c=CUTS.find(c=>c.r
 function priceMap(){ const pm={}; S.items.forEach(i=>{
     const cc=(i.price==null||i.price==='')&&!(Array.isArray(i.kit)&&i.kit.length)? cutFor(i.item) : null;
     pm[i.id]= cc? {...i, price:cc.price, est:true} : i;
-    { const nm=/^(8d|16d) nails/i.exec(i.item), per=/\(([\d,]+)\s*\/\s*box\)/i.exec(i.item); if(nm&&per&&!/duplex/i.test(i.item)){ const k=nm[1].toLowerCase()+' nails', n=Number(per[1].replace(/,/g,''));
-      pm[i.id+'|'+k]={item:i.item.replace(/\s*\(.*$/,'')+' › loose', unit:'EA', price:i.price==null||i.price===''?null:Number(i.price)/n, color:i.color, loc:i.loc}; } }
+    Object.keys(NAIL_DEF).forEach(k=>{ const nb=nailBox(k); if(!nb||nb.i.id!==i.id) return;
+      pm[i.id+'|'+k+' nails']={item:i.item.replace(/\s*\(.*$/,'')+' › loose', unit:'EA', price:i.price==null||i.price===''?null:Number(i.price)/nb.per, color:i.color, loc:i.loc}; });
     (i.kit||[]).forEach(k=>{ const kc=(k.p==null||k.p==='')? cutFor(k.n) : null;
       pm[i.id+'|'+k.n]={item:i.item+' › '+k.n, unit:'EA', price:kc?kc.price:k.p, est:!!kc, color:i.color, loc:i.loc}; }); });
   return pm; }
@@ -1583,7 +1586,7 @@ function itemRow(i){
   return `<div class="item tone-${tn==='pcs'?'short':s}" data-item="${i.id}">${ctab(i)}<div><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div>
     ${i.spec?`<div class="meta">${esc(i.spec)}</div>`:''}${isKit(i)?`<div class="meta">Each: ${esc(kitSummary(i))}</div>`:''}
     ${isKit(i)&&kitMissing(i).length?`<div class="kitmiss">Missing pieces: ${esc(kitMissTxt(kitMissing(i)))}</div>`:''}
-    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>hLabel(n)+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}${po.length?`<div class="kitpcs">Pieces out: ${esc(kitMissTxt(po))}</div>`:''}${(()=>{ const nm=/^(8d|16d) nails/i.exec(i.item); if(!nm||/duplex/i.test(i.item)) return ''; const nb=nailBox(nm[1].toLowerCase()); if(!nb||nb.i.id!==i.id) return ''; const used=nailOpen(nb); return used?`<div class="kitpcs" style="color:var(--muted)">Open box ≈ ${(nb.per-used).toLocaleString()} of ${nb.per.toLocaleString()} left</div>`:''; })()}<span class="st ${tn==='pcs'?'short':s}">${lbl}</span></div>
+    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>hLabel(n)+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}${po.length?`<div class="kitpcs">Pieces out: ${esc(kitMissTxt(po))}</div>`:''}${(()=>{ const nb=Object.keys(NAIL_DEF).map(nailBox).find(n=>n&&n.i.id===i.id); if(!nb) return ''; const used=nailOpen(nb); return used?`<div class="kitpcs" style="color:var(--muted)">Open box ≈ ${(nb.per-used).toLocaleString()} of ${nb.per.toLocaleString()} left</div>`:''; })()}<span class="st ${tn==='pcs'?'short':s}">${lbl}</span></div>
     <div class="cnt"><b>${i.onHand??'—'}</b> <span>/ ${i.full??'?'}</span><div class="muted" style="font-size:11px">${esc(i.unit)}</div></div></div>`;
 }
 
