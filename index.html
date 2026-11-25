@@ -336,7 +336,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795637608";
+<script>window.USAR301_BUILD="1795637811";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -1360,17 +1360,21 @@ const SB_FIELDS = {
   n:{label:'How many', num:true, def:1}, size:{label:'Post / member size'}, soil:{label:'On soil (footing + more pickets)', check:true, def:false}
 };
 function sbState(){ if(!S.sb){ S.sb={k:'T', stock:'best', v:{}, nails:{}}; Object.entries(SB_FIELDS).forEach(([k,f])=>{ if('def' in f) S.sb.v[k]=f.def; }); S.sb.v.size='4x4'; } return S.sb; }
+// Measured values start blank every time the builder opens (standard spacings keep their FOG defaults)
+const SB_MEASURED = ['h','lp','sp','ow','oh','gap','ih','ih2','slope'];
 function openShoreBuilder(){
   const st=sbState(), ctx=linkCtx({action:'USED'});
+  SB_MEASURED.forEach(k=>{ st.v[k]=null; }); st.v.n=1; st.nails={};
   const draw=()=>{ const def=SHORES.find(s=>s.k===st.k); if(!def.sizes.includes(st.v.size)) st.v.size=def.sizes[0];
-    const p={...st.v, stock:st.stock}; let R=null, err=''; try{ R=sbCompute(def,p); }catch(e){ err=String(e.message||e); }
-    const ftIn=(k,f)=>{ const v=st.v[k]||0, F=Math.floor(v/12), I=Math.round((v-F*12)*2)/2;
-      if(sbUnit()==='in') return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="decimal" data-sbi="${k}" value="${Math.round(v*2)/2}" style="max-width:120px"><span>inches</span><span class="muted" style="font-weight:600;margin-left:6px">= ${fmtLen(v)}</span></div>`;
-      return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="numeric" data-sbf="${k}" data-u="ft" value="${F}"><span>ft</span><input class="in" inputmode="decimal" data-sbf="${k}" data-u="in" value="${I}"><span>in</span></div>`; };
+    const p={...st.v, stock:st.stock}, missing=def.f.filter(k=>SB_MEASURED.includes(k)&&!(Number(st.v[k])>0));
+    let R=null, err=''; if(!missing.length){ try{ R=sbCompute(def,p); }catch(e){ err=String(e.message||e); } }
+    const ftIn=(k,f)=>{ const blank=!(Number(st.v[k])>0), v=Number(st.v[k])||0, F=Math.floor(v/12), I=Math.round((v-F*12)*2)/2;
+      if(sbUnit()==='in') return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="decimal" data-sbi="${k}" value="${blank?'':Math.round(v*2)/2}" placeholder="inches" style="max-width:120px"><span>inches</span>${blank?'':`<span class="muted" style="font-weight:600;margin-left:6px">= ${fmtLen(v)}</span>`}</div>`;
+      return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="numeric" data-sbf="${k}" data-u="ft" value="${blank?'':F}" placeholder="ft"><span>ft</span><input class="in" inputmode="decimal" data-sbf="${k}" data-u="in" value="${blank?'':I}" placeholder="in"><span>in</span></div>`; };
     const field=k=>{ const f=SB_FIELDS[k]; if(k==='size') return def.sizes.length>1?`<label class="f">${f.label}</label><div class="seg">${def.sizes.map(s=>`<button data-sbs="${s}" class="${st.v.size===s?'on':''}">${s.replace('x','×')}</button>`).join('')}</div>`:'';
       if(f.ft) return ftIn(k,f); if(f.check) return `<label class="ckline"><input type="checkbox" data-sbc="${k}" ${st.v[k]?'checked':''}><span>${f.label}</span></label>`;
       if(f.opts) return `<label class="f">${f.label}</label><div class="seg">${f.opts.map(o=>`<button data-sbo="${k}" data-val="${o}" class="${st.v[k]==o?'on':''}">${f.fmt?f.fmt(o):o+(f.unit||'')}</button>`).join('')}</div>`;
-      return `<label class="f">${k==='n'?(def.g==='Rakers'?'How many rakers':def.k==='CR'?'How many cribs':'How many shores'):f.label}${f.unit?' ('+f.unit+')':''}</label><input class="in" inputmode="numeric" data-sbn="${k}" value="${esc(st.v[k])}" style="max-width:120px">`; };
+      return `<label class="f">${k==='n'?(def.g==='Rakers'?'How many rakers':def.k==='CR'?'How many cribs':'How many shores'):f.label}${f.unit?' ('+f.unit+')':''}</label><input class="in" inputmode="numeric" data-sbn="${k}" value="${st.v[k]==null?'':esc(st.v[k])}" placeholder="${k==='slope'?'degrees':''}" style="max-width:120px">`; };
     const groups=[...new Set(SHORES.map(s=>s.g))];
     const cutRows = R? (()=>{ const m={}; R.parts.filter(x=>x.q>0||x.tote).forEach(x=>{ const k=x.label+'|'+x.size+'|'+x.len; const o=(m[k]=m[k]||{...x,q:0,tote:0}); o.q+=x.q+(x.tote||0); o.tote+=(x.tote||0); }); return Object.values(m); })() : [];
     openSheet(`<h3>Build a shore</h3><p class="sub">Pick the shore and size. The app works out every cut, which boards to cut them from, and logs it all in one step. Sizes per the USACE Field Operations Guide (FOG, Ed. 9).</p>
@@ -1380,6 +1384,7 @@ function openShoreBuilder(){
       ${def.f.map(field).join('')}${field('size')!==''&&!def.f.includes('size')?'':''}
       <label class="f">Cut from</label><div class="seg">${[['best','Best fit'],['12',"12' boards"],['16',"16' boards"]].map(([k,l])=>`<button data-sbst="${k}" class="${st.stock===k?'on':''}">${l}</button>`).join('')}</div>
       ${err?`<div class="empty" style="color:var(--miss)">${esc(err)}</div>`:''}
+      ${missing.length?`<div class="empty" style="margin-top:12px">Enter the ${missing.map(k=>SB_FIELDS[k].label.toLowerCase()).join(' and ')} to see the cut list.</div>`:''}
       ${R?`${R.warn.length?`<div class="card" style="border-color:#f1d491;background:#fff8e7;margin-top:12px">${R.warn.map(w=>`<div>⚠ ${esc(w)}</div>`).join('')}</div>`:''}
       <h3 style="margin:16px 0 6px">Cut list${st.v.n>1?` (${st.v.n} ${def.g==='Rakers'?'rakers':'shores'})`:''}</h3>
       <div class="card" style="padding:4px 10px"><table class="rp"><tr><th>Piece</th><th>Size</th><th>Length</th><th>Qty</th></tr>
@@ -1400,13 +1405,13 @@ function openShoreBuilder(){
       document.querySelectorAll('[data-sbnail]').forEach(x=>x.onchange=()=>{ st.nails[x.dataset.sbnail]=Math.max(0,Math.round(Number(x.value)||0)); draw(); });
       document.querySelectorAll('[data-sbs]').forEach(b=>b.onclick=()=>{ st.v.size=b.dataset.sbs; if(st.v.oc===48||st.v.oc===60) st.v.oc=st.v.size==='6x6'?60:48; draw(); });
       document.querySelectorAll('[data-sbu]').forEach(b=>b.onclick=()=>{ try{ localStorage.setItem('usar301_sbunit',b.dataset.sbu); }catch(e){} draw(); });
-      document.querySelectorAll('[data-sbi]').forEach(x=>x.onchange=()=>{ st.v[x.dataset.sbi]=Math.max(0,Number(String(x.value).replace(/[^\d.]/g,''))||0); st.nails={}; draw(); });
+      document.querySelectorAll('[data-sbi]').forEach(x=>x.onchange=()=>{ st.v[x.dataset.sbi]=String(x.value).trim()===''? null : Math.max(0,Number(String(x.value).replace(/[^\d.]/g,''))||0); st.nails={}; draw(); });
       document.querySelectorAll('[data-sbst]').forEach(b=>b.onclick=()=>{ st.stock=b.dataset.sbst; draw(); });
       document.querySelectorAll('[data-sbo]').forEach(b=>b.onclick=()=>{ st.v[b.dataset.sbo]=Number(b.dataset.val); draw(); });
       document.querySelectorAll('[data-sbc]').forEach(b=>b.onchange=()=>{ st.v[b.dataset.sbc]=b.checked; draw(); });
-      document.querySelectorAll('[data-sbn]').forEach(x=>x.onchange=()=>{ st.v[x.dataset.sbn]=Math.max(x.dataset.sbn==='n'?1:0,Number(x.value)||0); st.nails={}; draw(); });
+      document.querySelectorAll('[data-sbn]').forEach(x=>x.onchange=()=>{ const k=x.dataset.sbn; st.v[k]= (k!=='n'&&String(x.value).trim()==='')? null : Math.max(k==='n'?1:0,Number(x.value)||0); st.nails={}; draw(); });
       document.querySelectorAll('[data-sbf]').forEach(x=>x.onchange=()=>{ const k=x.dataset.sbf, F=document.querySelector(`[data-sbf="${k}"][data-u="ft"]`), I=document.querySelector(`[data-sbf="${k}"][data-u="in"]`);
-        st.v[k]=Math.max(0,(Number(F.value)||0)*12+(Number(I.value)||0)); st.nails={}; draw(); });
+        st.v[k]=(F.value===''&&I.value==='')? null : Math.max(0,(Number(F.value)||0)*12+(Number(I.value)||0)); st.nails={}; draw(); });
       bindKind(ctx,'sb',draw);
       const lg=$('#sbLog'); if(lg) lg.onclick=async()=>{ if(kindError(ctx,'sb')) return; const R2=sbCompute(def,{...st.v,stock:st.stock}); R2.nailsUse=Object.fromEntries(Object.entries(R2.nails).map(([k,q])=>[k,st.nails[k]??q]));
         const label=`${def.name}${def.f.includes('h')?' '+fmtLen(st.v.h):def.f.includes('ih')?' @ '+fmtLen(st.v.ih):''}${st.v.n>1?' ×'+st.v.n:''}`;
