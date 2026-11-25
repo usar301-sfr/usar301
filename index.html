@@ -157,6 +157,14 @@ input.in,textarea.in,select.in{width:100%;border:1px solid var(--line);border-ra
 .sheet-x{position:absolute;right:12px;top:8px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#f3f5f7;color:var(--ink);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .sheet-x:active{background:#e3e7eb}
 .sheet h3{padding-right:52px}
+.ovw-bg{position:fixed;inset:0;z-index:70;background:rgba(10,16,22,.55);display:flex;align-items:center;justify-content:center;padding:18px}
+.ovw{background:#fff;border-radius:14px;max-width:440px;width:100%;max-height:88vh;overflow:auto;padding:0 16px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.ovw-h{margin:0 -16px 10px;padding:14px 16px;background:#b45309;color:#fff;font-family:var(--head);font-size:20px;text-transform:uppercase;letter-spacing:.4px;border-radius:14px 14px 0 0}
+.ovw p{margin:0 0 8px}
+.ovw-r{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;border:1.5px solid #f2c48d;background:#fff7ed;border-radius:10px;margin:6px 0}
+.ovw-r b{flex:1 1 100%;font-size:16px}.ovw-r span{color:var(--muted);font-size:14px}.ovw-r em{font-style:normal;font-weight:800;color:#b45309;margin-left:auto}
+.ovw textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:10px}
+.ovw-b{display:flex;gap:10px;margin-top:12px}.ovw-b .btn{flex:1}.ovw-b .btn:disabled{opacity:.45}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 80px);transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 16px;border-radius:10px;z-index:60;font-size:14px;display:none;max-width:90vw}
 .logrow{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:6px 0;font-size:13.5px}
 .logrow .a{font-weight:700;font-size:11px;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:999px}
@@ -268,7 +276,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795567735";
+<script>window.USAR301_BUILD="1795618545";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -404,8 +412,33 @@ setInterval(()=>{ if(!busy()){ refresh(true); if(S.route==='weather') loadWx(); 
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && !busy()) refresh(true); });
 $('#refreshBtn').onclick = ()=>refresh(false);
 $('#homeBtn').onclick = ()=>go('home');
+// Returning/restocking more than the truck carries: warn and require a note on where the extra came from
+function overLines(entry){ if(entry.action!=='RETURNED'&&entry.action!=='RESTOCKED') return [];
+  return (entry.lines||[]).map(l=>{ const it=S.items.find(x=>x.id===l.id); if(!it) return null;
+    const full=Number(it.full); if(it.full===''||it.full==null||!isFinite(full)) return null;
+    const after=(Number(it.onHand)||0)+(Number(l.qty)||0); return after>full? {l,it,after,full,extra:after-full} : null; }).filter(Boolean); }
+function overWarn(entry, ov){ return new Promise(res=>{
+  const verb=entry.action==='RETURNED'?'return':'restock';
+  const d=document.createElement('div'); d.className='ovw-bg';
+  d.innerHTML=`<div class="ovw" role="dialog" aria-modal="true">
+    <div class="ovw-h">⚠ More than a full load</div>
+    <p>This ${verb} puts more on the truck than it's supposed to carry:</p>
+    ${ov.map(o=>`<div class="ovw-r"><b>${esc(o.it.item)}</b><span>${o.after} on truck · full load ${o.full}</span><em>+${o.extra} extra</em></div>`).join('')}
+    <label class="f" for="ovwN">Where did the extra come from? <span style="color:var(--miss)">(required)</span></label>
+    <textarea id="ovwN" rows="3" placeholder="e.g. Mutual aid gear from Goose Creek, picked up another unit's straps, count was off…"></textarea>
+    <div class="ovw-b"><button class="btn" id="ovwBack">Go back</button><button class="btn dark" id="ovwGo" disabled>Log it with note</button></div></div>`;
+  document.body.appendChild(d);
+  const n=d.querySelector('#ovwN'), go=d.querySelector('#ovwGo'); setTimeout(()=>n.focus(),50);
+  n.oninput=()=>{ go.disabled=!n.value.trim(); };
+  const done=v=>{ d.remove(); res(v); };
+  d.querySelector('#ovwBack').onclick=()=>done(null);
+  go.onclick=()=>{ const v=n.value.trim(); if(v) done(v); };
+}); }
 async function submit(entry){
   if(!S.me){ signIn(()=>submit(entry)); return false; }
+  const ov=overLines(entry);
+  if(ov.length){ const why=await overWarn(entry, ov); if(!why) return false;
+    ov.forEach(o=>{ o.l.note=(o.l.note||entry.notes||'')+((o.l.note||entry.notes)?' · ':'')+`OVER FULL LOAD +${o.extra} (${o.after}/${o.full}): ${why}`; }); }
   entry.name=S.me.name; entry.unit=S.me.unit;
   setStatus('saving','Saving…');
   try{ const d = await api.logEntry(entry); S.items=d.items; S.log=d.log; S.rep.all=null; lastSync=new Date(); idle(); render(); return true; }
