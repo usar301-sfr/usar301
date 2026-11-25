@@ -103,6 +103,9 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .tlday{font-family:var(--head);text-transform:uppercase;letter-spacing:.4px;font-size:14px;color:var(--navy);padding:10px 0 4px}
 .tlday + .tl{border-top:0}
 .hcard h3{font-size:19px}
+.rsum .rsum-tot{grid-column:1/-1;background:var(--navy);color:#fff}.rsum .rsum-tot span{color:#c9d4df}
+.grandtot{padding:12px 14px}.grandtot .row{justify-content:space-between;padding:4px 0;font-size:15px}
+.grandtot .gt{border-top:2px solid var(--navy);margin-top:4px;padding-top:8px;font-size:17px}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
@@ -324,7 +327,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795633106";
+<script>window.USAR301_BUILD="1795633317";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -915,6 +918,12 @@ reports(){
     .sort((x,y)=>(x.loc+x.item).localeCompare(y.loc+y.item));
   const tot=list.reduce((s,a)=>s+(a.cost||0),0), unpriced=list.filter(a=>a.net>0&&a.cost==null).length;
   const consumed=list.filter(a=>a.net>0), restocked=list.filter(a=>a.RESTOCKED>0);
+  const cons=consumed.filter(a=>isConsumable(a.id)), equip=consumed.filter(a=>!isConsumable(a.id));
+  const sub=arr=>arr.reduce((s,a)=>s+(a.cost||0),0), totC=sub(cons), totE=sub(equip);
+  const mkTbl=(arr,label)=> arr.length? `<div class="card" style="padding:6px 10px"><table class="rp"><tr><th>Item</th><th>Used</th><th>Back</th><th class="hide-sm">Repl.</th><th>Net</th><th class="hide-sm">Unit $</th><th>Cost</th></tr>
+    ${arr.map(a=>`<tr><td>${a.color?`<b class="cword">${esc(a.color)}</b> `:''}${esc(a.item)}<div class="muted" style="font-size:11px">${esc(a.loc)}</div></td><td>${a.USED||''}</td><td>${a.RETURNED||''}</td><td class="hide-sm">${a.REPLACE||''}</td>
+      <td><b>${a.net}</b> <span class="muted" style="font-size:11px">${esc(a.unit)}</span></td><td class="hide-sm">${a.price!=null&&a.price!==''?money(a.price):'—'}</td><td>${a.cost!=null?money(a.cost):'<span class="muted">—</span>'}</td></tr>`).join('')}
+    <tr class="tot"><td>${label} subtotal</td><td></td><td></td><td class="hide-sm"></td><td></td><td class="hide-sm"></td><td>${money(sub(arr))}</td></tr></table></div>` : `<div class="empty">No ${label.toLowerCase()} used in this period.</div>`;
   const evIn=repEvents(rows.filter(l=>l.kind)); const nInc=evIn.filter(e=>e.kind==='Incident').length, nTr=evIn.filter(e=>e.kind==='Training').length;
   const title=repTitle(R,evs);
   const tbl=consumed.length? `<div class="card" style="padding:6px 10px"><table class="rp"><tr><th>Item</th><th>Used</th><th>Back</th><th class="hide-sm">Repl.</th><th>Net</th><th class="hide-sm">Unit $</th><th>Cost</th></tr>
@@ -944,8 +953,13 @@ reports(){
   </div>
   <div class="card" style="margin-top:10px"><b style="font-family:var(--head);font-size:18px;text-transform:uppercase;letter-spacing:.3px">${esc(title)}</b>
     ${who.length?`<div class="muted" style="font-size:12.5px;margin-top:3px">Logged by: ${esc(who.join(', '))}</div>`:''}</div>
-  ${R.mode==='range'?`<div class="rsum"><div><b>${nInc}</b><span>Incidents</span></div><div><b>${nTr}</b><span>Trainings</span></div><div><b>${consumed.length}</b><span>Items used</span></div><div><b>${money(tot)}</b><span>Cost</span></div></div>`:''}
-  <h2>Items used</h2>${tbl}${evList}${restockTbl}
+  ${`<div class="rsum" style="${R.mode==='range'?'':'grid-template-columns:1fr 1fr'}">${R.mode==='range'?`<div><b>${nInc}</b><span>Incidents</span></div><div><b>${nTr}</b><span>Trainings</span></div>`:''}<div><b>${money(totC)}</b><span>Consumables</span></div><div><b>${money(totE)}</b><span>Equipment</span></div><div class="rsum-tot"><b>${money(tot)}</b><span>Total cost (before tax)</span></div></div>`}
+  <h2>Consumables used</h2><p class="muted" style="font-size:12.5px;margin:-4px 2px 8px">Used up on the call: lumber, wedges, gussets, nails, blades, bits, anchors, tape, PPE, fuel.</p>${mkTbl(cons,'Consumables')}
+  <h2>Equipment used or not returned</h2><p class="muted" style="font-size:12.5px;margin:-4px 2px 8px">Tools and gear that were damaged, lost, marked for replacement, or never checked back in.</p>${mkTbl(equip,'Equipment')}
+  ${consumed.length?`<div class="card grandtot"><div class="row"><span>Consumables</span><b>${money(totC)}</b></div><div class="row"><span>Equipment</span><b>${money(totE)}</b></div>
+    <div class="row gt"><span>Total before tax</span><b>${money(tot)}</b></div><div class="row"><span>With 7% sales tax</span><b>${money(tot*1.07)}</b></div>
+    ${unpriced?`<div class="muted" style="font-size:12px;margin-top:4px">${unpriced} item${unpriced>1?'s':''} without a price on file – not in the totals.</div>`:''}</div>`:''}
+  ${evList}${restockTbl}
   <div class="noprint" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
     <button class="btn dark" id="rPrint">Print / Save PDF</button><button class="btn" id="rCopy">Copy as text</button></div>
   <p class="muted noprint" style="font-size:12px;margin-top:8px">Costs use the unit prices on file today. Check-offs aren't counted as usage.</p>`;
@@ -1099,6 +1113,14 @@ function histCSV(e){ const q=v=>{ v=String(v??''); return /[",\n]/.test(v)? '"'+
   const lines=e.rows.slice().sort((a,b)=>new Date(a.ts)-new Date(b.ts)).map(l=>{ const d=new Date(l.ts);
     return [d.toLocaleDateString('en-US'), d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), ACTION_LABEL[l.action]||l.action, l.item, l.qty, l.name, l.unit, l.kind, l.incident, l.details, l.notes].map(q).join(','); });
   return [head.join(','), ...lines].join('\r\n'); }
+// Consumables = things used up on a call (lumber, nails, blades, wedges, PPE, fuel…). Everything else = equipment.
+// An admin can move any item into Consumables by setting its Category to "Consumables".
+const CONS_CATS = ['consumables','lumber','ppe','scene'];
+const CONS_RX = /\b(nails?|screws?|blades?|cut-?off wheels?|wheels?|bits?|anchors?|tape|wedges?|gussets?|sole plates?|plywood|sheathing|rebar|bar oil|fuel|n95|ear ?plugs?|markers?|pencils?|zip ?ties?|cribbing|4x4|2x4|2x6|6x6)\b/i;
+function isConsumable(key){ const [id,piece]=String(key).split('|'); const i=S.items.find(x=>x.id===id);
+  if(piece) return !/jig/i.test(piece) && CONS_RX.test(piece);
+  if(!i) return false; if(CONS_CATS.includes(String(i.cat||'').toLowerCase())) return true;
+  return !(Array.isArray(i.kit)&&i.kit.length) && !/jig|rail|level|square/i.test(i.item) && CONS_RX.test(i.item) && /shoring|lumber/i.test(i.cat||''); }
 function repTitle(R,evs){
   if(R.mode==='event'){ const e=evs.find(x=>x.key===R.ev); return e? `${e.kind}: ${e.details||'—'}${e.incident?' · #'+e.incident:''}` : 'Pick an incident or training'; }
   const f=s=>s? new Date(s+'T12:00').toLocaleDateString('en-US'):'';
@@ -1108,9 +1130,11 @@ function repTitle(R,evs){
 function repText(){
   const R=S.rep, evs=repEvents(R.all), rows=repFilter(R); const pmap=priceMap();
   const agg={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(!s) return; agg[rid(l)]=(agg[rid(l)]||0)+s*(Number(l.qty)||0); });
-  let tot=0; const lines=Object.entries(agg).filter(([,q])=>q>0).map(([id,q])=>{ const i=pmap[id]||{item:id,unit:''}; const c=i.price!=null&&i.price!==''? q*Number(i.price):null; if(c) tot+=c;
-    return `${q} ${i.unit}  ${i.item}${c!=null?'  '+money(c):''}`; });
-  return `USAR 301 – Usage Report\n${repTitle(R,evs)}\n\n${lines.length?lines.join('\n'):'Nothing used.'}\n\nTotal before tax: ${money(tot)}\nWith 7% tax: ${money(tot*1.07)}`;
+  const T={c:0,e:0}, L={c:[],e:[]};
+  Object.entries(agg).filter(([,q])=>q>0).forEach(([id,q])=>{ const i=pmap[id]||{item:id,unit:''}; const c=i.price!=null&&i.price!==''? q*Number(i.price):null; const k=isConsumable(id)?'c':'e'; if(c) T[k]+=c;
+    L[k].push(`${q} ${i.unit}  ${i.item}${c!=null?'  '+money(c):''}`); });
+  const tot=T.c+T.e;
+  return `USAR 301 – Usage Report\n${repTitle(R,evs)}\n\nCONSUMABLES\n${L.c.length?L.c.join('\n'):'None'}\nSubtotal: ${money(T.c)}\n\nEQUIPMENT (used / not returned)\n${L.e.length?L.e.join('\n'):'None'}\nSubtotal: ${money(T.e)}\n\nTotal before tax: ${money(tot)}\nWith 7% tax: ${money(tot*1.07)}`;
 }
 
 const ctabSlim = i => i.color ? `<div class="ctab slim c-${esc(i.color)}" aria-hidden="true"></div>` : '';
