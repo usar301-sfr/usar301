@@ -109,6 +109,10 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .cutcard{padding:12px 14px}
 .cutprice{font-family:var(--head);font-size:26px;text-align:right;line-height:1}.cutprice span{display:block;font-family:inherit;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}
 .cutgrid{display:grid;grid-template-columns:72px 1fr;gap:4px 10px;margin-top:10px;font-size:13.5px}.cutgrid span{color:var(--muted);font-weight:700}.cutgrid b{font-weight:600}
+.sbbtn{margin:0 0 12px;background:#fff7ed;border:1.5px solid #f2c48d;color:#7a3e00;font-weight:800;text-align:left;padding:13px 14px}
+.ftin{display:flex;gap:6px;align-items:center}.ftin .in{margin:0;max-width:86px}.ftin span{color:var(--muted);font-weight:700}
+.board{background:#fff;border:1px solid var(--line);border-left:4px solid #c8a06a;border-radius:9px;padding:8px 10px;margin:0 0 6px;font-size:14px}
+.printonly{display:none}@media print{.printonly{display:block}}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
@@ -330,7 +334,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795633633";
+<script>window.USAR301_BUILD="1795634660";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -435,7 +439,7 @@ function syncMe(){ if(!S.me||!S.crew) return; const c=S.crew.find(c=>c.name===S.
 const S = { hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:{action:'USED', kind:'', details:'', incident:''}, items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
   inv:{q:'', cat:'All', st:'All'}, logf:{q:'', a:'All'}, quick:null, check:null, crew:CREW_SEED,
   wx:{loc:(()=>{ try{ return JSON.parse(sget('usar301_wx')||'null'); }catch(e){ return null; } })() || {lat:33.0185, lon:-80.1756, name:'Summerville, SC', src:'default'}, data:null, at:0, loading:false, err:'', msg:'', results:null},
-  rep:{mode:'range', ev:'', from:new Date().getFullYear()+'-01-01', to:'', kind:'All', all:null, loading:false, err:''} };
+  rep:{charge:(()=>{ try{ return localStorage.getItem('usar301_charge')||'board'; }catch(e){ return 'board'; } })(), mode:'range', ev:'', from:new Date().getFullYear()+'-01-01', to:'', kind:'All', all:null, loading:false, err:''} };
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -731,6 +735,7 @@ quick(){
   const list=S.items.filter(i=>!q||(i.item+' '+i.loc+' '+i.spec).toLowerCase().includes(q));
   const picked=Object.entries(Q.qty).filter(([,v])=>v>0);
   return `<h1>Log Items <small>After a call or training</small></h1>
+  <button class="btn block sbbtn" id="qShore">🔨 Build a shore – log all the lumber, wedges &amp; gussets at once</button>
   <div class="card">
     <label class="f" style="margin-top:0">What happened?</label>
     <div class="seg">${['USED','RETURNED','REPLACE','RESTOCKED'].map(a=>`<button data-act="${a}" class="${Q.action===a?'on':''}">${a==='REPLACE'?'Needs replacing':ACTION_LABEL[a]}</button>`).join('')}</div>
@@ -888,7 +893,7 @@ cuts(){
       <li><b>Nails:</b> 8d = 0.131" × 2½" coated; 16d = 0.148" × 3¼" sinker. Duplex nails at wedges if they may need adjusting.</li>
     </ul>
     <div class="muted" style="font-size:12px;margin-top:8px">Lumber yields allow ⅛" saw kerf per cut. Your Paratech Technical Rescue Field Guide covers the same shores – go by your team's standard if it differs.</div></div>
-  <div class="noprint" style="margin-top:12px"><button class="btn block" id="cutPrint">Print / Save PDF</button></div>`;
+  <div class="noprint" style="margin-top:12px;display:grid;gap:8px"><button class="btn primary block" id="cutShore">🔨 Build a shore</button><button class="btn block" id="cutPrint">Print / Save PDF</button></div>`;
 },
 history(){
   const R=S.rep, Hs=S.hist;
@@ -936,9 +941,9 @@ reports(){
   const rows=repFilter(R);
   const pmap=priceMap();
   const agg={}; rows.forEach(l=>{ if(l.action==='COUNT'||l.action==='CHECK') return;
-    const a=agg[rid(l)]||(agg[rid(l)]={id:rid(l),item:l.item,USED:0,RETURNED:0,REPLACE:0,RESTOCKED:0}); a[l.action]=(a[l.action]||0)+(Number(l.qty)||0); });
+    const a=agg[rid(l)]||(agg[rid(l)]={id:rid(l),item:l.item,USED:0,RETURNED:0,REPLACE:0,RESTOCKED:0,save:0}); a[l.action]=(a[l.action]||0)+(Number(l.qty)||0); if(l.action==='USED') a.save+=(Number(l.qty)||0)*(1-useFrac(l)); });
   const list=Object.values(agg).map(a=>{ const it=pmap[a.id]||{}; const net=Math.max(0,a.USED+a.REPLACE-a.RETURNED);
-    const cost=it.price!=null&&it.price!==''? net*Number(it.price):null; return {...a, unit:it.unit||'', color:it.color||'', loc:it.loc||'', price:it.price, est:!!it.est, net, cost}; })
+    const chg=Math.max(0,net-(byLength()?a.save:0)); const cost=it.price!=null&&it.price!==''? chg*Number(it.price):null; return {...a, unit:it.unit||'', color:it.color||'', loc:it.loc||'', price:it.price, est:!!it.est, net, cost, part:byLength()&&a.save>0.0005&&net>0}; })
     .sort((x,y)=>(x.loc+x.item).localeCompare(y.loc+y.item));
   const tot=list.reduce((s,a)=>s+(a.cost||0),0), unpriced=list.filter(a=>a.net>0&&a.cost==null).length;
   const consumed=list.filter(a=>a.net>0), restocked=list.filter(a=>a.RESTOCKED>0);
@@ -946,13 +951,13 @@ reports(){
   const sub=arr=>arr.reduce((s,a)=>s+(a.cost||0),0), totC=sub(cons), totE=sub(equip);
   const mkTbl=(arr,label)=> arr.length? `<div class="card" style="padding:6px 10px"><table class="rp"><tr><th>Item</th><th>Used</th><th>Back</th><th class="hide-sm">Repl.</th><th>Net</th><th class="hide-sm">Unit $</th><th>Cost</th></tr>
     ${arr.map(a=>`<tr><td>${a.color?`<b class="cword">${esc(a.color)}</b> `:''}${esc(a.item)}<div class="muted" style="font-size:11px">${esc(a.loc)}</div></td><td>${a.USED||''}</td><td>${a.RETURNED||''}</td><td class="hide-sm">${a.REPLACE||''}</td>
-      <td><b>${a.net}</b> <span class="muted" style="font-size:11px">${esc(a.unit)}</span></td><td class="hide-sm">${a.price!=null&&a.price!==''?money(a.price)+(a.est?'<sup title="Cut from lumber on file">✂</sup>':''):'—'}</td><td>${a.cost!=null?money(a.cost):'<span class="muted">—</span>'}</td></tr>`).join('')}
+      <td><b>${a.net}</b> <span class="muted" style="font-size:11px">${esc(a.unit)}</span>${a.part?`<div class="muted" style="font-size:10.5px">charged ${(Math.max(0,a.net-a.save)).toFixed(2)}</div>`:''}</td><td class="hide-sm">${a.price!=null&&a.price!==''?money(a.price)+(a.est?'<sup title="Cut from lumber on file">✂</sup>':''):'—'}</td><td>${a.cost!=null?money(a.cost):'<span class="muted">—</span>'}</td></tr>`).join('')}
     <tr class="tot"><td>${label} subtotal</td><td></td><td></td><td class="hide-sm"></td><td></td><td class="hide-sm"></td><td>${money(sub(arr))}</td></tr></table></div>` : `<div class="empty">No ${label.toLowerCase()} used in this period.</div>`;
   const evIn=repEvents(rows.filter(l=>l.kind)); const nInc=evIn.filter(e=>e.kind==='Incident').length, nTr=evIn.filter(e=>e.kind==='Training').length;
   const title=repTitle(R,evs);
   const tbl=consumed.length? `<div class="card" style="padding:6px 10px"><table class="rp"><tr><th>Item</th><th>Used</th><th>Back</th><th class="hide-sm">Repl.</th><th>Net</th><th class="hide-sm">Unit $</th><th>Cost</th></tr>
     ${consumed.map(a=>`<tr><td>${a.color?`<b class="cword">${esc(a.color)}</b> `:''}${esc(a.item)}<div class="muted" style="font-size:11px">${esc(a.loc)}</div></td><td>${a.USED||''}</td><td>${a.RETURNED||''}</td><td class="hide-sm">${a.REPLACE||''}</td>
-      <td><b>${a.net}</b> <span class="muted" style="font-size:11px">${esc(a.unit)}</span></td><td class="hide-sm">${a.price!=null&&a.price!==''?money(a.price):'—'}</td><td>${a.cost!=null?money(a.cost):'<span class="muted">—</span>'}</td></tr>`).join('')}
+      <td><b>${a.net}</b> <span class="muted" style="font-size:11px">${esc(a.unit)}</span>${a.part?`<div class="muted" style="font-size:10.5px">charged ${(Math.max(0,a.net-a.save)).toFixed(2)}</div>`:''}</td><td class="hide-sm">${a.price!=null&&a.price!==''?money(a.price):'—'}</td><td>${a.cost!=null?money(a.cost):'<span class="muted">—</span>'}</td></tr>`).join('')}
     <tr class="tot"><td>Total before tax</td><td></td><td></td><td class="hide-sm"></td><td></td><td class="hide-sm"></td><td>${money(tot)}</td></tr></table>
     <div class="muted" style="font-size:12px;padding:6px 2px">With 7% sales tax: <b>${money(tot*1.07)}</b>${unpriced?` · ${unpriced} item${unpriced>1?'s':''} without a price on file`:''}. Net = Used + Needs replacing − Returned.</div></div>`
     : '<div class="empty">Nothing used in this period.</div>';
@@ -977,6 +982,8 @@ reports(){
   </div>
   <div class="card" style="margin-top:10px"><b style="font-family:var(--head);font-size:18px;text-transform:uppercase;letter-spacing:.3px">${esc(title)}</b>
     ${who.length?`<div class="muted" style="font-size:12.5px;margin-top:3px">Logged by: ${esc(who.join(', '))}</div>`:''}</div>
+  <div class="chips noprint" style="margin-top:8px"><span class="muted" style="font-size:12.5px;font-weight:700;align-self:center">Charge lumber by:</span><button class="chip ${!byLength()?'on':''}" data-rchg="board">Whole boards / sheets</button><button class="chip ${byLength()?'on':''}" data-rchg="length">Length used</button></div>
+  <div class="printonly muted" style="font-size:12px">Lumber charged by ${byLength()?'length used':'whole boards / sheets'}.</div>
   ${`<div class="rsum" style="${R.mode==='range'?'':'grid-template-columns:1fr 1fr'}">${R.mode==='range'?`<div><b>${nInc}</b><span>Incidents</span></div><div><b>${nTr}</b><span>Trainings</span></div>`:''}<div><b>${money(totC)}</b><span>Consumables</span></div><div><b>${money(totE)}</b><span>Equipment</span></div><div class="rsum-tot"><b>${money(tot)}</b><span>Total cost (before tax)</span></div></div>`}
   ${consumed.some(a=>a.est)?`<p class="muted noprint" style="font-size:12px;margin:8px 2px 0">✂ = cost of a cut piece (wedge, gusset, sole plate) worked out from the lumber price on file. See <a href="#" id="toCut">Shoring Cut Sheet</a>.</p>`:''}
   <h2>Consumables used</h2><p class="muted" style="font-size:12.5px;margin:-4px 2px 8px">Used up on the call: lumber, wedges, gussets, nails, blades, bits, anchors, tape, PPE, fuel.</p>${mkTbl(cons,'Consumables')}
@@ -1102,8 +1109,269 @@ function repFilter(R){
     if(R.kind!=='All' && l.action!=='RESTOCKED' && l.kind!==R.kind) return false;
     return true; });
 }
-function repCost(rows,pmap){ const n={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(s) n[rid(l)]=(n[rid(l)]||0)+s*(Number(l.qty)||0); });
-  return Object.entries(n).reduce((t,[id,q])=>{ const p=pmap[id]&&pmap[id].price; return t+(p!=null&&p!==''&&q>0? q*Number(p):0); },0); }
+// Shore Builder logs whole boards/sheets with "use=0.89" (share of the board actually cut). Reports can charge either way.
+const useFrac = l => { const m=/use=([\d.]+)/.exec(l.notes||''); return m? Math.min(1,Math.max(0,Number(m[1]))) : 1; };
+const byLength = () => S.rep.charge==='length';
+function repCost(rows,pmap){ const n={}, sv={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(!s) return; const k=rid(l), q=Number(l.qty)||0; n[k]=(n[k]||0)+s*q; if(l.action==='USED') sv[k]=(sv[k]||0)+q*(1-useFrac(l)); });
+  return Object.entries(n).reduce((t,[id,q])=>{ const p=pmap[id]&&pmap[id].price; const net=Math.max(0,q-(byLength()?sv[id]||0:0)); return t+(p!=null&&p!==''&&q>0? net*Number(p):0); },0); }
+// ================= SHORE BUILDER =================
+// Bills of material from the USACE US&R Shoring Operations Guide (SOG, 2015). Lengths in inches.
+// Cut lengths marked est:true are "cut to fit" estimates (braces/diagonals); the crew cuts those on site.
+const SB_W = {'4x4':3.5,'6x6':5.5,'2x4':1.5,'2x6':1.5};
+const KERF = 0.125;
+const halfIn = x => Math.floor(x*2)/2;              // SOG: round to nearest 1/2"
+const upIn = x => Math.ceil(x*2)/2;
+const fmtLen = x => { x=Math.round(x*2)/2; const f=Math.floor(x/12), i=x-f*12; return (f?f+"'-":'')+(Math.floor(i))+(i%1?'½':'')+'"'; };
+const hyp = (a,b) => Math.sqrt(a*a+b*b);
+const braceSize = s => s==='6x6'?'2x6':'2x4';
+const wedgeSize = s => s==='6x6'?'2x6':'2x4';
+// A wedge "set" = 2 wedges, married. Deduct the thickness of one wedge (1½") from post length (FEMA SM 2b).
+const WDED = 1.5;
+
+const SHORES = [
+ {g:'Vertical', k:'T', name:'T-Shore', cls:'Class 1 spot shore', ref:'SOG p. 2-16/17', f:['h','n'], sizes:['4x4'],
+  load:'4,000 lb only if load is centered', build(p){ const w=3.5, post=halfIn(p.h-2*w-WDED), P=[], warn=[];
+   if(p.h>132) warn.push('Over the 11 ft max height for a T-shore – use a Double-T or 2-post shore.');
+   if(post>123) warn.push('Post over 10\'-3" max.');
+   P.push(L('4x4',post,1,'Post'),L('4x4',36,1,'Header'),L('4x4',36,1,'Sole'));
+   return {P, wedges:{[wedgeSize('4x4')]:1}, gus:{full:2,half:1}, ply:[], nails:{'8d':24}, hw:[], warn}; }},
+ {g:'Vertical', k:'DT', name:'Double T-Shore', cls:'Class 2', ref:'SOG p. 2-18/19', f:['h','n'], sizes:['4x4'],
+  load:'16,000 lb @ 8 ft · 10,000 @ 10 ft · 7,000 @ 12 ft', build(p){ const w=3.5, post=halfIn(p.h-2*w-WDED), warn=[];
+   if(p.h>144) warn.push('Over the 12 ft max height for a Double-T.'); if(post>135) warn.push('Post over 11\'-3" max.');
+   return {P:[L('4x4',post,2,'Post'),L('4x4',36,1,'Header'),L('4x4',36,1,'Sole')], wedges:{'2x4':2}, gus:{double:3,half:2},
+     gusNote:'2 double gussets at header + 1 12"×24" plywood mid-brace', ply:[], nails:{'8d':2*24+16+16}, hw:[], warn}; }},
+ {g:'Vertical', k:'V2', name:'2-Post Vertical Shore', cls:'Class 2', ref:'SOG p. 2-24 to 2-27', f:['h','size','oc','n'], sizes:['4x4','6x6'],
+  load:'4×4: 16,000 lb @ 8 ft · 6×6: 40,000 lb @ 12 ft', build(p){ const w=SB_W[p.size], post=halfIn(p.h-2*w-WDED), hl=upIn(p.oc+w+24), warn=[], b=braceSize(p.size);
+   const ft=p.h/12, nd=ft<=6?1:ft<=11?2:ft<=17?3:4, nh=ft<=6?0:ft<=11?1:ft<=17?2:3, dl=upIn(hyp(p.oc,post/nd)+6);
+   if(p.h>(p.size==='4x4'?144:240)) warn.push(`Over the ${p.size==='4x4'?12:20} ft max height.`); if(dl>90) warn.push('Diagonal over 7\'-6" – X-brace it.');
+   const P=[L(p.size,post,2,'Post'),L(p.size,hl,1,'Header'),L(p.size,hl,1,'Sole'),L(b,dl,nd,'Diagonal',true)]; if(nh) P.push(L(b,upIn(p.oc+w+6),nh,'Mid-point horizontal',true));
+   return {P, wedges:{[wedgeSize(p.size)]:2}, gus:{half:4}, ply:[], nails:{'8d':32,'16d':nd*10+nh*6}, hw:[], warn}; }},
+ {g:'Vertical', k:'VM', name:'Vertical Shore (3, 4 or 5 posts)', cls:'Class 2', ref:'SOG p. 2-20 to 2-23', f:['h','size','posts','oc','n'], sizes:['4x4','6x6'],
+  load:'4×4: 8,000 lb/post @ 8 ft · 6×6: 20,000 lb/post @ 12 ft', build(p){ const w=SB_W[p.size], N=p.posts, post=halfIn(p.h-2*w-WDED), hl=upIn((N-1)*p.oc+w+24), warn=[];
+   const dl=upIn(hyp(p.oc,post-12)+6), mid=(p.size==='4x4'&&p.h>96)||(p.size==='6x6'&&p.h>144);
+   if(p.h>(p.size==='4x4'?144:240)) warn.push(`Over the ${p.size==='4x4'?12:20} ft max height.`); if(dl>90) warn.push('Diagonal over 7\'-6".');
+   const ply=mid?[{w:6,h:upIn((N-1)*p.oc+w),q:1,label:'Mid-point brace (⅝" ply strip)'}]:[];
+   return {P:[L(p.size,post,N,'Post'),L(p.size,hl,1,'Header'),L(p.size,hl,1,'Sole'),L('2x6',dl,2,'Diagonal (X)',true)], wedges:{[wedgeSize(p.size)]:N}, gus:{half:{3:5,4:8,5:11}[N]}, ply,
+     nails:{'8d':{3:5,4:8,5:11}[N]*8+(mid?N*5:0),'16d':20}, hw:[], warn}; }},
+ {g:'Vertical', k:'LP', name:'Laced Post (2 Double-Ts laced)', cls:'Class 3', ref:'SOG p. 2-28 to 2-31', f:['h','size','oc','n'], sizes:['4x4','6x6'],
+  load:'4×4: 32,000 lb · 6×6: 80,000 lb', build(p){ const w=SB_W[p.size], post=halfIn(p.h-2*w-WDED), hl=upIn(p.oc+w+24), warn=[], b=braceSize(p.size);
+   const ft=p.h/12, tot=ft<=6?4:ft<=11?8:ft<=17?12:16, per=tot/4, nd=Math.ceil(per/2), nh=per-nd, dl=upIn(hyp(p.oc,post/Math.max(1,nd))+6);
+   if(p.h>(p.size==='4x4'?204:240)) warn.push(`Over the ${p.size==='4x4'?17:20} ft max height.`); if(dl>90) warn.push('Lacing over 7\'-6" – X-brace those bays.');
+   const P=[L(p.size,post,4,'Post'),L(p.size,hl,2,'Header'),L(p.size,hl,2,'Sole'),L(b,dl,nd*4,'Diagonal lacing',true)]; if(nh) P.push(L(b,upIn(p.oc+w+6),nh*4,'Horizontal lacing',true));
+   return {P, wedges:{[wedgeSize(p.size)]:4}, gus:{half:8}, ply:[], nails:{'8d':64,'16d':tot*10}, hw:[], warn}; }},
+ {g:'Plywood laced post', k:'P24', name:"2'×4' Plywood Laced Post", cls:'Class 3', ref:'SOG p. 2-32 to 2-34', f:['h','size','n'], sizes:['4x4','6x6'],
+  load:'4×4: 32,000 lb · 6×6: 80,000 lb', build(p){ const w=SB_W[p.size], post=halfIn(p.h-2*w-WDED), sets=p.h<=108?1:2, warn=[];
+   if(p.h>156) warn.push('Over the 13 ft max height.');
+   return {P:[L(p.size,post,4,'Post'),L(p.size,48,2,'Header'),L(p.size,48,2,'Sole')], wedges:{[wedgeSize(p.size)]:4}, gus:{half:8,double:2},
+     ply:[{w:8,h:48,q:4,label:'Top/bottom brace 8"×48"'},{w:24,h:24,q:2*sets,label:'Mid-brace 24"×24"'},{w:24,h:48,q:2*sets,label:'Mid-brace 24"×48"'}],
+     nails:{'8d':4*10+4*sets*22+8*8+2*24}, hw:[], warn}; }},
+ {g:'Plywood laced post', k:'P44', name:"4'×4' Plywood Laced Post", cls:'Class 3', ref:'SOG p. 2-35 to 2-37', f:['h','size','n'], sizes:['4x4','6x6'],
+  load:'4×4: 32,000 lb · 6×6: 80,000 lb', build(p){ const w=SB_W[p.size], post=halfIn(p.h-2*w-WDED), m=p.h<=108?4:p.h<=156?8:12, warn=[];
+   if(p.h>204) warn.push('Over the 17 ft max height.');
+   return {P:[L(p.size,post,4,'Post'),L(p.size,72,2,'Header'),L(p.size,72,2,'Sole')], wedges:{[wedgeSize(p.size)]:4}, gus:{half:12},
+     ply:[{w:8,h:48,q:4,label:'Top/bottom brace 8"×48"'},{w:24,h:48,q:m,label:'Mid-brace 24"×48"'}], nails:{'8d':4*10+m*22+12*8}, hw:[], warn}; }},
+ {g:'Sloped floor', k:'SF2', name:'Sloped Floor Shore – Type 2 (pair)', cls:'Hinged slab still connected', ref:'SOG p. 2-38 to 2-41', f:['lp','sp','size','oc','slope','n'], sizes:['4x4','6x6'],
+  load:'Up to 24,000 lb (4×4) / 60,000 lb (6×6) – check with StS', build(p){ const w=SB_W[p.size], c=Math.cos(p.slope*Math.PI/180), hl=upIn((p.oc+w)/c+12), sl=upIn(p.oc+w+12+30), warn=[];
+   if(p.slope>45) warn.push('Over the 45° max slope.'); if(p.lp>(p.size==='4x4'?96:144)) warn.push(`Long post over ${p.size==='4x4'?8:12} ft max.`); warn.push('Consult a Structures Specialist for sloped floor shores.');
+   return {P:[L(p.size,halfIn(p.lp),2,'Long post'),L(p.size,halfIn(p.sp),2,'Short post'),L(p.size,hl,2,'Header (sloped)'),L(p.size,sl,2,'Sole'),L('2x6',18,4,'Cleat'),L('2x6',upIn(hyp(p.oc,(p.lp+p.sp)/2)+6),4,'Diagonal',true)],
+     wedges:{}, gus:{half:8}, ply:[], nails:{'8d':64,'16d':4*11+40}, hw:[['½" × 8" drill-in anchor (or pickets)',4]], warn}; }},
+ {g:'Sloped floor', k:'SF3', name:'Sloped Floor Shore – Type 3 (pair)', cls:'Slab may slide', ref:'SOG p. 2-42/43', f:['lp','sp','size','oc','slope','n'], sizes:['4x4','6x6'],
+  load:'Same as Type 2 – check with StS', build(p){ const w=SB_W[p.size], c=Math.cos(p.slope*Math.PI/180), hl=upIn((p.oc+w)/c+12+30), sl=upIn(p.oc+w+24), warn=[];
+   if(p.slope>45) warn.push('Over the 45° max slope.'); warn.push('Consult a Structures Specialist for sloped floor shores.');
+   return {P:[L(p.size,halfIn(p.lp),2,'Long post'),L(p.size,halfIn(p.sp),2,'Short post'),L(p.size,hl,2,'Header (sloped)'),L(p.size,sl,2,'Sole'),L('2x6',18,4,'Cleat'),L('2x6',upIn(hyp(p.oc,(p.lp+p.sp)/2)+6),4,'Diagonal',true)],
+     wedges:{[wedgeSize(p.size)]:4}, gus:{half:8}, ply:[], nails:{'8d':64,'16d':4*11+40}, hw:[['½" × 8½" wedge anchor (header)',2],['½" drill-in anchor or 1"×36" picket (sole)',4]], warn}; }},
+ {g:'Window / door', k:'WD', name:'Window / Door Shore (pre-built)', cls:'Opening shore', ref:'SOG p. 2-50 to 2-52', f:['ow','oh','size','n'], sizes:['4x4','6x6'],
+  load:'4×4 header 2,000 lb · 6×6 header 6,000 lb', build(p){ const w=SB_W[p.size], hl=halfIn(p.ow-1.5), post=halfIn(p.oh-1.5-2*w), warn=[];
+   if(p.ow>48) warn.push('Opening over 4 ft wide – have a StS design the header (1" depth per foot of opening).');
+   return {P:[L(p.size,hl,1,'Header'),L(p.size,hl,1,'Sole'),L(p.size,post,2,'Post')], wedges:{'2x4':4}, gus:{half:8}, ply:[], nails:{'8d':64}, hw:[], warn}; }},
+ {g:'Horizontal', k:'HZ', name:'Horizontal Shore (3-strut)', cls:'Wall-to-wall', ref:'SOG p. 3-26 to 3-28', f:['gap','pl','size','n'], sizes:['4x4','6x6'],
+  load:'Check with StS', build(p){ const w=SB_W[p.size], st=halfIn(p.gap-2*w-WDED), b=braceSize(p.size), warn=[];
+   if(p.gap>(p.size==='4x4'?120:192)) warn.push(`Over the ${p.size==='4x4'?10:16} ft max width for ${p.size} struts.`);
+   return {P:[L(p.size,halfIn(p.pl),2,'Wall plate'),L(p.size,st,3,'Strut'),L('2x4',14,3,'Cleat'),L(b,upIn(hyp(p.gap,p.pl/2)+6),2,'X-brace',true)], wedges:{[wedgeSize(p.size)]:3}, gus:{half:6},
+     ply:[], nails:{'8d':48,'16d':3*5+2*10}, hw:[], warn}; }},
+ {g:'Rakers', k:'RS', name:'Solid Sole Raker', cls:'Lateral – 2 or more', ref:'SOG p. 3-16 to 3-19', f:['ih','angle','size','n','rs','soil'], sizes:['4x4','6x6'],
+  load:'4×4: 2,500 lb · 6×6: 3,600 lb per raker', build(p){ return raker(p,'solid'); }},
+ {g:'Rakers', k:'RP', name:'Split Sole Raker', cls:'Lateral – 2 or more', ref:'SOG p. 3-20 to 3-22', f:['ih','angle','size','n','rs'], sizes:['4x4','6x6'],
+  load:'4×4: 2,500 lb · 6×6: 3,600 lb per raker', build(p){ return raker(p,'split'); }},
+ {g:'Rakers', k:'RF', name:'Flying Raker (spot shore)', cls:'Lateral spot shore', ref:'SOG p. 3-12/13', f:['ih','angle','n'], sizes:['4x4'],
+  load:'1,000 lb per raker', build(p){ return raker({...p,size:'4x4'},'flying'); }},
+ {g:'Rakers', k:'RD', name:'Double Raker (solid sole)', cls:'Lateral', ref:'SOG p. 3-23/24', f:['ih','ih2','angle','size','n','rs'], sizes:['4x4','6x6'],
+  load:'Check with StS', build(p){ return raker(p,'double'); }},
+ {g:'Cribbing', k:'CR', name:'Box Crib', cls:'Cribbing', ref:'SOG p. 2-44 to 2-47', f:['h','size','crib','plen','n'], sizes:['4x4','6x6'],
+  load:'4×4 2×2: 24,000 lb · 3×3: 54,000 lb · 6×6 2×2: 60,000 lb · 3×3: 135,000 lb', build(p){ const t=SB_W[p.size], layers=Math.ceil(p.h/t), warn=[];
+   if(p.h>(p.size==='4x4'?48:72)) warn.push(`Over the ${p.size==='4x4'?4:6} ft recommended max for ${p.size} cribbing.`); if(p.h>3*p.plen) warn.push('Taller than 3× the crib width.');
+   return {P:[L(p.size,p.plen,layers*p.crib,`Crib piece (${layers} layers × ${p.crib})`)], wedges:{}, gus:{}, ply:[], nails:{}, hw:[], warn}; }}
+];
+function L(size,len,q,label,est){ return {size,len:halfIn(len),q,label,est:!!est}; }
+function raker(p,type){
+  const s=p.size, w=SB_W[s], t=p.angle===60?Math.tan(Math.PI/3):1, ihF=p.ih/12, rl=halfIn(ihF*(p.angle===60?14:17)), run=p.ih/t, warn=[], P=[], hw=[];
+  const lim=s==='4x4'?132:204, cl=s==='6x6'?'2x6':'2x4';
+  if(rl>lim && type!=='flying') warn.push(`Raker over ${s==='4x4'?11:17} ft – needs mid-point braces (included).`);
+  if(p.angle>60) warn.push('60° is the max recommended angle.');
+  let gus={}, wed={'2x4':1};
+  if(type==='flying'){
+    P.push(L('4x4',72,1,'Wall plate'),L('4x4',rl,1,'Raker'),L('2x4',24,1,'Cleat'),L('2x6',48,2,'Brace'),L('4x4',18,1,'Trough base'));
+    gus={full:2}; hw.push(['½" drill-in anchor',2],['1" × 36" picket',2]);
+  } else {
+    const rl2 = type==='double'? halfIn((p.ih2/12)*(p.angle===60?14:17)) : 0;
+    P.push(L(s,upIn(p.ih+18),1,'Wall plate'),L(s,rl,1,'Raker')); if(type==='double') P.push(L(s,rl2,1,'Lower raker'));
+    if(type==='solid'||type==='double'){ P.push(L(s,upIn(run+24),1,'Sole plate')); gus={full:type==='double'?8:6}; }
+    if(type==='split'){ P.push(L('2x6',upIn(run+12),2,'Bottom brace',true),L(s,18,1,'Trough base')); gus={full:2+2}; hw.push(['1" × 36" picket',2]); }
+    P.push(L(cl,p.angle===60?30:24,1,'Top cleat')); if(type!=='split') P.push(L(cl,24,1,'Bottom cleat'));
+    const needMid = type==='solid' || rl>lim; if(needMid) P.push(L('2x6',upIn(run/2+12),1,'Mid-point brace (horizontal)',true),L('2x6',upIn(p.ih/2+12),1,'Mid-point brace (vertical)',true));
+    hw.push(['½" drill-in anchor (wall)', type==='double'?(p.angle===60?5:3):(p.angle===60?3:2)]); if(type!=='split') hw.push(['1" × 36" picket (sole)',2]);
+    if(type==='double') wed={'2x4':2};
+    if(p.soil&&type==='solid') P.push(L('2x6',18,3,'Footing under sole'));
+  }
+  const per={P, wedges:wed, gus, ply:[], nails:{'16d':40,'8d':(gus.full||0)*8}, hw, warn};
+  // bracing between rakers: 2x6 horizontals + X per bay (SOG p. 3-7: 8 ft o.c. max)
+  per.bays = p.n>1 && type!=='flying' ? {bays:p.n-1, P:[L('2x6',upIn(p.rs+12),2,'Horizontal brace between rakers',true),L('2x6',upIn(hyp(p.rs,p.ih/2)+12),2,'X-brace between rakers',true)]} : null;
+  return per;
+}
+
+// ---- stock on the truck ----
+function sbStock(){
+  const lum={}; S.items.forEach(i=>{ const m=/^(\d)\s*[x×]\s*(\d)\s*[x×]\s*(\d+)$/i.exec(String(i.item).trim()); if(!m) return;
+    const size=m[1]+'x'+m[2]; (lum[size]=lum[size]||[]).push({id:i.id, item:i.item, len:Number(m[3])*12, price:i.price==null||i.price===''?null:Number(i.price), onHand:Number(i.onHand)||0}); });
+  const ply=S.items.find(i=>PLY_RX.test(i.item));
+  return {lum, ply};
+}
+function cacheAvail(){ // pre-cut pieces in the Shoring Cache kit
+  const c=S.items.find(i=>i.item==='Shoring Cache'); if(!c||!c.kit) return {c:null,a:{}};
+  const out=Object.fromEntries(pieceOut(c)), mis=Object.fromEntries(kitMissing(c)), kits=Math.max(0,Number(c.onHand)||0), a={};
+  c.kit.forEach(k=>{ a[k.n]=Math.max(0,(Number(k.q)||1)*kits-(out[k.n]||0)-(mis[k.n]||0)); }); return {c,a};
+}
+// first-fit decreasing into boards of one length
+function ffd(pieces, len){ const bs=[]; pieces.slice().sort((a,b)=>b.len-a.len).forEach(pc=>{
+    if(pc.len>len) { bs.push({len, cuts:[pc], over:true}); return; }
+    let b=bs.find(b=>!b.over && b.left>=pc.len+(b.cuts.length?KERF:0)); if(!b){ b={len, cuts:[], left:len}; bs.push(b); }
+    b.left-=pc.len+(b.cuts.length?KERF:0); b.cuts.push(pc); }); return bs; }
+function packLumber(pieces, opts, mode){
+  // pieces: [{len,label}], opts: stock lengths available [{id,len,price}]
+  let best=null; const tries = mode==='best'? [...opts.map(o=>[o]), opts] : [opts.filter(o=>o.len===Number(mode)*12)].filter(a=>a.length);
+  if(!tries.length) tries.push(opts);
+  tries.forEach(set=>{ if(!set.length) return; let plan;
+    if(set.length===1) plan=ffd(pieces,set[0].len).map(b=>({...b, st:set[0]}));
+    else { // mixed: pack into the longest, then move boards that fit into a shorter one
+      const lg=set.reduce((a,b)=>b.len>a.len?b:a); plan=ffd(pieces,lg.len).map(b=>({...b, st:lg}));
+      plan.forEach(b=>{ const used=b.cuts.reduce((s,c)=>s+c.len,0)+KERF*(b.cuts.length-1); const sh=set.filter(o=>o.len>=used).sort((a,c)=>(a.price??1e9)-(c.price??1e9))[0]; if(sh&&!b.over){ b.st=sh; b.len=sh.len; } }); }
+    if(plan.some(b=>b.over)) return;
+    const cost=plan.reduce((s,b)=>s+(b.st.price??0),0), noPrice=plan.some(b=>b.st.price==null);
+    if(!best || (noPrice?0:cost)<(best.noPrice?0:best.cost)-0.001 || (Math.abs(cost-best.cost)<0.001 && plan.length<best.plan.length)) best={plan,cost,noPrice}; });
+  return best;
+}
+// whole build for p.n shores
+function sbCompute(def, p){
+  const one=def.build(p), n=p.n||1, warn=[...one.warn];
+  const parts=[]; one.P.forEach(x=>parts.push({...x,q:x.q*n}));
+  if(one.bays) one.bays.P.forEach(x=>parts.push({...x,q:x.q*one.bays.bays}));
+  const need={w24:0,w26:0,w44:0,half:0,full:0,double:0};
+  Object.entries(one.wedges||{}).forEach(([s,q])=>{ need[s==='2x6'?'w26':'w24']+=q*2*n; });
+  Object.entries(one.gus||{}).forEach(([k,q])=>{ need[k]+=q*n; });
+  // 1) Shoring Cache first, 2) Entry tote (Sole Plate 36", Double Gussets), 3) cut from stock
+  const {c:cache,a:av}=cacheAvail(), from=[], take=(key,cacheName,label)=>{ const k=Object.keys(av).find(n=>n.toLowerCase()===cacheName.toLowerCase()); if(!k||!need[key]) return; const q=Math.min(need[key],av[k]); if(q>0){ from.push({src:'cache', id:cache.id, piece:k, q, label}); need[key]-=q; } };
+  take('w24','2x4 Wedges','2×4 wedges'); take('w44','4x4 Wedges','4×4 wedges'); take('half','Half Gussets','Half gussets'); take('full','Full Gussets','Full gussets'); take('double','Double Gussets','Double gussets');
+  const tote=(rx,key,label,match)=>{ const it=S.items.find(i=>rx.test(i.item)&&i.loc!=='Top of driver side lumber rack'&&!(i.kit&&i.kit.length)); if(!it) return; const have=Math.max(0,Number(it.onHand)||0);
+    if(key){ const q=Math.min(need[key],have); if(q>0){ from.push({src:'item',id:it.id,q,label}); need[key]-=q; } return; }
+    // 36" sole plates: use for any 36" 4x4 part
+    let q=0; parts.forEach(pt=>{ if(pt.size==='4x4'&&pt.len===36&&!pt.fromTote){ const u=Math.min(pt.q,have-q); if(u>0){ q+=u; pt.q-=u; pt.tote=(pt.tote||0)+u; } } });
+    if(q>0) from.push({src:'item',id:it.id,q,label}); };
+  tote(/^double gussets?$/i,'double','Double gussets (Entry tote)'); tote(/^sole plates?\s*36/i,null,'36" sole plates (Entry tote)');
+  // wedges still needed → cut from stock (one block = 2 wedges)
+  if(need.w24) parts.push(L('2x4',12,Math.ceil(need.w24/2),`Wedge blocks → ${need.w24} wedges`));
+  if(need.w26) parts.push(L('2x6',12,Math.ceil(need.w26/2),`2×6 wedge blocks → ${need.w26} wedges`));
+  // plywood: gussets still needed + braces
+  const ply=[...one.ply.map(x=>({...x,q:x.q*n}))]; [['half',6,12],['full',12,12],['double',12,24]].forEach(([k,w,h])=>{ if(need[k]) ply.push({w,h,q:need[k],label:`${k[0].toUpperCase()+k.slice(1)} gusset ${w}"×${h}" (cut)`}); });
+  // lumber packing per size
+  const stock=sbStock(), lumber=[]; let wholeCost=0, lenCost=0, missingPrice=false;
+  [...new Set(parts.filter(x=>x.q>0).map(x=>x.size))].forEach(size=>{
+    const pcs=[]; parts.filter(x=>x.size===size&&x.q>0).forEach(x=>{ for(let i=0;i<x.q;i++) pcs.push({len:x.len,label:x.label}); });
+    const opts=(stock.lum[size]||[]); if(!opts.length){ warn.push(`No ${size.replace('x','×')} stock on the truck list.`); lumber.push({size,pcs,plan:null}); return; }
+    const res=packLumber(pcs,opts,p.stock||'best'); if(!res){ warn.push(`A ${size.replace('x','×')} piece is longer than any board on the truck.`); lumber.push({size,pcs,plan:null}); return; }
+    const used=pcs.reduce((s,c)=>s+c.len,0);
+    res.plan.forEach(b=>{ if(b.st.price==null) missingPrice=true; wholeCost+=b.st.price||0; lenCost+=(b.st.price||0)*(b.cuts.reduce((s,c)=>s+c.len,0)/b.st.len); });
+    lumber.push({size,pcs,plan:res.plan,used});
+  });
+  // plywood sheets (area with 10% waste allowance)
+  let sheets=0, area=0; if(ply.length){ area=ply.reduce((s,x)=>s+x.w*x.h*x.q,0); sheets=Math.ceil(area*1.10/4608);
+    if(stock.ply&&stock.ply.price!=null){ wholeCost+=sheets*stock.ply.price; lenCost+=stock.ply.price*area/4608; } else missingPrice=true; }
+  from.forEach(f=>{ const pm=priceMap(), k=f.src==='cache'? f.id+'|'+f.piece : f.id, pr=pm[k]&&pm[k].price; if(pr!=null&&pr!==''){ wholeCost+=pr*f.q; lenCost+=pr*f.q; } });
+  const nails={}; Object.entries(one.nails||{}).forEach(([k,q])=>nails[k]=q*n);
+  const hw=(one.hw||[]).map(([l,q])=>[l,q*n]);
+  return {def,p,one,parts,lumber,ply,sheets,area,from,nails,hw,warn:[...new Set(warn)],wholeCost,lenCost,missingPrice,stock};
+}
+// log lines for a computed build
+function sbLines(R, label){
+  const lines=[], tag='Shore: '+label;
+  R.lumber.forEach(g=>{ if(!g.plan) return; const by={}; g.plan.forEach(b=>{ (by[b.st.id]=by[b.st.id]||{st:b.st,n:0,used:0,cap:0,cuts:[]}); const o=by[b.st.id]; o.n++; o.cap+=b.st.len; o.used+=b.cuts.reduce((s,c)=>s+c.len,0); o.cuts.push(...b.cuts); });
+    Object.values(by).forEach(o=>{ const frac=Math.min(1,o.used/o.cap); const cl={}; o.cuts.forEach(c=>{ const k=c.label+' '+fmtLen(c.len); cl[k]=(cl[k]||0)+1; });
+      lines.push({id:o.st.id, qty:o.n, note:`${tag} · cut: ${Object.entries(cl).map(([k,q])=>q+'× '+k).join(', ')} · use=${frac.toFixed(3)}`}); }); });
+  if(R.sheets&&R.stock.ply) lines.push({id:R.stock.ply.id, qty:R.sheets, note:`${tag} · cut: ${R.ply.map(x=>x.q+'× '+x.label).join(', ')} · use=${Math.min(1,R.area/(R.sheets*4608)).toFixed(3)}`});
+  R.from.forEach(f=> lines.push(f.src==='cache'? {id:f.id, qty:f.q, piece:f.piece, note:tag} : {id:f.id, qty:f.q, note:tag}));
+  return lines;
+}
+
+// ---------------- Shore Builder UI ----------------
+const SB_FIELDS = {
+  h:{label:'Total height (floor to ceiling)', ft:true, def:108}, lp:{label:'Long post (measured)', ft:true, def:84}, sp:{label:'Short post (measured)', ft:true, def:60},
+  ow:{label:'Opening width', ft:true, def:36}, oh:{label:'Opening height', ft:true, def:80}, gap:{label:'Wall to wall', ft:true, def:72}, pl:{label:'Wall plate length', ft:true, def:96},
+  ih:{label:'Insertion point height', ft:true, def:96}, ih2:{label:'Lower insertion point', ft:true, def:48},
+  oc:{label:'Post spacing (on center)', ft:true, def:48}, rs:{label:'Raker spacing (on center)', ft:true, def:96},
+  posts:{label:'Number of posts', opts:[3,4,5], def:4}, angle:{label:'Raker angle', opts:[45,60], unit:'°', def:45}, slope:{label:'Floor slope', num:true, unit:'°', def:20},
+  crib:{label:'Crib layout', opts:[2,3], fmt:v=>v+'×'+v, def:2}, plen:{label:'Crib piece length', opts:[18,24,36], unit:'"', def:24},
+  n:{label:'How many', num:true, def:1}, size:{label:'Post / member size'}, soil:{label:'On soil (add 2×6 footing)', check:true, def:false}
+};
+function sbState(){ if(!S.sb){ S.sb={k:'T', stock:'best', v:{}}; Object.entries(SB_FIELDS).forEach(([k,f])=>{ if('def' in f) S.sb.v[k]=f.def; }); S.sb.v.size='4x4'; } return S.sb; }
+function openShoreBuilder(){
+  const st=sbState(), ctx=linkCtx({action:'USED'});
+  const draw=()=>{ const def=SHORES.find(s=>s.k===st.k); if(!def.sizes.includes(st.v.size)) st.v.size=def.sizes[0];
+    const p={...st.v, stock:st.stock}; let R=null, err=''; try{ R=sbCompute(def,p); }catch(e){ err=String(e.message||e); }
+    const ftIn=(k,f)=>{ const v=st.v[k]||0, F=Math.floor(v/12), I=Math.round((v-F*12)*2)/2;
+      return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="numeric" data-sbf="${k}" data-u="ft" value="${F}"><span>ft</span><input class="in" inputmode="decimal" data-sbf="${k}" data-u="in" value="${I}"><span>in</span></div>`; };
+    const field=k=>{ const f=SB_FIELDS[k]; if(k==='size') return def.sizes.length>1?`<label class="f">${f.label}</label><div class="seg">${def.sizes.map(s=>`<button data-sbs="${s}" class="${st.v.size===s?'on':''}">${s.replace('x','×')}</button>`).join('')}</div>`:'';
+      if(f.ft) return ftIn(k,f); if(f.check) return `<label class="ckline"><input type="checkbox" data-sbc="${k}" ${st.v[k]?'checked':''}><span>${f.label}</span></label>`;
+      if(f.opts) return `<label class="f">${f.label}</label><div class="seg">${f.opts.map(o=>`<button data-sbo="${k}" data-val="${o}" class="${st.v[k]==o?'on':''}">${f.fmt?f.fmt(o):o+(f.unit||'')}</button>`).join('')}</div>`;
+      return `<label class="f">${k==='n'?(def.g==='Rakers'?'How many rakers':def.k==='CR'?'How many cribs':'How many shores'):f.label}${f.unit?' ('+f.unit+')':''}</label><input class="in" inputmode="numeric" data-sbn="${k}" value="${esc(st.v[k])}" style="max-width:120px">`; };
+    const groups=[...new Set(SHORES.map(s=>s.g))];
+    const cutRows = R? (()=>{ const m={}; R.parts.filter(x=>x.q>0||x.tote).forEach(x=>{ const k=x.label+'|'+x.size+'|'+x.len; const o=(m[k]=m[k]||{...x,q:0,tote:0}); o.q+=x.q+(x.tote||0); o.tote+=(x.tote||0); }); return Object.values(m); })() : [];
+    openSheet(`<h3>Build a shore</h3><p class="sub">Pick the shore and size. The app works out every cut, which boards to cut them from, and logs it all in one step. Sizes per the USACE Shoring Operations Guide.</p>
+      ${groups.map(g=>`<div class="muted" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px">${g}</div><div class="chips" style="margin:0">${SHORES.filter(s=>s.g===g).map(s=>`<button class="chip ${st.k===s.k?'on':''}" data-sbk="${s.k}">${esc(s.name)}</button>`).join('')}</div>`).join('')}
+      <div class="card" style="margin-top:12px;padding:10px 12px"><b style="font-size:17px">${esc(def.name)}</b> <span class="muted" style="font-size:12.5px">· ${esc(def.cls)} · ${esc(def.ref)}</span><div class="muted" style="font-size:12.5px;margin-top:2px">Capacity: ${esc(def.load)}</div></div>
+      ${def.f.map(field).join('')}${field('size')!==''&&!def.f.includes('size')?'':''}
+      <label class="f">Cut from</label><div class="seg">${[['best','Best fit'],['12',"12' boards"],['16',"16' boards"]].map(([k,l])=>`<button data-sbst="${k}" class="${st.stock===k?'on':''}">${l}</button>`).join('')}</div>
+      ${err?`<div class="empty" style="color:var(--miss)">${esc(err)}</div>`:''}
+      ${R?`${R.warn.length?`<div class="card" style="border-color:#f1d491;background:#fff8e7;margin-top:12px">${R.warn.map(w=>`<div>⚠ ${esc(w)}</div>`).join('')}</div>`:''}
+      <h3 style="margin:16px 0 6px">Cut list${st.v.n>1?` (${st.v.n} ${def.g==='Rakers'?'rakers':'shores'})`:''}</h3>
+      <div class="card" style="padding:4px 10px"><table class="rp"><tr><th>Piece</th><th>Size</th><th>Length</th><th>Qty</th></tr>
+        ${cutRows.map(x=>`<tr><td>${esc(x.label)}${x.est?' <span class="muted" style="font-size:11px">(cut to fit)</span>':''}${x.tote?` <span class="muted" style="font-size:11px">(${x.tote} pre-cut from Entry tote)</span>`:''}</td><td>${x.size.replace('x','×')}</td><td><b>${fmtLen(x.len)}</b></td><td>${x.q}</td></tr>`).join('')}</table></div>
+      ${R.lumber.filter(g=>g.plan).map(g=>`<div class="muted" style="font-weight:800;margin:12px 2px 4px">${g.size.replace('x','×')} boards: ${g.plan.length}</div>${g.plan.map((b,i)=>{ const used=b.cuts.reduce((s,c)=>s+c.len,0)+KERF*(b.cuts.length-1);
+        return `<div class="board"><b>${b.st.len/12}' ${g.size.replace('x','×')}</b> <span class="muted">#${i+1}</span><div>${b.cuts.map(c=>`${esc(c.label)} ${fmtLen(c.len)}`).join(' + ')}</div><div class="muted" style="font-size:12px">scrap ${fmtLen(Math.max(0,b.st.len-used))}</div></div>`; }).join('')}`).join('')}
+      ${R.from.length?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">From the Shoring Cache / Entry tote</div><div class="card" style="padding:8px 12px">${R.from.map(f=>`<div>${f.q} × ${esc(f.label)}</div>`).join('')}</div>`:''}
+      ${R.sheets?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Plywood: ${R.sheets} sheet${R.sheets>1?'s':''} (¾" 4×8)</div><div class="card" style="padding:8px 12px">${R.ply.map(x=>`<div>${x.q} × ${esc(x.label)}</div>`).join('')}</div>`:''}
+      ${(Object.keys(R.nails).length||R.hw.length)?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Hardware (not logged)</div><div class="card" style="padding:8px 12px">${Object.entries(R.nails).map(([k,q])=>`<div>≈ ${q} ${k} nails</div>`).join('')}${R.hw.map(([l,q])=>`<div>${q} × ${esc(l)}</div>`).join('')}</div>`:''}
+      <div class="card grandtot" style="margin-top:12px"><div class="row"><span>Cost – whole boards / sheets</span><b>${money(R.wholeCost)}</b></div><div class="row"><span>Cost – length used only</span><b>${money(R.lenCost)}</b></div>
+        ${R.missingPrice?'<div class="muted" style="font-size:12px">Some stock has no price on file – not in the totals.</div>':''}<div class="muted" style="font-size:12px;margin-top:4px">Whole boards are logged off the truck so restocking matches. Reports can charge either way.</div></div>
+      ${kindBlock(ctx,'sb')}
+      <div style="height:12px"></div><button class="btn primary block" id="sbLog">Log materials as Used</button>`:''}`, ()=>{
+      document.querySelectorAll('[data-sbk]').forEach(b=>b.onclick=()=>{ st.k=b.dataset.sbk; draw(); });
+      document.querySelectorAll('[data-sbs]').forEach(b=>b.onclick=()=>{ st.v.size=b.dataset.sbs; if(st.v.oc===48||st.v.oc===60) st.v.oc=st.v.size==='6x6'?60:48; draw(); });
+      document.querySelectorAll('[data-sbst]').forEach(b=>b.onclick=()=>{ st.stock=b.dataset.sbst; draw(); });
+      document.querySelectorAll('[data-sbo]').forEach(b=>b.onclick=()=>{ st.v[b.dataset.sbo]=Number(b.dataset.val); draw(); });
+      document.querySelectorAll('[data-sbc]').forEach(b=>b.onchange=()=>{ st.v[b.dataset.sbc]=b.checked; draw(); });
+      document.querySelectorAll('[data-sbn]').forEach(x=>x.onchange=()=>{ st.v[x.dataset.sbn]=Math.max(x.dataset.sbn==='n'?1:0,Number(x.value)||0); draw(); });
+      document.querySelectorAll('[data-sbf]').forEach(x=>x.onchange=()=>{ const k=x.dataset.sbf, F=document.querySelector(`[data-sbf="${k}"][data-u="ft"]`), I=document.querySelector(`[data-sbf="${k}"][data-u="in"]`);
+        st.v[k]=Math.max(0,(Number(F.value)||0)*12+(Number(I.value)||0)); draw(); });
+      bindKind(ctx,'sb',draw);
+      const lg=$('#sbLog'); if(lg) lg.onclick=async()=>{ if(kindError(ctx,'sb')) return; const R2=sbCompute(def,{...st.v,stock:st.stock});
+        const label=`${def.name}${def.f.includes('h')?' '+fmtLen(st.v.h):def.f.includes('ih')?' @ '+fmtLen(st.v.ih):''}${st.v.n>1?' ×'+st.v.n:''}`;
+        const lines=sbLines(R2,label); if(!lines.length){ toast('Nothing to log'); return; }
+        const ok=await submit({action:'USED', lines, kind:ctx.kind, details:String(ctx.details||'').trim(), incident:ctx.kind==='Incident'?String(ctx.incident||'').trim():'', notes:''});
+        if(ok){ closeSheet(); toast(`Logged ${label}: ${lines.length} line${lines.length>1?'s':''}`); } };
+    });
+  };
+  draw();
+}
+
 // ---------- History: one incident / training, entry by entry ----------
 function evHolders(rows){ const iss={}, back={}, out={}, mv={}; const add=(o,h,id,q)=>{ (o[h]=o[h]||{}); o[h][id]=(o[h][id]||0)+q; };
   rows.slice().sort((a,b)=>new Date(a.ts)-new Date(b.ts)).forEach(l=>{ const q=Number(l.qty)||0, n=l.notes||'';
@@ -1154,12 +1422,12 @@ function repTitle(R,evs){
 }
 function repText(){
   const R=S.rep, evs=repEvents(R.all), rows=repFilter(R); const pmap=priceMap();
-  const agg={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(!s) return; agg[rid(l)]=(agg[rid(l)]||0)+s*(Number(l.qty)||0); });
+  const agg={}, sv={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(!s) return; const k=rid(l); agg[k]=(agg[k]||0)+s*(Number(l.qty)||0); if(l.action==='USED') sv[k]=(sv[k]||0)+(Number(l.qty)||0)*(1-useFrac(l)); });
   const T={c:0,e:0}, L={c:[],e:[]};
-  Object.entries(agg).filter(([,q])=>q>0).forEach(([id,q])=>{ const i=pmap[id]||{item:id,unit:''}; const c=i.price!=null&&i.price!==''? q*Number(i.price):null; const k=isConsumable(id)?'c':'e'; if(c) T[k]+=c;
+  Object.entries(agg).filter(([,q])=>q>0).forEach(([id,q])=>{ const i=pmap[id]||{item:id,unit:''}; const cq=Math.max(0,q-(byLength()?sv[id]||0:0)); const c=i.price!=null&&i.price!==''? cq*Number(i.price):null; const k=isConsumable(id)?'c':'e'; if(c) T[k]+=c;
     L[k].push(`${q} ${i.unit}  ${i.item}${c!=null?'  '+money(c):''}`); });
   const tot=T.c+T.e;
-  return `USAR 301 – Usage Report\n${repTitle(R,evs)}\n\nCONSUMABLES\n${L.c.length?L.c.join('\n'):'None'}\nSubtotal: ${money(T.c)}\n\nEQUIPMENT (used / not returned)\n${L.e.length?L.e.join('\n'):'None'}\nSubtotal: ${money(T.e)}\n\nTotal before tax: ${money(tot)}\nWith 7% tax: ${money(tot*1.07)}`;
+  return `USAR 301 – Usage Report\n${repTitle(R,evs)}\nLumber charged by ${byLength()?'length used':'whole boards / sheets'}\n\nCONSUMABLES\n${L.c.length?L.c.join('\n'):'None'}\nSubtotal: ${money(T.c)}\n\nEQUIPMENT (used / not returned)\n${L.e.length?L.e.join('\n'):'None'}\nSubtotal: ${money(T.e)}\n\nTotal before tax: ${money(tot)}\nWith 7% tax: ${money(tot*1.07)}`;
 }
 
 const ctabSlim = i => i.color ? `<div class="ctab slim c-${esc(i.color)}" aria-hidden="true"></div>` : '';
@@ -1555,7 +1823,7 @@ admin(){
   const as=$('#asSave'); if(as) as.onclick=async()=>{ const rows=Object.entries(A.asg).filter(([,a])=>a.shift||String(a.unit).trim()).map(([loc,a])=>({loc,shift:a.shift,unit:String(a.unit).trim(),every:a.every===''?'':Number(a.every)||''}));
     if(await adminCall('saveAssignments',rows)){ A.asg=null; toast(rows.length+' section'+(rows.length===1?'':'s')+' assigned'); } };
 },
-cuts(){ const b=$('#cutPrint'); if(b) b.onclick=()=>window.print(); },
+cuts(){ const b=$('#cutPrint'); if(b) b.onclick=()=>window.print(); const s=$('#cutShore'); if(s) s.onclick=()=>openShoreBuilder(); },
 history(){
   const Hs=S.hist;
   document.querySelectorAll('[data-htab]').forEach(b=>b.onclick=()=>{ Hs.tab=b.dataset.htab; render(); });
@@ -1589,6 +1857,7 @@ inventory(){
 quick(){
   const Q=S.quick;
   document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ Q.action=b.dataset.act; render(); });
+  const qs=$('#qShore'); if(qs) qs.onclick=()=>openShoreBuilder();
   bindKind(Q,'q',()=>{ S.ctxEdit=true; render(); }); $('#qNotes').oninput=e=>Q.notes=e.target.value;
   const qc=$('#qCtxChg'); if(qc) qc.onclick=()=>{ S.ctxEdit=true; render(); };
   const qq=$('#qQ'); qq.oninput=()=>{ Q.q=qq.value; const p=qq.selectionStart; render(); const n=$('#qQ'); n.focus(); n.setSelectionRange(p,p); };
@@ -1644,6 +1913,7 @@ reports(){
   const f=$('#rFrom'), t=$('#rTo'); if(f) f.onchange=()=>{ R.from=f.value; render(); }; if(t) t.onchange=()=>{ R.to=t.value; render(); };
   const ev=$('#rEv'); if(ev) ev.onchange=()=>{ R.ev=ev.value; render(); };
   $('#rPrint').onclick=()=>window.print();
+  document.querySelectorAll('[data-rchg]').forEach(b=>b.onclick=()=>{ S.rep.charge=b.dataset.rchg; try{ localStorage.setItem('usar301_charge',S.rep.charge); }catch(e){} render(); });
   const tc=$('#toCut'); if(tc) tc.onclick=e=>{ e.preventDefault(); go('cuts'); };
   document.querySelectorAll('[data-rhev]').forEach(r=>r.onclick=()=>{ S.hist.tab=r.dataset.rhk==='Training'?'Training':'Incident'; closeSheet(); S.route='history'; S.hist.ev=r.dataset.rhev; pushNav(); window.scrollTo(0,0); render(); });
   $('#rCopy').onclick=async()=>{ const txt=repText();
