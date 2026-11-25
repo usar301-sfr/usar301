@@ -74,6 +74,25 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .pcrow .stepper{margin-left:auto}
 .pcrow.on .nm{color:#7a4f00;font-weight:800}
 .pcav{display:block;font-size:11.5px;font-weight:600;color:var(--muted)}
+.sqchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.chip.sm{padding:6px 10px;font-size:13px}
+.holdcard{border:1.5px solid #b9cde8;background:#f4f8fd;border-radius:11px;padding:10px 12px;margin:0 0 8px}
+.holdcard .row{gap:8px}
+.sqtag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;background:#3b6fb6;color:#fff;border-radius:6px;padding:2px 6px;margin-right:6px;vertical-align:1px}
+.sqcard{background:#fff;border:1.5px solid #b9cde8;border-radius:13px;margin:0 0 12px;overflow:hidden}
+.sqhead{display:flex;align-items:center;gap:6px;background:#eef4fc;padding:11px 12px;font-size:17px;border-bottom:1px solid #d4e1f2}
+.sqitem{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.sqhead + .sqitem{border-top:0}
+.sqitem .nm{font-weight:700}.sqitem .meta{font-size:12.5px;color:var(--muted)}
+.crewrow{display:flex;gap:6px;align-items:center;margin:6px 0}
+.crewrow .in{margin:0;min-width:0;flex:1;padding:9px 8px;font-size:15px}
+.asgrow{padding:10px 12px;margin:0 0 8px}
+.asgf{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.asgf .in{margin:0;flex:1;min-width:110px}
+.kitedit{display:grid;grid-template-columns:1fr 1.6fr 64px 76px 40px;gap:5px;align-items:center;margin:5px 0}
+.kitedit .in{margin:0;padding:8px 7px;font-size:14.5px;min-width:0}
+.edgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.ckline{display:flex;gap:8px;align-items:flex-start;margin:14px 0 4px;font-size:15px}.ckline input{width:20px;height:20px;margin-top:1px}
+.asgline{display:block;font-family:var(--body,inherit);font-size:12.5px;font-weight:700;letter-spacing:.2px;text-transform:none;color:#b9c7d6;margin-top:3px}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
@@ -292,7 +311,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795619961";
+<script>window.USAR301_BUILD="1795621779";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -302,14 +321,14 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <script>
 const SEED = [{"loc":"Entry wall","cat":"Rigging","item":"Utility Rope","unit":"EA","full":6,"notes":"Hanging on the wall as you walk in"},{"loc":"Entry tote","cat":"Shoring","item":"Sole Plate 36\"","unit":"EA","full":10},{"loc":"Entry tote","cat":"Shoring","item":"Double Gussets","unit":"EA","full":6,"spec":"3/4\" plywood"},{"loc":"Lumber racks","cat":"Lumber","item":"4x4x12","unit":"PC","full":15,"src":"Berlin G. Myers","price":17},{"loc":"Lumber racks","cat":"Lumber","item":"4x4x16","unit":"PC","full":15,"src":"Berlin G. Myers","price":22.67},{"loc":"Lumber racks","cat":"Lumber","item":"2x4x12","unit":"PC","full":36,"src":"Berlin G. Myers","price":5.15},{"loc":"Lumber racks","cat":"Lumber","item":"2x6x12","unit":"PC","full":15,"src":"Berlin G. Myers","price":6.48},{"loc":"Lumber racks","cat":"Lumber","item":"2x6x16","unit":"PC","full":15,"src":"Berlin G. Myers","price":8.45},{"loc":"Lumber racks","cat":"Lumber","item":"6x6x10","unit":"PC","full":4,"src":"TBD","notes":"Get added to Berlin quote"},{"loc":"Lumber racks","cat":"Lumber","item":"6x6x12","unit":"PC","full":4,"src":"TBD","notes":"Get added to Berlin quote"},{"loc":"Lumber racks – vertical slots","cat":"Lumber","item":"23/32\" 4x8 Rated Sheathing Plywood","unit":"SHT","full":8,"src":"Berlin G. Myers","price":38.56},{"loc":"Lumber racks – vertical slots","cat":"Trench","item":"Trench Panels (Strongbacks)","unit":"EA","full":6,"spec":"2\" x 12\" x 10' – Fin Form","notes":"Red-faced panels; 3 on each side"},{"loc":"Lumber racks – vertical slots","cat":"Shoring","item":"Rebar #4 – 1/2\" x 10 ft","unit":"PC","full":4,"spec":"Model 370565","src":"Home Depot SKU 427969 (Internet # 309328801)","price":10},{"loc":"Top of driver side lumber rack","cat":"Power Tools","item":"Cut-Off Saw (K-Saw), 74cc","unit":"EA","full":2,"spec":"Husqvarna K770"},{"loc":"Top of driver side lumber rack","cat":"Power Tools","item":"Concrete Chainsaw (Rock Boss)","unit":"EA","full":1,"spec":"Stihl GS 461"},{"loc":"Top of driver side lumber rack","cat":"Power Tools","item":"Makita K12","unit":"EA","full":1,"spec":"Makita","notes":"Confirm model"},{"loc":"Top of driver side lumber rack","cat":"Equipment","item":"Scaffolding Ladder","unit":"EA","full":2},{"loc":"Top of driver side lumber rack","cat":"Equipment","item":"Spine Board","unit":"EA","full":2},{"loc":"Top of driver side lumber rack","cat":"Power Tools","item":"Chainsaw, M18 FUEL 16\"","unit":"EA","full":2,"spec":"Milwaukee 2727-20","notes":"16\" bar 48-09-3001 / chain 49-16-2715; 14\" bar 49-16-2756 / chain 49-16-2749"},{"loc":"Top of driver side lumber rack","cat":"Kits","item":"Shoring Cache","unit":"KIT","full":1,"kit":[{"n":"2x4 Wedges","q":24,"s":"Cut from 2x4 stock"},{"n":"4x4 Wedges","q":12,"s":"Cut from 4x4 stock"},{"n":"Double Gussets","q":16,"s":"3/4\" plywood"},{"n":"Full Gussets","q":16,"s":"3/4\" plywood"},{"n":"Half Gussets","q":28,"s":"3/4\" plywood"}]},{"loc":"Top of driver side lumber rack","cat":"Kits","item":"Black Milk Crate","unit":"KIT","full":1,"kit":[{"n":"Chain 3/8\" Grade 100","q":2},{"n":"Ratchet Straps","q":4},{"n":"Contour Base","q":2},{"n":"Multi Base","q":4}]},{"loc":"Top of driver side lumber rack","cat":"Kits","item":"Red Packout Crate","unit":"KIT","full":1,"kit":[{"n":"Swivel Base 6\" x 6\"","q":2},{"n":"Rigid Base 6\" x 6\"","q":4},{"n":"Channel Base","q":8},{"n":"Paratech Hammer","q":1,"s":"Paratech"}]},{"loc":"Under driver side lumber rack","cat":"Equipment","item":"Buckets","unit":"EA","full":5},{"loc":"Under driver side lumber rack","cat":"Rigging","item":"Utility Rope","unit":"EA","full":1},{"loc":"Under driver side lumber rack","cat":"Equipment","item":"Garden Hose","unit":"EA","full":1},{"loc":"Under driver side lumber rack","cat":"Cutting","item":"Oxyacetylene Torch","unit":"EA","full":1},{"loc":"Under driver side lumber rack","cat":"Kits","item":"Airbag Kit","unit":"KIT","full":1,"src":"Paratech","notes":"High pressure hoses","kit":[{"n":"Paratech High Pressure Hose – Black","q":1},{"n":"Paratech High Pressure Hose – Green","q":1},{"n":"Paratech High Pressure Hose – Red","q":1},{"n":"Paratech High Pressure Hose – Yellow","q":1}]},{"loc":"Under driver side lumber rack","cat":"Shoring","item":"2x4 Wedge Jig","unit":"EA","full":1},{"loc":"Under driver side lumber rack","cat":"Shoring","item":"4x4 Wedge Jig","unit":"EA","full":1},{"loc":"Under driver side lumber rack","cat":"Hand Tools","item":"Sledgehammer","unit":"EA","full":2},{"loc":"Under driver side lumber rack","cat":"Hand Tools","item":"Short Shovel","unit":"EA","full":2},{"loc":"Under driver side lumber rack","cat":"Hand Tools","item":"Long Shovel","unit":"EA","full":2},{"loc":"Under driver side lumber rack","cat":"Hand Tools","item":"Scoop Shovel","unit":"EA","full":2},{"loc":"Under driver side lumber rack","cat":"Lifting","item":"Bottle Jack","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Shoring","item":"Raker Jig 45° – 6x6","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Shoring","item":"Raker Jig 60° – 6x6","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Shoring","item":"Raker Jig 45° – 4x4","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Shoring","item":"Raker Jig 60° – 4x4","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Hand Tools","item":"Square","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Reference","item":"Technical Rescue Field Guide","unit":"EA","full":5,"spec":"Paratech"},{"loc":"Top of passenger side lumber rack","cat":"Scene","item":"Fireline Tape","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"Scene","item":"Flagging Tape","unit":"EA","full":1},{"loc":"Top of passenger side lumber rack","cat":"HydraFusion","item":"HydraFusion Strut 16\" With Strut Converter","unit":"EA","full":2,"spec":"Paratech HydraFusion","src":"Paratech","notes":"Each 16\" strut stored with its strut converter"},{"loc":"Top of passenger side lumber rack","cat":"Strut Bases","item":"Base Plate 12\" x 12\"","unit":"EA","full":4,"spec":"Paratech","src":"Paratech"},{"loc":"Top of passenger side lumber rack","cat":"Strut Bases","item":"Swivel Base Plate 6\" x 6\"","unit":"EA","full":18,"spec":"Paratech","src":"Paratech"},{"loc":"Under passenger side lumber rack","cat":"Shelter","item":"Tent","unit":"EA","full":1},{"loc":"Under passenger side lumber rack","cat":"Shelter","item":"Tent Weights","unit":"EA","full":4,"notes":"Set of 4, stored with the tent"},{"loc":"Under passenger side lumber rack","cat":"Rigging","item":"Chain Binder","unit":"EA","full":2},{"loc":"Under passenger side lumber rack","cat":"Extrication","item":"Cutters","unit":"EA","full":1,"spec":"Amkus"},{"loc":"Under passenger side lumber rack","cat":"Extrication","item":"Spreaders","unit":"EA","full":1,"spec":"Amkus"},{"loc":"Under passenger side lumber rack","cat":"Extrication","item":"Extended Reach Tips","unit":"EA","full":1,"spec":"Amkus"},{"loc":"Under passenger side lumber rack","cat":"Rigging","item":"Pickets","unit":"EA","full":10},{"loc":"Gold struts – LongShore","cat":"Gold Struts","item":"LongShore Strut 203","unit":"EA","full":2,"spec":"2–3 ft (26–36\")","color":"Yellow","src":"Paratech"},{"loc":"Gold struts – LongShore","cat":"Gold Struts","item":"LongShore Strut 304","unit":"EA","full":2,"spec":"3–4 ft (36–50\")","color":"Red","src":"Paratech"},{"loc":"Gold struts – LongShore","cat":"Gold Struts","item":"LongShore Strut 406","unit":"EA","full":2,"spec":"4–6 ft (48–73\")","color":"Orange","src":"Paratech"},{"loc":"Gold struts – LongShore","cat":"Gold Struts","item":"LongShore Strut 610","unit":"EA","full":4,"spec":"6–10 ft (72–116\")","color":"Green","src":"Paratech"},{"loc":"Gold struts – LongShore","cat":"Gold Struts","item":"LongShore Extension 235","unit":"EA","full":2,"spec":"24\" (2 ft)","color":"Orange","src":"Paratech","notes":"LongShore: 1 extension max, 6 ft max"},{"loc":"Gold struts – LongShore","cat":"Gold Struts","item":"LongShore Extension 435","unit":"EA","full":2,"spec":"48\" (4 ft)","color":"Green","src":"Paratech","notes":"LongShore: 1 extension max, 6 ft max"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Strut 12–15\"","unit":"EA","full":2,"spec":"30–38 cm","color":"Yellow","src":"Paratech"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Strut 19–25\"","unit":"EA","full":6,"spec":"48–64 cm","color":"Red","src":"Paratech"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Strut 25–36\"","unit":"EA","full":4,"spec":"64–91 cm","color":"Orange","src":"Paratech"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Strut 37–58\"","unit":"EA","full":2,"spec":"94–147 cm","color":"Green","src":"Paratech"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Strut 56–88\"","unit":"EA","full":2,"spec":"142–224 cm","color":"Blue","src":"Paratech"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Extension 6\"","unit":"EA","full":4,"spec":"15 cm","color":"Red","src":"Paratech","notes":"1-2-3 rule: 1 strut, 2 extensions, 3 ft max extension length"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Extension 12\"","unit":"EA","full":6,"spec":"30 cm","color":"Orange","src":"Paratech","notes":"1-2-3 rule: 1 strut, 2 extensions, 3 ft max extension length"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Extension 24\"","unit":"EA","full":6,"spec":"61 cm","color":"Green","src":"Paratech","notes":"1-2-3 rule: 1 strut, 2 extensions, 3 ft max extension length"},{"loc":"Grey struts – AcmeThread","cat":"Grey Struts","item":"AcmeThread Extension 36\"","unit":"EA","full":2,"spec":"91 cm","color":"Blue","src":"Paratech","notes":"1-2-3 rule: 1 strut, 2 extensions, 3 ft max extension length"},{"loc":"Driver side wall","cat":"Lifting","item":"Low Pressure Airbag Hose","unit":"EA","full":1,"spec":"Paratech","color":"Blue","src":"Paratech"},{"loc":"Driver side wall","cat":"Lifting","item":"Low Pressure Airbag Hose","unit":"EA","full":1,"spec":"Paratech","color":"Red","src":"Paratech"},{"loc":"Driver side wall","cat":"Lifting","item":"High Pressure Air Hose 32 ft","unit":"EA","full":2,"spec":"Paratech","color":"Red","src":"Paratech"},{"loc":"Driver side wall","cat":"Lifting","item":"High Pressure Air Hose 32 ft","unit":"EA","full":2,"spec":"Paratech","color":"Yellow","src":"Paratech"},{"loc":"Driver side wall","cat":"Lifting","item":"High Pressure Air Hose 32 ft","unit":"EA","full":2,"spec":"Paratech","color":"Blue","src":"Paratech"},{"loc":"Driver side wall","cat":"Lifting","item":"High Pressure Air Hose 32 ft","unit":"EA","full":2,"spec":"Paratech","color":"Green","src":"Paratech"},{"loc":"Driver side wall","cat":"Lifting","item":"High Pressure Air Hose 32 ft","unit":"EA","full":1,"spec":"Paratech","color":"Gray","src":"Paratech"},{"loc":"Driver side wall","cat":"Lighting","item":"ROCKET Light","unit":"EA","full":2,"spec":"Milwaukee"},{"loc":"Driver side wall","cat":"Equipment","item":"Transit Stand","unit":"EA","full":1},{"loc":"Driver side wall","cat":"Power Tools","item":"Blower","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Driver side wall","cat":"Kits","item":"Flying Raker Kit","unit":"KIT","full":1,"src":"Paratech","kit":[{"n":"Nailing Pad","q":4},{"n":"Paratech B23 LongShore Adjustable Brace (2–3 ft)","q":2},{"n":"Raker Rail Latch","q":4},{"n":"Raker Rail Angle Base","q":2},{"n":"Clamp And Clevis","q":2}]},{"loc":"Driver side wall","cat":"Kits","item":"USAR Packout #1","unit":"KIT","full":1,"src":"Milwaukee Packout","kit":[{"n":"Milwaukee Framing Nailer","q":1},{"n":"Husky 10-pc Ratcheting Wrench Set","q":1},{"n":"Flathead Screwdriver","q":2},{"n":"Phillips Screwdriver","q":3},{"n":"4.5\" Cutoff Wheel","q":6},{"n":"SDS Max Hammer Drill Bit","q":6},{"n":"5/8\" x 8.5\" Concrete Anchor","q":4},{"n":"Electrical Tape","q":1},{"n":"SDS Plus Bit","q":9},{"n":"Sawzall Blades","q":1},{"n":"Milwaukee 4.5\"/5\" Grinder","q":1},{"n":"Milwaukee SAWZALL Reciprocating Saw","q":1},{"n":"Milwaukee 1-1/4\" Rebar Cutter","q":1},{"n":"Milwaukee 1\" SDS Plus Rotary Hammer","q":1},{"n":"Milwaukee 1-9/16\" SDS Max Rotary Hammer","q":1}]},{"loc":"Driver side wall","cat":"Kits","item":"USAR Packout #2","unit":"KIT","full":1,"src":"Milwaukee Packout","notes":"Includes an Impact & socket kit inside","kit":[{"n":"Milwaukee 3/8\" Compact Impact Wrench","q":1,"g":"Impact & Socket Kit"},{"n":"3/8\" Ratchet","q":1,"g":"Impact & Socket Kit"},{"n":"6\" Extension","q":1,"g":"Impact & Socket Kit"},{"n":"8\" Extension","q":1,"g":"Impact & Socket Kit"},{"n":"Metric Sockets","q":1,"g":"Impact & Socket Kit"},{"n":"Standard Sockets","q":1,"g":"Impact & Socket Kit"},{"n":"Metric Impact Sockets","q":1,"g":"Impact & Socket Kit"},{"n":"Standard Impact Sockets","q":1,"g":"Impact & Socket Kit"},{"n":"Metric Allen Keys","q":1,"g":"Impact & Socket Kit"},{"n":"Standard Allen Keys","q":1,"g":"Impact & Socket Kit"},{"n":"Torx Allen Keys","q":1,"g":"Impact & Socket Kit"},{"n":"Framing Nailer","q":1},{"n":"Framing Square","q":1},{"n":"8d Duplex Nails","q":1},{"n":"Milwaukee 1/2\" x 10\" Concrete Bit","q":1},{"n":"1/2\" x 4\" Concrete Bit","q":1},{"n":"Paddle Drill Bits","q":1},{"n":"7-1/4\" Skil Saw Blade","q":2,"s":"Diablo D0740R 40T finish – Home Depot # 100017783","p":15},{"n":"6-1/2\" Skil Saw Blade","q":2,"s":"Diablo D0641R 40T finish/trim – Home Depot # 202035229","p":20},{"n":"4-1/2\" Cutoff Wheel","q":3},{"n":"Sawzall Blades","q":1},{"n":"Milwaukee SDS Plus 1/2\" x 6\" Concrete Bit","q":1},{"n":"1/2\" x 5-1/2\" Concrete Anchors","q":1},{"n":"4-1/2\" Grinder","q":1},{"n":"6-1/2\" Circular Saw","q":1},{"n":"7-1/4\" Circular Saw","q":1},{"n":"Milwaukee SAWZALL Reciprocating Saw","q":1}]},{"loc":"Passenger side wall","cat":"Ladders","item":"Little Giant Ladder","unit":"EA","full":1},{"loc":"Passenger side wall","cat":"Hand Tools","item":"Square 6\"","unit":"EA","full":1},{"loc":"Passenger side wall","cat":"Hand Tools","item":"Square 12\"","unit":"EA","full":2},{"loc":"Passenger side wall","cat":"Hand Tools","item":"Level 48\"","unit":"EA","full":2},{"loc":"Passenger side wall","cat":"Hand Tools","item":"Level 24\"","unit":"EA","full":2},{"loc":"Passenger side wall","cat":"Shoring","item":"Raker Rail","unit":"EA","full":2},{"loc":"Passenger side wall","cat":"Power Tools","item":"Fan","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Passenger side wall","cat":"Power Tools","item":"Air Compressor","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Passenger side wall","cat":"Power Tools","item":"Air Hose","unit":"EA","full":1},{"loc":"Passenger side wall","cat":"HydraFusion","item":"HydraFusion Pump","unit":"EA","full":2,"spec":"Paratech","src":"Paratech"},{"loc":"Passenger side wall","cat":"Power","item":"Extension Cord","unit":"EA","full":3},{"loc":"Passenger side wall","cat":"Power Tools","item":"10-1/4\" Circular Saw","unit":"EA","full":1,"spec":"Makita"},{"loc":"Passenger side wall","cat":"Power Tools","item":"12\" Sliding Miter Saw, M18","unit":"EA","full":1,"spec":"Milwaukee 2739-20","notes":"1\" arbor blade"},{"loc":"Passenger side wall","cat":"Power Tools","item":"10-1/4\" Circular Saw, M18 FUEL","unit":"EA","full":1,"spec":"Milwaukee 3026-20","notes":"5/8\" arbor blade"},{"loc":"Passenger side wall","cat":"Kits","item":"Tool Belt","unit":"KIT","full":5,"notes":"Issued as one unit to an individual","kit":[{"n":"Hammer","q":1},{"n":"Tape Measure","q":1},{"n":"Pencil","q":1},{"n":"6\" Square","q":1},{"n":"Box Cutter","q":1},{"n":"Torpedo Level","q":1}]},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"DeWalt Charger","unit":"EA","full":1,"spec":"DeWalt"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"DeWalt Battery","unit":"EA","full":3,"spec":"DeWalt"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M18 HIGH OUTPUT HD 12.0 Battery","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M18 XC 8.0 Battery","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M18 XC 6.0 Battery","unit":"EA","full":6,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M18 XC 5.0 Battery","unit":"EA","full":5,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M18 CP 2.0 Battery","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Power Tools","item":"1/4\" Impact Driver","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Power Tools","item":"1/2\" Hammer Drill/Driver","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Power Tools","item":"Drill/Driver Set","unit":"SET","full":2,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Search","item":"M-SPECTOR 360 Inspection Camera","unit":"EA","full":1,"spec":"Milwaukee 2323-20 (M12)","notes":"Uses M12 batteries; serial N49AA241600725X"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M12 Charger (Inspection Camera)","unit":"EA","full":1,"spec":"Milwaukee M12"},{"loc":"Work Bench Upper","cat":"Search","item":"Micro CA-25 Inspection Camera (In Case)","unit":"EA","full":1,"spec":"RIDGID micro CA-25"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M12 2.0 Battery","unit":"EA","full":1,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Hand Tools","item":"Pencils With Sharpeners","unit":"EA","full":1},{"loc":"Work Bench Upper","cat":"Hand Tools","item":"Markers","unit":"EA","full":1},{"loc":"Work Bench Upper","cat":"Hand Tools","item":"Box Cutter","unit":"EA","full":1},{"loc":"Work Bench Upper","cat":"Monitoring","item":"MultiRAE 5-Gas Monitor","unit":"EA","full":1,"spec":"RAE Systems MultiRAE"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"M12/M18 Charger","unit":"EA","full":4,"spec":"Milwaukee"},{"loc":"Work Bench Upper","cat":"Chargers & Batteries","item":"6-Pack Charger","unit":"EA","full":1,"spec":"Milwaukee M18"},{"loc":"Back wall – Cabinet 1","cat":"Comms","item":"Rocky Talkie Radio","unit":"EA","full":2,"spec":"Rocky Talkie"},{"loc":"Back wall – Cabinet 1","cat":"Consumables","item":"8d Nails 2-1/2\" x .131\" 21° (4,000/Box)","unit":"BOX","full":1,"spec":"Huttig-Grip HGCDKXRXB4M","src":"Home Depot SKU 1006889081","price":76.64,"notes":"Gussets (FEMA SOG 8d)"},{"loc":"Back wall – Cabinet 1","cat":"Consumables","item":"16d Nails 3-1/4\" x .148\" 21° Coated (3,000/Box)","unit":"BOX","full":1,"spec":"Grip-Rite GR3141483M","src":"Home Depot","notes":"Lumber to lumber (FEMA SOG 16d sinker)"},{"loc":"Back wall – Cabinet 2","cat":"PPE","item":"Ear Plugs","unit":"BOX","full":1},{"loc":"Back wall – Cabinet 2","cat":"PPE","item":"N95 Masks","unit":"BOX","full":1},{"loc":"Back wall – Cabinet 2","cat":"Consumables","item":"16d Duplex Nails 3\" (5 lb Box)","unit":"BOX","full":1,"spec":"Grip-Rite 16DUP5 – bright, smooth shank","src":"Home Depot (Internet # 202308493)","price":30,"notes":"Wedges (FEMA SOG: 16d duplex)"},{"loc":"Back wall – Cabinet 2","cat":"Consumables","item":"8d Duplex Nails 2-1/4\" (5 lb Box)","unit":"BOX","full":1,"spec":"Grip-Rite 8DUP5 – bright, smooth shank","src":"Home Depot (Internet # 202308491)","price":30},{"loc":"Work Bench Lower","cat":"Equipment","item":"Folding Table","unit":"EA","full":1},{"loc":"Work Bench Lower","cat":"Medical","item":"Medical Kit","unit":"EA","full":1},{"loc":"Work Bench Lower","cat":"Rescue","item":"SKEDCO Half-Sked","unit":"EA","full":1,"spec":"SKEDCO"},{"loc":"Work Bench Lower","cat":"Lifting","item":"S30 Lift Bag","unit":"EA","full":2,"spec":"Paratech S30"},{"loc":"Work Bench Lower","cat":"Consumables","item":"Bar Oil","unit":"EA","full":1},{"loc":"Work Bench Lower","cat":"Consumables","item":"TruFuel 50:1","unit":"EA","full":2,"spec":"TruFuel 50:1 pre-mix"},{"loc":"Work Bench Lower","cat":"Power Tools","item":"Electric Breaker With Assorted Bits","unit":"EA","full":1,"spec":"Makita HM1512"},{"loc":"Work Bench Lower","cat":"Power","item":"Generator","unit":"EA","full":1,"spec":"Honda"},{"loc":"Work Bench Lower","cat":"Equipment","item":"Salvage Tarp","unit":"EA","full":1},{"loc":"Work Bench Lower","cat":"Equipment","item":"Lumber Roller","unit":"EA","full":2},{"loc":"Work Bench Lower","cat":"Power","item":"M18 Carry-On Power Supply","unit":"EA","full":1,"spec":"Milwaukee M18"},{"loc":"Work Bench Lower","cat":"Lifting","item":"KPI 32-Ton Airbag","unit":"EA","full":2,"spec":"Paratech KPI 32 ton"},{"loc":"Work Bench Lower","cat":"Lifting","item":"KPI 22-Ton Airbag","unit":"EA","full":1,"spec":"Paratech KPI 22 ton"},{"loc":"Work Bench Lower","cat":"Power Tools","item":"Rotary Hammer With Assorted Bits","unit":"EA","full":1,"spec":"Makita"},{"loc":"Work Bench Lower","cat":"Kits","item":"Ridgid Kit","unit":"KIT","full":1,"notes":"Airbag / leveling kit","kit":[{"n":"NSL500C Transit Level","q":1},{"n":"Air Compressor Components (Assorted)","q":1},{"n":"Paratech Regulator (Gold)","q":1},{"n":"Dual Controller (Gold)","q":1},{"n":"Paratech VSK V2 Controller","q":1},{"n":"Paratech Dual Controller (Black)","q":1},{"n":"Paratech Airbag Controller","q":2},{"n":"Garden Hoses","q":1},{"n":"Framing Nails","q":1}]},{"loc":"Back wall","cat":"Consumables","item":"12\" x 44T Saw Blade, 1\" Arbor","unit":"EA","full":1,"spec":"Diablo D1244X","src":"Home Depot SKU 765542","price":37.97,"notes":"For 12\" miter saw"},{"loc":"Back wall","cat":"Consumables","item":"10-1/4\" x 28T Framing Blade, 5/8\" Arbor","unit":"EA","full":1,"spec":"Milwaukee 48-40-1038","src":"Home Depot","price":31.97,"notes":"For 10-1/4\" circular saw"},{"loc":"Back wall","cat":"Lighting","item":"LED Work Light","unit":"EA","full":1,"spec":"Milwaukee"}];
 const CREW_SEED = [{"shift":"Staff","unit":"Fire Chief","pos":"Chief","name":"Brent Melcher"},{"shift":"Staff","unit":"Deputy Chief of Operations","pos":"DC","name":"Richie Evangelista"},{"shift":"Staff","unit":"Deputy Chief of Administration","pos":"DC","name":"Tony Failla"},{"shift":"Staff","unit":"Deputy Chief of Training","pos":"DC","name":"Christopher Tennyson"},{"shift":"Staff","unit":"Battalion Chief of EMS","pos":"BC","name":"Jen Jaggers"},{"shift":"Staff","unit":"Special Operations","pos":"Chief","name":"Chris Savage"},{"shift":"Staff","unit":"Training Captain","pos":"CAPT","name":"Johnathan Knapp"},{"shift":"A","unit":"Battalion Chief","pos":"BC","name":"John Kahler"},{"shift":"A","unit":"Eng. 301","pos":"CAPT","name":"Brett Medlock"},{"shift":"A","unit":"Eng. 301","pos":"ENG","name":"Marion Gibbs"},{"shift":"A","unit":"Eng. 301","pos":"FF","name":"William Porter"},{"shift":"A","unit":"Eng. 301","pos":"PFF","name":"Moses Rathbun"},{"shift":"A","unit":"Eng. 302","pos":"CAPT","name":"David Hanley"},{"shift":"A","unit":"Eng. 302","pos":"ENG","name":"Ethen Woods"},{"shift":"A","unit":"Eng. 302","pos":"PFF","name":"Alex (Tommy) Thompson"},{"shift":"A","unit":"Eng. 302","pos":"PFF","name":"Jonathan Marrero"},{"shift":"A","unit":"Eng. 303","pos":"CAPT","name":"Beau Archambeau"},{"shift":"A","unit":"Eng. 303","pos":"ENG","name":"Dusty McLendon"},{"shift":"A","unit":"Eng. 303","pos":"FF","name":"Eric McGee"},{"shift":"A","unit":"Eng. 303","pos":"PFF","name":"Tyler Harp"},{"shift":"A","unit":"Eng. 304","pos":"CAPT","name":"David Fuseler"},{"shift":"A","unit":"Eng. 304","pos":"ENG-TDA","name":"David Bruce"},{"shift":"A","unit":"Eng. 304","pos":"PFF","name":"Alexander Pabrezis"},{"shift":"A","unit":"Eng. 304","pos":"PFF","name":"Nick Quattlebaum"},{"shift":"A","unit":"Eng. 305","pos":"CAPT","name":"Brandon Browder"},{"shift":"A","unit":"Eng. 305","pos":"ENG","name":"Joseph DeRocker"},{"shift":"A","unit":"Eng. 305","pos":"FF","name":"Andi Zuniga"},{"shift":"A","unit":"Eng. 305","pos":"PFF","name":"Luke Gerber"},{"shift":"A","unit":"Eng. 306","pos":"CAPT","name":"Caleb Martin"},{"shift":"A","unit":"Eng. 306","pos":"ENG","name":"Zach Thomas"},{"shift":"A","unit":"Eng. 306","pos":"FF","name":"Logan Brudzinski"},{"shift":"A","unit":"Eng. 306","pos":"PFF","name":"Brandon Smith"},{"shift":"A","unit":"Lad. 301","pos":"CAPT","name":"Jonathan Amrhein"},{"shift":"A","unit":"Lad. 301","pos":"ENG-TDA","name":"Aaron Parry"},{"shift":"A","unit":"Lad. 301","pos":"TD-ETDA","name":"Chris Becker"},{"shift":"A","unit":"Lad. 301","pos":"TD-ENG","name":"Alec Rowe"},{"shift":"A","unit":"Lad. 302","pos":"CAPT","name":"Chad Lobo"},{"shift":"A","unit":"Lad. 302","pos":"ENG-TDA","name":"Trey Burdette"},{"shift":"A","unit":"Lad. 302","pos":"TD-TDA","name":"Parker Warder"},{"shift":"A","unit":"Lad. 302","pos":"TD-E","name":"Alex Brooks"},{"shift":"B","unit":"Battalion Chief","pos":"BC","name":"Andrew Quattlebaum"},{"shift":"B","unit":"Eng. 301","pos":"CAPT","name":"Glen McLendon"},{"shift":"B","unit":"Eng. 301","pos":"ENG","name":"Jalin Strickland"},{"shift":"B","unit":"Eng. 301","pos":"PFF","name":"Carson Hedrick"},{"shift":"B","unit":"Eng. 301","pos":"PFF","name":"Brandon Zuvala"},{"shift":"B","unit":"Eng. 302","pos":"CAPT","name":"Tom Harrell"},{"shift":"B","unit":"Eng. 302","pos":"ENG","name":"Ben Doss"},{"shift":"B","unit":"Eng. 302","pos":"FF","name":"Chandler Ward"},{"shift":"B","unit":"Eng. 302","pos":"FF","name":"AJ Kovacs"},{"shift":"B","unit":"Eng. 303","pos":"CAPT","name":"Ryan Howlett"},{"shift":"B","unit":"Eng. 303","pos":"ENG-TDA","name":"Brandon Bangsund"},{"shift":"B","unit":"Eng. 303","pos":"FF","name":"Sean Doyle"},{"shift":"B","unit":"Eng. 303","pos":"PFF","name":"Devon Johnson"},{"shift":"B","unit":"Eng. 304","pos":"CAPT","name":"Jason Lindner"},{"shift":"B","unit":"Eng. 304","pos":"ENG","name":"Matthew Cavall"},{"shift":"B","unit":"Eng. 304","pos":"TD-E","name":"Alex Baum"},{"shift":"B","unit":"Eng. 304","pos":"PFF","name":"Lucas Smith"},{"shift":"B","unit":"Eng. 305","pos":"CAPT","name":"Michael Hunt"},{"shift":"B","unit":"Eng. 305","pos":"ENG","name":"Michael Garofolo"},{"shift":"B","unit":"Eng. 305","pos":"FF","name":"Shawn Kemp"},{"shift":"B","unit":"Eng. 305","pos":"PFF","name":"Jordan Oliver"},{"shift":"B","unit":"Eng. 306","pos":"CAPT","name":"Connor Warren"},{"shift":"B","unit":"Eng. 306","pos":"TD-E","name":"Eliezer Velez"},{"shift":"B","unit":"Eng. 306","pos":"TD-E","name":"Christian Woods"},{"shift":"B","unit":"Eng. 306","pos":"FF","name":"Richard Rea"},{"shift":"B","unit":"Lad. 301","pos":"CAPT","name":"Kevin Pool"},{"shift":"B","unit":"Lad. 301","pos":"ENG-TDA","name":"Joey Walsh"},{"shift":"B","unit":"Lad. 301","pos":"TD-TDA","name":"Brandon Webber"},{"shift":"B","unit":"Lad. 301","pos":"TM","name":"Jamie Rowe"},{"shift":"B","unit":"Lad. 302","pos":"CAPT","name":"James Chappell"},{"shift":"B","unit":"Lad. 302","pos":"TD-TDAE","name":"Garrett Black"},{"shift":"B","unit":"Lad. 302","pos":"TD-TDA","name":"Wyatt Rowland"},{"shift":"B","unit":"Lad. 302","pos":"PFF","name":"David Bailey"},{"shift":"C","unit":"Battalion Chief","pos":"BC","name":"Phillip Judge"},{"shift":"C","unit":"Eng. 301","pos":"CAPT","name":"Travis Long"},{"shift":"C","unit":"Eng. 301","pos":"ENG","name":"Jason Varella"},{"shift":"C","unit":"Eng. 301","pos":"FF","name":"Ryan Freeland"},{"shift":"C","unit":"Eng. 301","pos":"PFF","name":"Stephen Brandt"},{"shift":"C","unit":"Eng. 302","pos":"CAPT","name":"Cory Merritt"},{"shift":"C","unit":"Eng. 302","pos":"ENG","name":"Oliver McNeil"},{"shift":"C","unit":"Eng. 302","pos":"TD-E","name":"Cecilio Ojeda"},{"shift":"C","unit":"Eng. 302","pos":"PFF","name":"Connor Button"},{"shift":"C","unit":"Eng. 303","pos":"CAPT","name":"Alex Mitchum"},{"shift":"C","unit":"Eng. 303","pos":"ENG","name":"James Kerr-Simmons"},{"shift":"C","unit":"Eng. 303","pos":"PFF","name":"Korvic Giddings"},{"shift":"C","unit":"Eng. 303","pos":"PFF","name":"Michael Sabo"},{"shift":"C","unit":"Eng. 304","pos":"CAPT","name":"Brian McLendon"},{"shift":"C","unit":"Eng. 304","pos":"ENG","name":"Aaron Johnston"},{"shift":"C","unit":"Eng. 304","pos":"PFF","name":"John Kahler IV"},{"shift":"C","unit":"Eng. 304","pos":"PFF","name":"Dillion Johnson"},{"shift":"C","unit":"Eng. 305","pos":"CAPT","name":"TJ Carroll"},{"shift":"C","unit":"Eng. 305","pos":"TD-E","name":"Jerrell Lawrence"},{"shift":"C","unit":"Eng. 305","pos":"PFF","name":"Jackson Callaghan"},{"shift":"C","unit":"Eng. 306","pos":"CAPT","name":"Joey Fougerousse"},{"shift":"C","unit":"Eng. 306","pos":"FF","name":"James Boshell"},{"shift":"C","unit":"Eng. 306","pos":"PFF","name":"Mia Rogers"},{"shift":"C","unit":"Eng. 306","pos":"PFF","name":"Jacquel Winfield"},{"shift":"C","unit":"Lad. 301","pos":"CAPT","name":"James Maloney"},{"shift":"C","unit":"Lad. 301","pos":"ENG-TDA","name":"Henry Black"},{"shift":"C","unit":"Lad. 301","pos":"TD-ETDA","name":"Brock Patterson"},{"shift":"C","unit":"Lad. 301","pos":"FF","name":"Joshua Glick"},{"shift":"C","unit":"Lad. 302","pos":"CAPT","name":"Wesley Specht"},{"shift":"C","unit":"Lad. 302","pos":"ENG-TDA","name":"Joseph Ferraro"},{"shift":"C","unit":"Lad. 302","pos":"TD-ETM","name":"Brandon Banks"},{"shift":"C","unit":"Lad. 302","pos":"FF","name":"Logan Gilder"}];
-const ACTION_LABEL = {USED:'Used', RETURNED:'Returned', REPLACE:'Needs replacing', RESTOCKED:'Restocked', COUNT:'Check-off count', CHECK:'Truck check'};
+const ACTION_LABEL = {USED:'Used', RETURNED:'Returned', REPLACE:'Needs replacing', RESTOCKED:'Restocked', COUNT:'Check-off count', CHECK:'Truck check', TRANSFER:'Moved', ADMIN:'Admin change'};
 const ACTION_HELP = {
   USED:'Used on a call or training. Takes it off the On Hand count.',
   RETURNED:'Came back to the truck (from a call or another agency). Adds it back.',
   REPLACE:'Damaged, used up or pulled from service. Takes it off and puts it on the Restock List.',
   RESTOCKED:'New stock put on the truck. Adds it to On Hand.'
 };
-const SIGN = {USED:-1, RETURNED:1, REPLACE:-1, RESTOCKED:1};
+const SIGN = {USED:-1, RETURNED:1, REPLACE:-1, RESTOCKED:1, TRANSFER:0};
 
 /* ---------- storage helpers (work even where browser storage is blocked) ---------- */
 const mem = {};
@@ -337,7 +356,23 @@ const demo = {
     return {items, log:[]};
   },
   save(d){ sset('usar301_demo_v61', JSON.stringify(d)); },
-  async getData(){ const d = this.load(); return d; },
+  async getData(){ const d = this.load(); d.admins=['Chris Savage','Chad Lobo']; d.assign=d.assign||[]; return d; },
+  // preview only: admin PIN is 0000
+  auth(a){ if(!a||!['chris savage','chad lobo'].includes(String(a.name||'').toLowerCase())||String(a.pin)!=='0000') throw new Error('Wrong PIN, or not an admin'); return a.name; },
+  alog(d,who,id,item,notes){ d.log.unshift({ts:new Date().toISOString(), action:'ADMIN', id:id||'', item, qty:'', after:'', incident:'', name:who, unit:'Admin', notes, kind:'Admin', details:''}); },
+  async adminLogin(a){ this.auth(a); return true; },
+  async saveItem(a,it){ const who=this.auth(a); const d=this.load(); const now=new Date().toISOString();
+    const f=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v);
+    const base={loc:it.loc, cat:it.cat||'', item:it.item, unit:it.unit||'EA', full:f(it.full), spec:it.spec||'', src:it.src||'', price:f(it.price), notes:it.notes||'', color:it.color||'', kit:(it.kit||[]).filter(k=>k&&String(k.n||'').trim()).map(k=>{ const o={n:String(k.n).trim(), q:Math.max(1,Number(k.q)||1)}; if(k.g) o.g=k.g; if(k.s) o.s=k.s; if(k.p!==''&&k.p!=null) o.p=Number(k.p); return o; }), updated:now, updatedBy:who+' – Admin'};
+    if(it.id){ const x=d.items.find(i=>i.id===it.id); if(!x) throw new Error('Item not found'); Object.assign(x,base); if(it.onHand!==''&&it.onHand!=null) x.onHand=f(it.onHand); this.alog(d,who,x.id,x.item,'Edited item'); }
+    else { const max=d.items.reduce((m,i)=>Math.max(m,Number(String(i.id).slice(1))||0),0); const id='I'+String(max+1).padStart(3,'0');
+      const x={id,...base,onHand:it.onHand===''||it.onHand==null?base.full:f(it.onHand)}; let at=-1; d.items.forEach((i,k)=>{ if(i.loc.toLowerCase()===String(it.loc).toLowerCase()) at=k; });
+      if(at>=0) d.items.splice(at+1,0,x); else d.items.push(x); this.alog(d,who,id,x.item,'Added item · '+x.loc); }
+    this.save(d); return this.getData(); },
+  async deleteItem(a,id){ const who=this.auth(a); const d=this.load(); const k=d.items.findIndex(i=>i.id===id); if(k<0) throw new Error('Item not found');
+    this.alog(d,who,id,d.items[k].item,'Removed item from '+d.items[k].loc); d.items.splice(k,1); this.save(d); return this.getData(); },
+  async saveCrew(a,rows){ const who=this.auth(a); const d=this.load(); d.crew=rows; this.alog(d,who,'','Crew roster','Roster saved · '+rows.length+' people'); this.save(d); return this.getData(); },
+  async saveAssignments(a,rows){ const who=this.auth(a); const d=this.load(); d.assign=rows; this.alog(d,who,'','Check-off assignments',rows.length+' sections assigned'); this.save(d); return this.getData(); },
   async logEntry(e){
     const d = this.load(); const now = new Date().toISOString();
     (e.lines||[]).forEach(l=>{
@@ -358,6 +393,11 @@ const api = {
   getData: () => LIVE ? gas('getData') : demo.getData(),
   logEntry: (e) => LIVE ? gas('logEntry', e) : demo.logEntry(e),
   fullLog: () => LIVE ? gas('getFullLog') : demo.getData().then(d=>d.log),
+  adminLogin: (a) => LIVE ? gas('adminLogin', a) : demo.adminLogin(a),
+  saveItem: (a,it) => LIVE ? gas('saveItem', a, it) : demo.saveItem(a,it),
+  deleteItem: (a,id) => LIVE ? gas('deleteItem', a, id) : demo.deleteItem(a,id),
+  saveCrew: (a,r) => LIVE ? gas('saveCrew', a, r) : demo.saveCrew(a,r),
+  saveAssignments: (a,r) => LIVE ? gas('saveAssignments', a, r) : demo.saveAssignments(a,r),
   weather: (lat,lon) => LIVE ? gas('getWeather', lat, lon) : wxDirect(lat,lon),
   place: (q) => LIVE ? gas('searchPlace', q) : fetch('https://geocoding-api.open-meteo.com/v1/search?count=5&language=en&countryCode=US&name='+encodeURIComponent(q)).then(r=>r.json())
 };
@@ -373,7 +413,7 @@ async function wxDirect(lat,lon){
 // keep the signed-in member's unit/title in step with the Crew tab
 function syncMe(){ if(!S.me||!S.crew) return; const c=S.crew.find(c=>c.name===S.me.name); if(!c) return;
   const u=c.shift==='Staff'||!c.shift? c.unit : `${c.unit} · ${c.shift} Shift`; if(u!==S.me.unit){ S.me.unit=u; S.me.shift=c.shift; sset('usar301_me', JSON.stringify(S.me)); } }
-const S = { ctx:{action:'USED', kind:'', details:'', incident:''}, items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
+const S = { adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:{action:'USED', kind:'', details:'', incident:''}, items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
   inv:{q:'', cat:'All', st:'All'}, logf:{q:'', a:'All'}, quick:null, check:null, crew:CREW_SEED,
   wx:{loc:(()=>{ try{ return JSON.parse(sget('usar301_wx')||'null'); }catch(e){ return null; } })() || {lat:33.0185, lon:-80.1756, name:'Summerville, SC', src:'default'}, data:null, at:0, loading:false, err:'', msg:'', results:null},
   rep:{mode:'range', ev:'', from:new Date().getFullYear()+'-01-01', to:'', kind:'All', all:null, loading:false, err:''} };
@@ -389,7 +429,28 @@ const secOpen=(loc,filt)=> filt ? secState[loc]!==false : secState[loc]===true;
 /* piece count on a full load: kits count every piece inside (e.g. 5 tool belts x 6 pieces = 30) */
 const pieces = i => { const f=Number(i.full)||0; return (Array.isArray(i.kit)&&i.kit.length) ? f*i.kit.reduce((a,k)=>a+(Number(k.q)||0),0) : f; };
 const sumPieces = arr => arr.reduce((a,i)=>a+pieces(i),0);
-const kitOut = it => (Array.isArray(it.kit)&&it.kit.length) ? kitHolders(it.id).reduce((a,[,q])=>a+q,0) : 0;
+const kitOut = it => kitHolders(it.id).reduce((a,[,q])=>a+q,0);
+// Squads are stored as "Squad: <name>" so they're told apart from people
+const SQUAD_PRESETS = ['Exterior Shoring','Interior Shoring','Breaching & Breaking','Search','Rescue','Rigging','Medical','Logistics'];
+const isSquad = h => /^Squad: /.test(h||'');
+const hName = h => isSquad(h) ? h.slice(7) : h;
+const hLabel = h => isSquad(h) ? hName(h)+' (squad)' : h;
+function allHolders(){ const m={}; S.items.forEach(i=>kitHolders(i.id).forEach(([h,q])=>{ (m[h]=m[h]||[]).push([i,q]); })); return m; }
+const activeSquads = () => Object.keys(allHolders()).filter(isSquad).map(hName);
+// Holder input: type a person, or tap a squad chip (adds "Squad: ")
+function holderField(attr, val, ph){
+  const sq=[...new Set([...activeSquads(), ...SQUAD_PRESETS])];
+  return `<input class="in" ${attr} list="holderNames" placeholder="${esc(ph||'Person, or tap a squad below')}" value="${esc(val||'')}" autocomplete="off" style="margin:0">
+    <div class="sqchips">${sq.map(s=>`<button type="button" class="chip sm" data-sqfill="${esc(s)}">${esc(s)}</button>`).join('')}<button type="button" class="chip sm" data-sqnew="1">＋ New squad</button></div>`;
+}
+const holderList = () => `<datalist id="holderNames">${[...new Set([...activeSquads(), ...SQUAD_PRESETS])].map(s=>`<option value="Squad: ${esc(s)}">`).join('')}${[...new Set(S.crew.map(c=>c.name))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
+function bindHolderChips(onSet){
+  document.querySelectorAll('[data-sqfill]').forEach(b=>b.onclick=()=>{ const inp=b.parentElement.previousElementSibling; inp.value='Squad: '+b.dataset.sqfill; onSet&&onSet(inp); });
+  document.querySelectorAll('[data-sqnew]').forEach(b=>b.onclick=()=>{ const inp=b.parentElement.previousElementSibling; inp.value='Squad: '; inp.focus(); onSet&&onSet(inp); });
+}
+// "squad: x" typed by hand → "Squad: X" spelled like an existing squad when it matches
+function normHolder(v){ v=String(v||'').trim().replace(/\s+/g,' '); const m=/^squad:\s*(.*)$/i.exec(v); if(!m) { const p=S.crew.find(c=>c.name.toLowerCase()===v.toLowerCase()); return p?p.name:v; }
+  const n=m[1].trim(); if(!n) return ''; const ex=[...activeSquads(),...SQUAD_PRESETS].find(s=>s.toLowerCase()===n.toLowerCase()); return 'Squad: '+(ex||n); }
 function status(it){
   if (it.full===null || it.full===undefined || it.full==='') return 'tbd';
   if (it.onHand===null || it.onHand===undefined || it.onHand==='') return 'unchecked';
@@ -416,7 +477,7 @@ async function refresh(silent){
   try{
     const d = await api.getData(); lastSync=new Date();
     const sig = JSON.stringify([d.items.map(i=>[i.id,i.onHand,i.full,i.item,i.loc]), d.log.length, d.log[0]&&d.log[0].ts]);
-    S.items=d.items; S.log=d.log; S.apiv = LIVE ? (d.apiVersion||1) : 2; if(d.crew&&d.crew.length){ S.crew=d.crew; syncMe(); } idle();
+    S.items=d.items; S.log=d.log; S.apiv = LIVE ? (d.apiVersion||1) : 3; S.admins=d.admins||[]; S.assign=d.assign||[]; if(d.crew&&d.crew.length){ S.crew=d.crew; syncMe(); } idle();
     if(sig!==lastSig || !silent) S.rep.all=null;
     if(!silent || sig!==lastSig) render();
     lastSig=sig;
@@ -466,11 +527,12 @@ async function submit(entry){
 /* ---------- navigation ---------- */
 const MENU = [
   ['TRUCK', [['home','Overview'],['inventory','Logistics'],['checkoff','Check-Off'],['weather','Weather']]],
-  ['TRACKING', [['quick','Log Used / Returned'],['restock','Restock List'],['log','Activity Log'],['reports','Reports']]],
+  ['TRACKING', [['quick','Log Used / Returned'],['squads','Squads & Issued Gear'],['restock','Restock List'],['log','Activity Log'],['reports','Reports']]],
   ['HELP', [['help','How to use']]]
 ];
+const isAdmin = () => !!(S.me && S.apiv>=3 && (S.admins||[]).some(n=>n.toLowerCase()===S.me.name.toLowerCase()));
 function drawMenu(){
-  $('#drawer').innerHTML = MENU.map(([h,links])=>`<h4>${h}</h4>`+links.map(([r,t])=>`<a href="#" data-route="${r}" class="${S.route===r?'on':''}">${t}</a>`).join('')).join('')
+  $('#drawer').innerHTML = (isAdmin()? [...MENU.slice(0,2),['ADMIN',[['admin','Admin']]],...MENU.slice(2)] : MENU).map(([h,links])=>`<h4>${h}</h4>`+links.map(([r,t])=>`<a href="#" data-route="${r}" class="${S.route===r?'on':''}">${t}</a>`).join('')).join('')
    + `<h4>Signed in</h4><div class="who" style="margin-top:4px">${S.me? esc(S.me.name)+(S.me.unit?' – '+esc(S.me.unit):'') : 'Not signed in'}</div>
       <a href="#" id="swapUser">${S.me?'Switch user':'Sign in'}</a>`;
   document.querySelectorAll('[data-route]').forEach(a=>a.onclick=e=>{ e.preventDefault(); go(a.dataset.route); });
@@ -559,6 +621,15 @@ const fmtDT = s => { const d=new Date(s); return isNaN(d)? s : d.toLocaleDateStr
 const lastTruck = () => S.log.find(l=>l.action==='CHECK');
 const lastMiles = () => { const l=lastTruck(); const m=l&&/Mileage: ([\d,]+)/.exec(l.notes||''); return m? Number(m[1].replace(/,/g,'')) : null; };
 const lastCheck = () => S.log.find(l=>l.action==='COUNT');
+// Check-off assignments (Admin ▸ Check-off assignments): section → shift + unit, checked every N days
+const asgFor = loc => (S.assign||[]).find(a=>a.loc===loc) || null;
+const asgLabel = a => [a.shift? (a.shift==='All'?'All shifts':a.shift+' Shift'):'', a.unit||''].filter(Boolean).join(' · ');
+const normU = s => String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function isMine(a){ if(!a||!S.me) return false; const sh=S.me.shift||'';
+  if(a.shift && a.shift!=='All' && a.shift!==sh) return false;
+  if(a.unit && !normU(S.me.unit).includes(normU(a.unit))) return false; return !!(a.shift||a.unit); }
+function lastLocCheck(loc){ const ids=new Set(S.items.filter(i=>i.loc===loc).map(i=>i.id)); return S.log.find(l=>l.action==='COUNT' && ids.has(l.id)) || null; }
+function locDue(loc){ const a=asgFor(loc); if(!a||!a.every) return false; const l=lastLocCheck(loc); return !l || (Date.now()-new Date(l.ts))/864e5 > a.every; }
 
 const VIEWS = {
 home(){
@@ -576,10 +647,13 @@ home(){
   <h2 class="hh">Truck</h2>
   <div class="card navcard" data-go="inventory"><h3>Logistics</h3><p>Everything on USAR 301 by location, with Full Load, On Hand and status.</p><span class="tag">View</span></div>
   <div class="card navcard" data-go="quick"><h3>Log Used / Returned</h3><p>After a call or training: log what was used, what came back, and what needs replacing.</p><span class="tag">Open</span></div>
-  <div class="card navcard" data-go="checkoff"><h3>Check-Off</h3><p>Truck check (mileage, fluids, engine, radios, lights, sirens, lift gate, tires), then walk the truck section by section. ${lastTruck()?'Last check: '+esc(fmtTime(lastTruck().ts))+' by '+esc(lastTruck().name)+(lastMiles()!=null?' · '+lastMiles().toLocaleString('en-US')+' mi':'')+'.':lc?'Last count: '+esc(fmtTime(lc.ts))+' by '+esc(lc.name)+'.':'No check-off logged yet.'}</p><span class="tag">Start</span></div>
+  <div class="card navcard" data-go="checkoff"><h3>Check-Off ${(()=>{ const due=[...new Set(S.items.map(i=>i.loc))].filter(locDue), my=due.filter(l=>isMine(asgFor(l)));
+    return due.length?`<span class="tag accent">${due.length} due${my.length?` · ${my.length} yours`:''}</span>`:''; })()}</h3><p>Truck check (mileage, fluids, engine, radios, lights, sirens, lift gate, tires), then walk the truck section by section. ${lastTruck()?'Last check: '+esc(fmtTime(lastTruck().ts))+' by '+esc(lastTruck().name)+(lastMiles()!=null?' · '+lastMiles().toLocaleString('en-US')+' mi':'')+'.':lc?'Last count: '+esc(fmtTime(lc.ts))+' by '+esc(lc.name)+'.':'No check-off logged yet.'}</p><span class="tag">Start</span></div>
   <h2 class="hh">Weather</h2>
   <div class="card navcard" data-go="weather"><p style="margin-top:0">Conditions, wind and gusts, heat index, the next 12 hours and NWS alerts for where you are.</p><span class="tag">Open</span></div>
   <h2 class="hh">Tracking</h2>
+  ${(()=>{ const H=allHolders(), hs=Object.keys(H), n=hs.reduce((a,h)=>a+H[h].reduce((b,[,q])=>b+q,0),0), sq=hs.filter(isSquad).length;
+    return `<div class="card navcard" data-go="squads"><h3>Squads &amp; Issued Gear ${n?`<span class="tag" style="background:#3b6fb6;color:#fff">${n} out</span>`:''}</h3><p>${n? `${n} piece${n>1?'s':''} of gear out with ${sq?sq+' squad'+(sq>1?'s':''):''}${sq&&hs.length-sq?' and ':''}${hs.length-sq?(hs.length-sq)+' '+(hs.length-sq>1?'people':'person'):''}. Check gear in or move it between squads.` : 'Who has what off the truck. Issue gear to a squad (Exterior Shoring, Interior Shoring…) or a person from any item.'}</p><span class="tag">Open</span></div>`; })()}
   <div class="card navcard" data-go="restock"><h3>Restock List ${rs.length?`<span class="tag accent">${rs.length}</span>`:''}</h3><p>${rs.length? rs.length+' item'+(rs.length>1?'s':'')+' below full load, grouped by where to buy.':'Everything is at full load.'}</p><span class="tag">Open</span></div>
   <div class="card navcard" data-go="log"><h3>Activity Log</h3><p>Every entry: who, when, which incident. Use it for reimbursement requests.</p><span class="tag">View</span></div>
   <div class="card navcard" data-go="reports"><h3>Reports</h3><p>Totals and cost by incident, training or date range: end of a call or end of the year. Print or copy for reimbursement.</p><span class="tag">Open</span></div>`;
@@ -665,7 +739,10 @@ checkoff(){
   const C = S.check || (S.check={counts:{}, notes:'', miles:'', tc:{}, sn:{}, started:localDT(new Date())}); C.sn=C.sn||{}; if(!C.started) C.started=localDT(new Date());
   const lm=lastMiles(), lt=lastTruck();
   const tcDone = String(C.miles).trim()!=='' && TRUCK_CHECKS.every(([k])=>C.tc[k]) && (!TRUCK_CHECKS.some(([k])=>C.tc[k]==='x') || String(C.tnotes||'').trim()!=='');
-  const byLoc={}; S.items.forEach(i=>(byLoc[i.loc]=byLoc[i.loc]||[]).push(i));
+  const byLoc0={}; S.items.forEach(i=>(byLoc0[i.loc]=byLoc0[i.loc]||[]).push(i));
+  const hasAsg=(S.assign||[]).length>0, mineN=Object.keys(byLoc0).filter(l=>isMine(asgFor(l))).length;
+  if(S.coMine && !mineN) S.coMine=false;
+  const byLoc=S.coMine? Object.fromEntries(Object.entries(byLoc0).filter(([l])=>isMine(asgFor(l)))) : byLoc0;
   const done=Object.keys(C.counts).length;
   const secCount = its => its.filter(i=>C.counts[i.id]!==undefined).length;
   return `<h1>Check-Off <small>USAR 301</small></h1>
@@ -685,10 +762,13 @@ checkoff(){
     <textarea class="in" id="cTNotes" rows="2" placeholder="If anything is marked ✕, explain the problem here">${esc(C.tnotes||'')}</textarea>
   </div>
   ${(()=>{ const locs=Object.keys(byLoc), allOpen=locs.every(l=>coState[l]===true);
-    return `<div class="row" style="justify-content:flex-end;margin:12px 0 -6px"><button class="btn" id="coAll" style="padding:6px 12px;font-size:13px">${allOpen?'Collapse all':'Expand all'}</button></div>`+
+    return (hasAsg?`<div class="chips" style="margin-top:14px"><button class="chip ${!S.coMine?'on':''}" data-comine="0">All sections</button><button class="chip ${S.coMine?'on':''}" data-comine="1" ${mineN?'':'disabled'}>My sections${mineN?` (${mineN})`:''}</button></div>
+      ${!mineN&&S.me?`<p class="muted" style="font-size:12.5px;margin:4px 2px 0">No sections are assigned to ${esc(S.me.unit||S.me.name)}.</p>`:''}`:'')+
+    `<div class="row" style="justify-content:flex-end;margin:12px 0 -6px"><button class="btn" id="coAll" style="padding:6px 12px;font-size:13px">${allOpen?'Collapse all':'Expand all'}</button></div>`+
     Object.entries(byLoc).map(([loc,its])=>{ const open=coState[loc]===true, k=secCount(its), full=k===its.length;
-      return `<button class="loc lochd" data-cosec="${esc(loc)}" aria-expanded="${open}" style="${open?'margin-bottom:0;border-radius:11px 11px 0 0':''}"><span class="chev">${open?'▾':'▸'}</span><span style="flex:1;text-align:left">${esc(loc)}</span>
-          ${String(C.sn[loc]||'').trim()?'<span class="secbad" style="background:#fff1c9;color:#6b4d00">📝 Note</span>':''}<span class="secprog ${full?'done':''}" data-prog="${esc(loc)}">${k} / ${its.length}${full?' ✓':''}</span></button>`+
+      return `<button class="loc lochd" data-cosec="${esc(loc)}" aria-expanded="${open}" style="${open?'margin-bottom:0;border-radius:11px 11px 0 0':''}"><span class="chev">${open?'▾':'▸'}</span><span style="flex:1;text-align:left">${esc(loc)}${(()=>{ const a=asgFor(loc); if(!a) return ''; const lc=lastLocCheck(loc);
+            return `<span class="asgline">${isMine(a)?'★ ':''}${esc(asgLabel(a))}${a.every?` · every ${a.every} day${a.every>1?'s':''}`:''}${lc?` · last ${esc(new Date(lc.ts).toLocaleDateString('en-US'))}`:' · not checked yet'}</span>`; })()}</span>
+          ${locDue(loc)?'<span class="secbad">Due</span>':''}${String(C.sn[loc]||'').trim()?'<span class="secbad" style="background:#fff1c9;color:#6b4d00">📝 Note</span>':''}<span class="secprog ${full?'done':''}" data-prog="${esc(loc)}">${k} / ${its.length}${full?' ✓':''}</span></button>`+
         (open? `<div class="secbar"><button class="btn match" data-match="${esc(loc)}">✓ All match full load</button></div>`+
      its.map(i=>`<div class="item" style="cursor:default">${ctabSlim(i)}<div><div class="nm">${esc(i.item)}</div><div class="meta">${cword(i)}Full load ${i.full??'TBD'} ${esc(i.unit)}${i.onHand!=null?' · last '+i.onHand:''}</div>${isKit(i)?`<div class="meta">Each: ${esc(kitSummary(i))}</div>`:''}</div>
        <div class="stepper" style="margin-left:auto"><button data-cdec="${i.id}" aria-label="Minus one">−</button><input inputmode="numeric" data-count="${i.id}" value="${C.counts[i.id]??''}" placeholder="—"><button data-cinc="${i.id}" aria-label="Plus one">+</button><button class="slotclr" data-clr1="${i.id}" aria-label="Clear ${esc(i.item)} count" ${C.counts[i.id]===undefined?'hidden':''}>✕</button></div></div>`).join('')+
@@ -697,6 +777,54 @@ checkoff(){
 
   <div style="height:12px"></div>
   <button class="btn primary block" id="cSave" ${tcDone?'':'disabled'}>${tcDone?`Submit check-off (truck check + ${done} item${done===1?'':'s'} counted)`:'Finish the Truck Check at the top to submit'}</button>`;
+},
+admin(){
+  if(!isAdmin()) return `<h1>Admin</h1><div class="empty">Admins only. Sign in as an admin to use this screen.</div>`;
+  const A=S.adm; if(A.ok && A.n && A.n!==S.me.name){ A.ok=false; A.pin=''; }
+  if(!A.ok) return `<h1>Admin <small>${esc(S.me.name)}</small></h1>
+    <div class="card" style="max-width:420px"><label class="f" for="admPin" style="margin-top:0">Admin PIN</label>
+    <input class="in" id="admPin" type="password" inputmode="numeric" autocomplete="off" placeholder="Enter your PIN">
+    <div style="height:10px"></div><button class="btn primary block" id="admGo">Unlock admin</button>
+    <p class="muted" style="font-size:12.5px;margin-top:10px">PINs are set in the <b>Admins</b> tab of the Google Sheet. Five wrong tries locks it for 15 minutes.</p></div>`;
+  const tabs=[['items','Items'],['crew','Crew roster'],['assign','Check-off assignments']];
+  const head=`<h1>Admin <small>${esc(S.me.name)}</small></h1>
+    <div class="seg" style="margin-bottom:12px">${tabs.map(([k,l])=>`<button data-admt="${k}" class="${A.tab===k?'on':''}">${l}</button>`).join('')}</div>`;
+  if(A.tab==='items'){ const q=A.q.toLowerCase(); const byLoc={};
+    S.items.filter(i=>!q||(i.item+' '+i.loc+' '+(i.spec||'')).toLowerCase().includes(q)).forEach(i=>(byLoc[i.loc]=byLoc[i.loc]||[]).push(i));
+    return head+`<button class="btn primary block" id="admAdd">＋ Add an item or kit</button>
+      <input class="in" id="admQ" placeholder="Find an item to edit" value="${esc(A.q)}" style="margin-top:10px">
+      ${Object.entries(byLoc).map(([loc,its])=>`<div class="loc" style="font-size:16px;min-height:0;padding:9px 12px;margin-top:14px">${esc(loc)}</div>`+
+        its.map(i=>`<div class="item" data-admi="${i.id}">${ctabSlim(i)}<div style="flex:1"><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div><div class="meta">${esc(i.cat||'')} · Full load ${i.full??'TBD'} ${esc(i.unit)}${i.price!=null?' · '+money(i.price):''}</div></div><span class="muted" style="font-weight:700">Edit ›</span></div>`).join('')).join('')}`; }
+  if(A.tab==='crew'){ const C=A.crew||(A.crew=S.crew.map(c=>({...c}))); const shifts=['Staff','A','B','C'];
+    return head+`<p class="sub">Edit names, shifts, units and positions. Changes save for everyone when you tap <b>Save roster</b>.</p>
+      ${shifts.map(s=>`<div class="loc" style="font-size:16px;min-height:0;padding:9px 12px;margin-top:14px">${s==='Staff'?'Staff':s+' Shift'}</div>`+
+        C.map((c,x)=>c.shift===s?`<div class="crewrow"><input class="in" data-cr="${x}" data-k="name" value="${esc(c.name)}" placeholder="Name">
+          <input class="in" data-cr="${x}" data-k="unit" value="${esc(c.unit)}" placeholder="Unit" list="admUnits"><input class="in" data-cr="${x}" data-k="pos" value="${esc(c.pos)}" placeholder="Position" style="max-width:90px">
+          <select class="in" data-cr="${x}" data-k="shift" style="max-width:86px">${shifts.map(o=>`<option ${o===c.shift?'selected':''}>${o}</option>`).join('')}</select>
+          <button class="kx" data-crrm="${x}" aria-label="Remove ${esc(c.name)}">✕</button></div>`:'').join('')+
+        `<button class="btn" data-cradd="${s}" style="padding:7px 12px;font-size:13px;margin-top:4px">＋ Add to ${s==='Staff'?'Staff':s+' Shift'}</button>`).join('')}
+      <datalist id="admUnits">${[...new Set(S.crew.map(c=>c.unit))].map(u=>`<option value="${esc(u)}">`).join('')}</datalist>
+      <div style="height:14px"></div><button class="btn primary block" id="crSave">Save roster (${C.filter(c=>String(c.name).trim()).length} people)</button>`; }
+  const locs=[...new Set(S.items.map(i=>i.loc))], cur=A.asg||(A.asg=Object.fromEntries(locs.map(l=>{ const a=(S.assign||[]).find(x=>x.loc===l)||{}; return [l,{shift:a.shift||'',unit:a.unit||'',every:a.every??''}]; })));
+  return head+`<p class="sub">Assign each section of the truck to a shift and unit for check-offs, and how often it should be checked. Leave blank for no assignment.</p>
+    ${locs.map(l=>{ const a=cur[l]||(cur[l]={shift:'',unit:'',every:''}); return `<div class="card asgrow"><b>${esc(l)}</b>
+      <div class="asgf"><select class="in" data-as="${esc(l)}" data-k="shift"><option value="">Shift…</option>${['A','B','C','All'].map(o=>`<option value="${o}" ${a.shift===o?'selected':''}>${o==='All'?'All shifts':o+' Shift'}</option>`).join('')}</select>
+      <input class="in" data-as="${esc(l)}" data-k="unit" list="admUnits2" value="${esc(a.unit)}" placeholder="Unit (e.g. Lad. 302)">
+      <input class="in" data-as="${esc(l)}" data-k="every" inputmode="numeric" value="${esc(a.every)}" placeholder="Every … days" style="max-width:120px"></div></div>`; }).join('')}
+    <datalist id="admUnits2">${[...new Set(S.crew.filter(c=>c.shift!=='Staff').map(c=>c.unit))].map(u=>`<option value="${esc(u)}">`).join('')}</datalist>
+    <button class="btn primary block" id="asSave" style="margin-top:12px">Save assignments</button>`;
+},
+squads(){
+  const H=allHolders(), hs=Object.keys(H).sort((a,b)=>(isSquad(b)-isSquad(a))||hName(a).localeCompare(hName(b)));
+  const tot=hs.reduce((a,h)=>a+H[h].reduce((b,[,q])=>b+q,0),0);
+  return `<h1>Squads &amp; Issued Gear <small>USAR 301</small></h1>
+  <p class="sub">Everything off the truck and who has it. To hand gear out, open the item in <b>Logistics</b> and pick <b>Used</b> (or <b>Issue</b> for kits), then choose a squad or person. Anyone signed in can check gear back in.</p>
+  ${!hs.length? '<div class="empty">Nothing is issued out right now.</div>' : `<div class="muted" style="font-weight:700;margin:4px 2px 8px">${tot} piece${tot>1?'s':''} out${(()=>{ const s=hs.filter(isSquad).length, pp=hs.length-s; return (s?` · ${s} squad${s>1?'s':''}`:'')+(pp?` · ${pp} ${pp>1?'people':'person'}`:''); })()}</div>`+
+  hs.map(h=>{ const its=H[h], n=its.reduce((a,[,q])=>a+q,0);
+    return `<div class="sqcard"><div class="sqhead">${isSquad(h)?'<span class="sqtag">Squad</span>':'<span class="sqtag" style="background:#5b6470">Person</span>'}<b>${esc(hName(h))}</b><span class="muted" style="margin-left:auto;font-weight:700">${n} out</span></div>
+      ${its.map(([i,q])=>`<div class="sqitem">${ctabSlim(i)}<div style="flex:1"><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)} <span class="muted">×${q}</span></div><div class="meta">${esc(i.loc)}</div></div>
+        ${S.apiv>=3?`<button class="btn" data-mv="${esc(h)}" data-mvi="${i.id}" style="padding:8px 11px">Move</button>`:''}<button class="btn primary" data-ci="${esc(h)}" data-cii="${i.id}" style="padding:8px 11px">Check in</button></div>`).join('')}
+    </div>`; }).join('')}`;
 },
 reports(){
   const R=S.rep;
@@ -848,7 +976,7 @@ async function loadReport(){
 const ymd = ts => { const d=new Date(ts); if(isNaN(d)) return ''; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const repKey = l => [l.kind||'', (l.details||'').trim().toLowerCase(), (l.incident||'').trim().toLowerCase()].join('|');
 function repEvents(log){
-  const m={}; log.filter(l=>l.kind && l.action!=='COUNT' && l.action!=='CHECK').forEach(l=>{ const k=repKey(l);
+  const m={}; log.filter(l=>l.kind && !['COUNT','CHECK','ADMIN','TRANSFER'].includes(l.action)).forEach(l=>{ const k=repKey(l);
     const e=m[k]||(m[k]={key:k, kind:l.kind, details:l.details, incident:l.incident, first:l.ts, n:0, who:new Set()});
     e.n++; e.who.add(l.name+(l.unit?' – '+l.unit:'')); if(new Date(l.ts)<new Date(e.first)) e.first=l.ts; });
   return Object.values(m).sort((a,b)=>new Date(b.first)-new Date(a.first));
@@ -930,6 +1058,8 @@ function kitHolders(id){
     const iss=/Issued to: ([^·|]+)/.exec(l.notes||''), ret=/Returned by: ([^·|]+)/.exec(l.notes||'');
     if(l.action==='USED'&&iss){ const n=iss[1].trim(); m[n]=(m[n]||0)+Number(l.qty||0); }
     if(l.action==='RETURNED'&&ret){ const n=ret[1].trim(); m[n]=Math.max(0,(m[n]||0)-Number(l.qty||0)); }
+    const tr=/^From: (.+?) · To: (.+?)(?: · |$)/.exec(l.notes||'');
+    if(l.action==='TRANSFER'&&tr){ const a=tr[1].trim(), b=tr[2].trim(), q=Number(l.qty||0), mv=Math.min(q,m[a]||0); m[a]=(m[a]||0)-mv; m[b]=(m[b]||0)+mv; }
   });
   return Object.entries(m).filter(([,q])=>q>0);
 }
@@ -960,19 +1090,92 @@ const tone = i => { const s=status(i); return s==='ok'&&isKit(i)&&pieceOut(i).le
 const lastKitCheck = id => S.log.find(l=>l.id===id && l.action==='COUNT' && /^Kit check/.test(l.notes||''));
 function itemRow(i){
   const s=status(i);
-  const kh=isKit(i)?kitHolders(i.id):[];
+  const kh=kitHolders(i.id);
   const tn=tone(i), po=isKit(i)?pieceOut(i):[];
   const lbl = tn==='pcs' ? 'Pieces out' : s==='short' ? `Low · ${i.onHand} left` : s==='missing' ? 'Out · none left' : ST_LABEL[s];
   return `<div class="item tone-${tn==='pcs'?'short':s}" data-item="${i.id}">${ctab(i)}<div><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div>
     ${i.spec?`<div class="meta">${esc(i.spec)}</div>`:''}${isKit(i)?`<div class="meta">Each: ${esc(kitSummary(i))}</div>`:''}
     ${isKit(i)&&kitMissing(i).length?`<div class="kitmiss">Missing pieces: ${esc(kitMissTxt(kitMissing(i)))}</div>`:''}
-    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}${po.length?`<div class="kitpcs">Pieces out: ${esc(kitMissTxt(po))}</div>`:''}<span class="st ${tn==='pcs'?'short':s}">${lbl}</span></div>
+    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>hLabel(n)+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}${po.length?`<div class="kitpcs">Pieces out: ${esc(kitMissTxt(po))}</div>`:''}<span class="st ${tn==='pcs'?'short':s}">${lbl}</span></div>
     <div class="cnt"><b>${i.onHand??'—'}</b> <span>/ ${i.full??'?'}</span><div class="muted" style="font-size:11px">${esc(i.unit)}</div></div></div>`;
 }
 
-function itemSheet(id){
+async function adminCall(fn, ...args){
+  const A=S.adm; setStatus('saving','Saving…');
+  try{ const d=await api[fn]({name:S.me.name,pin:A.pin}, ...args);
+    S.items=d.items; S.log=d.log; if(d.crew&&d.crew.length) S.crew=d.crew; S.assign=d.assign||[]; S.admins=d.admins||S.admins; S.rep.all=null; lastSync=new Date(); idle(); render(); return true; }
+  catch(e){ const m=String(e.message||e); setStatus('off','Not saved'); toast('Not saved: '+m);
+    if(/PIN|admin/i.test(m)){ A.ok=false; A.pin=''; try{ sessionStorage.removeItem('usar301_adm'); }catch(x){} render(); } return false; }
+}
+function editItem(id){
+  const src=id? S.items.find(x=>x.id===id) : null; if(id&&!src) return;
+  const f=src? {id:src.id, item:src.item, loc:src.loc, cat:src.cat||'', unit:src.unit||'EA', full:src.full??'', onHand:src.onHand??'', spec:src.spec||'', src:src.src||'', price:src.price??'', notes:src.notes||'', color:src.color||'', kit:(src.kit||[]).map(k=>({...k}))}
+    : {item:'', loc:S.adm.lastLoc||'', cat:'', unit:'EA', full:1, onHand:'', spec:'', src:'', price:'', notes:'', color:'', kit:[]};
+  let isK=f.kit.length>0, newLoc=false, newCat=false, del=false;
+  const locs=[...new Set(S.items.map(i=>i.loc))], cats=[...new Set(S.items.map(i=>i.cat).filter(Boolean))], colors=[...new Set(S.items.map(i=>i.color).filter(Boolean))];
+  const keep=()=>{ document.querySelectorAll('[data-ef]').forEach(x=>{ f[x.dataset.ef]=x.value; });
+    document.querySelectorAll('[data-kpe]').forEach(x=>{ f.kit[+x.dataset.kpe][x.dataset.k]=x.value; }); };
+  const draw=()=>openSheet(`<h3>${id?'Edit item':'Add an item or kit'}</h3>${id?`<p class="sub">${esc(src.id)} · last updated ${src.updated?esc(fmtTime(src.updated)):'—'}</p>`:''}
+    <label class="f">Name <span class="req">(required)</span></label><input class="in" data-ef="item" value="${esc(f.item)}" placeholder="e.g. Ratchet Strap 2&quot;">
+    <label class="f">Location on the truck <span class="req">(required)</span></label>
+    ${newLoc||(!locs.includes(f.loc)&&f.loc)?`<input class="in" data-ef="loc" value="${esc(f.loc)}" placeholder="New location name">`:`<select class="in" data-ef="loc" id="efLoc">${!f.loc?'<option value="">Pick a location…</option>':''}${locs.map(l=>`<option ${l===f.loc?'selected':''}>${esc(l)}</option>`).join('')}<option value="__new">＋ New location…</option></select>`}
+    <div class="edgrid"><div><label class="f">Category</label>
+    ${newCat||(!cats.includes(f.cat)&&f.cat)?`<input class="in" data-ef="cat" value="${esc(f.cat)}" placeholder="New category">`:`<select class="in" data-ef="cat" id="efCat"><option value="">—</option>${cats.map(c=>`<option ${c===f.cat?'selected':''}>${esc(c)}</option>`).join('')}<option value="__new">＋ New…</option></select>`}</div>
+    <div><label class="f">Unit</label><input class="in" data-ef="unit" list="efUnits" value="${esc(f.unit)}"><datalist id="efUnits">${['EA','KIT','PR','SET','BOX','ROLL','BAG','CASE'].map(u=>`<option value="${u}">`).join('')}</datalist></div>
+    <div><label class="f">Full load</label><input class="in" data-ef="full" inputmode="numeric" value="${esc(f.full)}" placeholder="blank = TBD"></div>
+    <div><label class="f">On hand now</label><input class="in" data-ef="onHand" inputmode="numeric" value="${esc(f.onHand)}" placeholder="${id?'':'same as full load'}"></div>
+    <div><label class="f">Price each ($)</label><input class="in" data-ef="price" inputmode="decimal" value="${esc(f.price)}"></div>
+    <div><label class="f">Color tag</label><select class="in" data-ef="color"><option value="">None</option>${colors.map(c=>`<option ${c===f.color?'selected':''}>${esc(c)}</option>`).join('')}</select></div></div>
+    <label class="f">Model # / spec</label><input class="in" data-ef="spec" value="${esc(f.spec)}">
+    <label class="f">Reorder from (store, part # or link)</label><input class="in" data-ef="src" value="${esc(f.src)}">
+    <label class="f">Notes</label><input class="in" data-ef="notes" value="${esc(f.notes)}">
+    <label class="ckline"><input type="checkbox" id="efKit" ${isK?'checked':''}><span>This is a <b>kit</b> – it goes out as one unit with pieces inside</span></label>
+    ${isK?`<div class="card" style="padding:10px;margin-top:6px"><div class="muted" style="font-size:12px;font-weight:700">Pieces in EACH kit · Sub-kit is optional (for a kit inside a kit)</div>
+      <div class="kitedit muted" style="font-size:11.5px;font-weight:700"><span>Sub-kit</span><span>Piece</span><span>Qty</span><span>$ each</span><span></span></div>
+      ${f.kit.map((k,x)=>`<div class="kitedit"><input class="in" data-kpe="${x}" data-k="g" value="${esc(k.g||'')}" list="efGroups"><input class="in" data-kpe="${x}" data-k="n" value="${esc(k.n)}" placeholder="Piece name">
+        <input class="in" data-kpe="${x}" data-k="q" inputmode="numeric" value="${esc(k.q)}"><input class="in" data-kpe="${x}" data-k="p" inputmode="decimal" value="${esc(k.p??'')}"><button class="kx" data-kprm="${x}" aria-label="Remove piece">✕</button></div>`).join('')}
+      <datalist id="efGroups">${[...new Set(f.kit.map(k=>k.g).filter(Boolean))].map(g=>`<option value="${esc(g)}">`).join('')}</datalist>
+      <button class="btn" id="efAddP" style="margin-top:6px;padding:7px 12px;font-size:13px">＋ Add piece</button></div>`:''}
+    <div style="height:14px"></div><button class="btn primary block" id="efSave">${id?'Save changes':'Add item'}</button>
+    ${id?`<button class="btn block ${del?'danger':''}" id="efDel" style="margin-top:10px">${del?'Tap again to remove it from the truck list':'Remove item'}</button><p class="muted" style="font-size:12px;margin-top:6px">Removing takes it off the inventory list. Its history stays in the Activity Log.</p>`:''}`, ()=>{
+    const el=$('#efLoc'); if(el) el.onchange=()=>{ keep(); if(el.value==='__new'){ newLoc=true; f.loc=''; } draw(); if(newLoc) document.querySelector('[data-ef="loc"]').focus(); };
+    const ec=$('#efCat'); if(ec) ec.onchange=()=>{ keep(); if(ec.value==='__new'){ newCat=true; f.cat=''; draw(); document.querySelector('[data-ef="cat"]').focus(); } };
+    $('#efKit').onchange=e=>{ keep(); isK=e.target.checked; if(isK&&!f.kit.length){ f.kit.push({n:'',q:1}); if(!id||f.unit==='EA') f.unit='KIT'; } draw(); };
+    const ap=$('#efAddP'); if(ap) ap.onclick=()=>{ keep(); const last=f.kit[f.kit.length-1]; f.kit.push({n:'',q:1,g:last&&last.g||''}); draw(); const n=document.querySelectorAll('[data-k="n"]'); n[n.length-1].focus(); };
+    document.querySelectorAll('[data-kprm]').forEach(b=>b.onclick=()=>{ keep(); f.kit.splice(+b.dataset.kprm,1); draw(); });
+    $('#efSave').onclick=async()=>{ keep();
+      if(!String(f.item).trim()){ toast('Give it a name'); return; } if(!String(f.loc).trim()||f.loc==='__new'){ toast('Pick a location'); return; }
+      const out={...f, item:String(f.item).trim(), loc:String(f.loc).trim(), cat:f.cat==='__new'?'':f.cat, kit:isK? f.kit.filter(k=>String(k.n||'').trim()).map(k=>({n:String(k.n).trim(), q:Math.max(1,Number(k.q)||1), g:String(k.g||'').trim(), p:k.p===''||k.p==null?'':Number(k.p)})) : []};
+      if(isK&&!out.kit.length){ toast('Add at least one piece, or untick "kit"'); return; }
+      S.adm.lastLoc=out.loc;
+      if(await adminCall('saveItem', out)){ closeSheet(); toast(id?'Saved '+out.item:'Added '+out.item+' to '+out.loc); } };
+    const ed=$('#efDel'); if(ed) ed.onclick=async()=>{ if(!del){ keep(); del=true; draw(); return; }
+      if(await adminCall('deleteItem', id)){ closeSheet(); toast('Removed '+src.item); } };
+  });
+  draw();
+}
+function moveGear(id, from){
+  const i=S.items.find(x=>x.id===id); if(!i) return; const have=Object.fromEntries(kitHolders(id))[from]||0; let q=have, to='';
+  const okTo=()=>{ const h=normHolder(to); return h&&h!==from&&!/^Squad: ?$/.test(h) ? h : ''; };
+  const draw=()=>openSheet(`<h3>Move ${esc(i.item)}</h3><p class="sub">From <b>${esc(hLabel(from))}</b> (has ${have}) to another squad or person. Nothing changes on the truck.</p>
+    ${have>1?`<div class="row" style="margin-top:10px"><span class="muted">How many</span><div class="stepper" style="margin-left:auto"><button id="mvDec" ${q>1?'':'disabled'}>−</button><input id="mvQ" inputmode="numeric" value="${q}"><button id="mvInc" ${q<have?'':'disabled'}>+</button></div></div>`:''}
+    <label class="f">Move to</label>${holderField('id="mvTo"', to, 'Person, or tap a squad')}${holderList()}
+    <div style="height:12px"></div><button class="btn primary block" id="mvGo" ${okTo()?'':'disabled'}>${okTo()?`Move ${q} to ${esc(hLabel(okTo()))}`:'Pick who it goes to'}</button>`, ()=>{
+    const keep=()=>{ to=$('#mvTo').value; if($('#mvQ')) q=Math.max(1,Math.min(have,Number($('#mvQ').value)||1)); };
+    bindHolderChips(()=>{ keep(); draw(); const w=$('#mvTo'); if(/: $/.test(w.value)) w.focus(); });
+    $('#mvTo').oninput=()=>{ to=$('#mvTo').value; const b=$('#mvGo'), h=okTo(); b.disabled=!h; b.textContent=h?`Move ${q} to ${hLabel(h)}`:'Pick who it goes to'; };
+    if($('#mvDec')){ $('#mvDec').onclick=()=>{ keep(); q=Math.max(1,q-1); draw(); }; $('#mvInc').onclick=()=>{ keep(); q=Math.min(have,q+1); draw(); }; $('#mvQ').onchange=()=>{ keep(); draw(); }; }
+    $('#mvGo').onclick=async()=>{ keep(); const h=okTo(); if(!h) return;
+      const src=S.log.find(l=>l.id===id && (l.notes||'').includes(from) && l.kind);
+      const ok=await submit({action:'TRANSFER', lines:[{id, qty:q, note:`From: ${from} · To: ${h}`}], kind:src?src.kind:'', details:src?src.details:'', incident:src?src.incident:'', notes:''});
+      if(ok){ closeSheet(); toast(`Moved ${q} × ${i.item} to ${hLabel(h)}`); } };
+  });
+  draw();
+}
+function itemSheet(id, opt){
   const i=S.items.find(x=>x.id===id); if(!i) return;
-  const st=linkCtx({action:'USED'}); let qty=1, note='', who='', missing=new Set(), kOpen=new Set(), rOpen=new Set(), ck={}, iss=[''], ret=null, rk={}, pq={}, pOpen=new Set();
+  const st=linkCtx({action:(opt&&opt.action)||'USED'}); let qty=1, note='', who='', missing=new Set(), kOpen=new Set(), rOpen=new Set(), ck={}, iss=[''], ret=null, rk={}, pq={}, pOpen=new Set(), rq={}, plain=false;
+  if(opt&&opt.ret&&isKit(i)) ret=opt.ret;
   const kit=isKit(i), names=[...new Set(S.crew.map(c=>c.name))];
   const hist=S.log.filter(l=>l.id===id).slice(0,5);
   const draw=()=>openSheet(`${i.color?`<span class="tag c-${esc(i.color)}" style="margin-bottom:6px">${esc(i.color)}</span>`:''}<h3>${esc(i.item)}</h3>
@@ -994,24 +1197,26 @@ function itemSheet(id){
       ${done?`<button class="btn ${done===i.kit.length?'primary':''} block" id="kSave" style="margin-top:8px" ${done<i.kit.length?'disabled':''}>${done<i.kit.length?`Mark every piece to save (${done}/${i.kit.length})`:nk?`Save kit check · ${nk} piece${nk>1?'s':''} missing`:'Save kit check · all there'}</button>`:''}
       ${cur.length?`<p class="sub" style="margin-top:8px;color:#9b1c13"><b>Missing now:</b> ${esc(kitMissTxt(cur))}</p>`:''}
       ${lk?`<p class="muted" style="font-size:12px;margin-top:4px">Last kit check ${esc(fmtTime(lk.ts))} by ${esc(lk.name)}</p>`:''}`; })()+`
-      ${(()=>{ const kh=kitHolders(i.id); return kh.length?`<p class="sub" style="margin-top:8px">Out with: <b>${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</b></p>`:''; })()}`:''}
+`:''}
+    ${(()=>{ const kh=kitHolders(i.id); return kh.length?`<p class="sub" style="margin-top:8px">Out with: <b>${esc(kh.map(([n,q])=>hLabel(n)+(q>1?' ('+q+')':'')).join(', '))}</b></p>`:''; })()}
     <label class="f">Log</label>
     ${kit?`<div class="muted" style="font-size:12.5px;font-weight:700;margin:-2px 0 6px">Whole kit</div>`:''}
     <div class="seg">${['USED','RETURNED','REPLACE','RESTOCKED'].map(a=>`<button data-sa="${a}" class="${st.action===a?'on':''}">${kit&&a==='USED'?'Issue':kit&&a==='RETURNED'?'Check in':a==='REPLACE'?'Replace':ACTION_LABEL[a]}</button>`).join('')}</div>
     ${kit&&S.apiv>=2?`<div class="muted" style="font-size:12.5px;font-weight:700;margin:12px 0 6px">Just some pieces</div>
     <div class="seg">${[['PUSE','Pull pieces from kit'],['PRET','Put pieces back']].map(([a,l])=>`<button data-sa="${a}" class="${st.action===a?'on':''}">${l}</button>`).join('')}</div>`:''}
     ${kit&&st.action==='USED'?(()=>{ const avail=i.onHand??0;
-      return `<label class="f">Issued to (one ${esc(i.item.toLowerCase())} each)</label>
-      ${iss.map((n,x)=>`<div class="row" style="gap:6px;margin-bottom:6px"><input class="in" data-iss="${x}" list="crewNames" placeholder="Member ${x+1} – start typing a name" value="${esc(n)}" autocomplete="off" style="margin:0;flex:1">
+      return `<label class="f">Issued to – a person or a squad (one ${esc(i.item.toLowerCase())} each)</label>
+      ${iss.map((n,x)=>`<div class="row" style="gap:6px;margin-bottom:6px"><input class="in" data-iss="${x}" list="holderNames" placeholder="${x?'Another person or squad':'Start typing a name, or tap a squad'}" value="${esc(n)}" autocomplete="off" style="margin:0;flex:1">
         ${iss.length>1?`<button class="kx" data-issrm="${x}" aria-label="Remove">✕</button>`:''}</div>`).join('')}
-      <datalist id="crewNames">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+      <div class="sqchips">${[...new Set([...activeSquads(),...SQUAD_PRESETS])].map(s=>`<button type="button" class="chip sm" data-isq="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+      ${holderList()}
       ${iss.length<avail?`<button class="btn block" id="issAdd" style="margin-top:2px">+ Add another member</button>`:`<p class="muted" style="font-size:12px">All ${avail} on the truck are listed.</p>`}
       <label class="f">Notes (optional)</label><input class="in" id="sNote" value="${esc(note)}">
       <div style="height:12px"></div><button class="btn primary block" id="issSave" ${avail?'':'disabled'}>${avail?`Issue ${iss.filter(x=>x.trim()).length||''} ${esc(i.item.toLowerCase())}${iss.filter(x=>x.trim()).length>1?'s':''}`:'None on the truck to issue'}</button>`; })()
     : kit&&st.action==='RETURNED'?(()=>{ const kh=kitHolders(i.id);
       return `<label class="f">Check in</label>
       ${kh.length? kh.map(([n,q])=>`<div class="card" style="padding:10px 12px;margin:0 0 8px">
-          <div class="row" style="gap:8px"><b style="flex:1">${esc(n)}${q>1?` <span class="muted">(${q})</span>`:''}</b>
+          <div class="row" style="gap:8px"><b style="flex:1">${isSquad(n)?'<span class="sqtag">Squad</span>'+esc(hName(n)):esc(n)}${q>1?` <span class="muted">(${q})</span>`:''}</b>
           ${ret===n?'':`<button class="btn primary" data-ret="${esc(n)}" style="padding:8px 14px">Check in</button>`}</div>
           ${ret===n?(()=>{ const done=i.kit.filter(k=>rk[k.n]).length, all=done===i.kit.length;
             return `<div class="muted" style="font-size:12.5px;margin-top:8px">Check every piece: <b style="color:#1f7a3a">✓</b> it's there, <b style="color:#9b1c13">✕</b> missing or damaged. <b>${done}/${i.kit.length}</b></div>
@@ -1030,13 +1235,19 @@ function itemSheet(id){
           <div class="stepper"><button data-pm="${x}" ${v?'':'disabled'}>−</button><input data-pv="${x}" inputmode="numeric" value="${v}"><button data-pp="${x}" ${v<m?'':'disabled'}>+</button></div></div>`; },pOpen,k=>pq[k.n]?'ok':undefined,'psk')}</div>
       <label class="f">Notes (optional)</label><input class="in" id="sNote" value="${esc(note)}">
       <div style="height:12px"></div><button class="btn primary block" id="pSave" ${tot?'':'disabled'}>${tot?`${use?'Log':'Put back'} ${tot} piece${tot>1?'s':''}${use?' pulled from kit':' into kit'}`:'Pick at least one piece'}</button>`; })()
+    : !kit&&st.action==='RETURNED'&&kitHolders(i.id).length&&!plain?`<label class="f">Check in from</label>
+      ${kitHolders(i.id).map(([h,q])=>{ const v=Math.min(rq[h]??q,q); return `<div class="holdcard"><div class="row"><b style="flex:1">${isSquad(h)?'<span class="sqtag">Squad</span>'+esc(hName(h)):esc(h)} <span class="muted" style="font-weight:600">has ${q}</span></b>
+        <div class="stepper"><button data-hrm="${esc(h)}" ${v>1?'':'disabled'}>−</button><input data-hrv="${esc(h)}" inputmode="numeric" value="${v}"><button data-hrp="${esc(h)}" ${v<q?'':'disabled'}>+</button></div></div>
+        <button class="btn primary block" data-hret="${esc(h)}" style="margin-top:8px">Check in ${v} from ${esc(hName(h))}</button></div>`; }).join('')}
+      <button class="btn block" id="plainRet" style="margin-top:4px">Returned, but not from anyone above</button>`
     : `<div class="row" style="margin-top:12px"><span class="muted">Quantity (${esc(i.unit)})</span>
       <div class="stepper" style="margin-left:auto"><button id="sDec">−</button><input id="sQty" inputmode="numeric" value="${qty}"><button id="sInc">+</button></div></div>
     ${kit?`<label class="f">${st.action==='RESTOCKED'?'Pieces replaced':'Pieces missing or damaged'} (tap any)</label><div>${i.kit.map((k,x)=>`<button class="pchip ${missing.has(k.n)?'on':''}" data-pc="${x}">${esc(k.n)}</button>`).join('')}</div>`:''}
+    ${!kit&&st.action==='USED'&&S.apiv>=2?`<label class="f">Issued to <span class="muted" style="text-transform:none;font-weight:500">– optional: who has it, so it comes back</span></label>${holderField('id="sWho"', who)}${holderList()}`:''}
     <label class="f">Notes (optional)</label><input class="in" id="sNote" value="${esc(note)}">
-    <div style="height:12px"></div><button class="btn primary block" id="sSave">Save as ${ACTION_LABEL[st.action]}</button>`}
+    <div style="height:12px"></div><button class="btn primary block" id="sSave">${!kit&&st.action==='USED'&&normHolder(who)?`Issue to ${esc(hLabel(normHolder(who)))}`:`Save as ${ACTION_LABEL[st.action]}`}</button>`}
     ${hist.length?`<label class="f">Recent</label>`+hist.map(l=>`<div class="muted" style="font-size:12.5px;padding:3px 0">${esc(fmtTime(l.ts))} · ${ACTION_LABEL[l.action]} ${esc(l.qty)}${pieceOf(l)?' '+esc(pieceOf(l)):''} · ${esc(l.name)}</div>`).join(''):''}`, ()=>{
-      const keep=()=>{ if($('#sQty')) qty=Number($('#sQty').value)||1; if($('#sNote')) note=$('#sNote').value; document.querySelectorAll('[data-iss]').forEach(x=>iss[+x.dataset.iss]=x.value); };
+      const keep=()=>{ if($('#sQty')) qty=Number($('#sQty').value)||1; if($('#sNote')) note=$('#sNote').value; if($('#sWho')) who=$('#sWho').value; document.querySelectorAll('[data-iss]').forEach(x=>iss[+x.dataset.iss]=x.value); };
       const needCtx=()=>{ closeSheet(); if(S.route!=='inventory') go('inventory');
         setTimeout(()=>{ const c=document.querySelector('[data-p="l"]')?.closest('.card'); if(c){ c.classList.add('needctx'); c.scrollIntoView({block:'center'}); } },60);
         toast('Pick Incident or Training at the top first'); };
@@ -1044,14 +1255,15 @@ function itemSheet(id){
       document.querySelectorAll('[data-issrm]').forEach(b=>b.onclick=()=>{ keep(); iss.splice(+b.dataset.issrm,1); draw(); });
       const ia=$('#issAdd'); if(ia) ia.onclick=()=>{ keep(); iss.push(''); draw(); setTimeout(()=>{ const l=document.querySelector(`[data-iss="${iss.length-1}"]`); l&&l.focus(); },50); };
       const is=$('#issSave'); if(is) is.onclick=async()=>{ keep();
-        const list=iss.map(x=>x.trim()).filter(Boolean);
+        const list=iss.map(normHolder).filter(Boolean);
         if(!list.length){ toast('Enter who it is issued to'); return; }
         const dup=list.find((x,k)=>list.findIndex(y=>y.toLowerCase()===x.toLowerCase())!==k); if(dup){ toast(dup+' is listed twice'); return; }
         if(list.length>(i.onHand??0)){ toast(`Only ${i.onHand??0} on the truck`); return; }
         if(!ctxReady()){ needCtx(); return; }
         const extra=($('#sNote').value||'').trim();
         const ok=await submit({action:'USED', lines:list.map(n=>({id, qty:1, note:'Issued to: '+n+(extra?' · '+extra:'')})), incident:st.kind==='Incident'?st.incident.trim():'', details:st.details.trim(), notes:'', kind:st.kind});
-        if(ok){ closeSheet(); toast(`Issued to ${list.join(', ')}`); } };
+        if(ok){ closeSheet(); toast(`Issued to ${list.map(hLabel).join(', ')}`); } };
+      document.querySelectorAll('[data-isq]').forEach(b=>b.onclick=()=>{ keep(); let k=iss.findIndex(v=>!v.trim()); if(k<0){ if(iss.length<(i.onHand??0)){ iss.push(''); k=iss.length-1; } else k=iss.length-1; } iss[k]='Squad: '+b.dataset.isq; draw(); });
       document.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{ keep(); const g=b.dataset.sk; kOpen.has(g)?kOpen.delete(g):kOpen.add(g); draw(); });
       document.querySelectorAll('[data-rsk]').forEach(b=>b.onclick=()=>{ const g=b.dataset.rsk; rOpen.has(g)?rOpen.delete(g):rOpen.add(g); draw(); });
       document.querySelectorAll('[data-ret]').forEach(b=>b.onclick=()=>{ ret=b.dataset.ret; rk={}; draw(); });
@@ -1061,13 +1273,13 @@ function itemSheet(id){
       const ro=$('#retOk'); if(ro) ro.onclick=async()=>{
         // use the top Incident/Training if set, otherwise the one this kit was issued under
         let kind=st.kind, details=st.details, incident=st.incident;
-        if(!ctxReady()){ const src=S.log.find(l=>l.id===id && l.action==='USED' && (l.notes||'').includes('Issued to: '+ret));
+        if(!ctxReady()){ const src=S.log.find(l=>l.id===id && l.kind && ['USED','TRANSFER'].includes(l.action) && (l.notes||'').includes(ret));
           if(src&&src.kind){ kind=src.kind; details=src.details; incident=src.incident; } else { needCtx(); return; } }
         if(i.kit.some(k=>!rk[k.n])){ toast('Check every piece first'); return; }
         const mis=i.kit.filter(k=>rk[k.n]==='x').map(k=>k.n);
         const nt='Returned by: '+ret+(mis.length?' · Missing/damaged: '+mis.join(', '):' · All pieces checked');
         const ok=await submit({action:'RETURNED', lines:[{id, qty:1, note:nt}], incident:kind==='Incident'?(incident||'').trim():'', details:(details||'').trim(), notes:'', kind});
-        if(ok){ const who=ret; ret=null; closeSheet(); toast(`Checked in from ${who}`+(mis.length?` · ${mis.length} missing`:' · all there')); } };
+        if(ok){ const who=hLabel(ret); ret=null; closeSheet(); toast(`Checked in from ${who}`+(mis.length?` · ${mis.length} missing`:' · all there')); } };
       const kmax=Math.max(1,i.onHand??i.full??1);
       document.querySelectorAll('[data-kc]').forEach(b=>b.onclick=()=>{ keep(); const n=i.kit[+b.dataset.kc].n; if(ck[n]==='ok') delete ck[n]; else ck[n]='ok'; draw(); });
       document.querySelectorAll('[data-kx]').forEach(b=>b.onclick=()=>{ keep(); const n=i.kit[+b.dataset.kx].n; if(ck[n]!==undefined&&ck[n]!=='ok') delete ck[n]; else ck[n]=1; draw(); });
@@ -1080,7 +1292,23 @@ function itemSheet(id){
       const ks=$('#kSave'); if(ks) ks.onclick=()=>saveCheck(false);
       document.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{ const n=i.kit[+b.dataset.pc].n; missing.has(n)?missing.delete(n):missing.add(n); b.classList.toggle('on');
         const r=$('#retOk'); if(r) r.textContent='Confirm check-in'+(missing.size?` · ${missing.size} missing`:''); });
-      document.querySelectorAll('[data-sa]').forEach(b=>b.onclick=()=>{ keep(); if(st.action!==b.dataset.sa) pq={}; st.action=b.dataset.sa; draw(); });
+      document.querySelectorAll('[data-sa]').forEach(b=>b.onclick=()=>{ keep(); if(st.action!==b.dataset.sa){ pq={}; plain=false; } st.action=b.dataset.sa; draw(); });
+      // issue-to field on a plain item
+      bindHolderChips(()=>{ keep(); draw(); const w=$('#sWho'); if(w&&/: $/.test(w.value)){ w.focus(); w.setSelectionRange(w.value.length,w.value.length); } });
+      const sw=$('#sWho'); if(sw) sw.onchange=()=>{ keep(); draw(); };
+      // check a plain item back in from a person or squad
+      { const hq=Object.fromEntries(kitHolders(i.id));
+        const sethq=(h,v)=>{ keep(); rq[h]=Math.max(1,Math.min(hq[h]||1,Number(v)||1)); draw(); };
+        document.querySelectorAll('[data-hrp]').forEach(b=>b.onclick=()=>sethq(b.dataset.hrp,(rq[b.dataset.hrp]??hq[b.dataset.hrp])+1));
+        document.querySelectorAll('[data-hrm]').forEach(b=>b.onclick=()=>sethq(b.dataset.hrm,(rq[b.dataset.hrm]??hq[b.dataset.hrm])-1));
+        document.querySelectorAll('[data-hrv]').forEach(n=>n.onchange=()=>sethq(n.dataset.hrv,n.value));
+        const pr=$('#plainRet'); if(pr) pr.onclick=()=>{ plain=true; draw(); };
+        document.querySelectorAll('[data-hret]').forEach(b=>b.onclick=async()=>{ const h=b.dataset.hret, q=Math.min(rq[h]??hq[h],hq[h]);
+          let kind=st.kind, details=st.details, incident=st.incident;
+          if(!ctxReady()){ const src=S.log.find(l=>l.id===id && l.kind && ['USED','TRANSFER'].includes(l.action) && (l.notes||'').includes(h));
+            if(src&&src.kind){ kind=src.kind; details=src.details; incident=src.incident; } else { needCtx(); return; } }
+          const ok=await submit({action:'RETURNED', lines:[{id, qty:q, note:'Returned by: '+h}], incident:kind==='Incident'?(incident||'').trim():'', details:(details||'').trim(), notes:'', kind});
+          if(ok){ closeSheet(); toast(`Checked in ${q} × ${i.item} from ${hLabel(h)}`); } }); }
       // pieces pulled from / put back into the kit
       { const use=st.action==='PUSE', out=Object.fromEntries(pieceOut(i)), mis=Object.fromEntries(kitMissing(i)), kits=Math.max(0,Number(i.onHand)||0);
         const max=k=> use? Math.max(0,(Number(k.q)||1)*kits-(out[k.n]||0)-(mis[k.n]||0)) : (out[k.n]||0);
@@ -1109,13 +1337,40 @@ function itemSheet(id){
         if(kit){ const parts=[];
           if(missing.size) parts.push((st.action==='RESTOCKED'?'Pieces replaced: ':'Missing/damaged: ')+[...missing].join(', '));
           if(notes) parts.push(notes); notes=parts.join(' · '); }
+        const hw=(!kit&&st.action==='USED'&&$('#sWho'))? normHolder($('#sWho').value) : '';
+        if(hw) notes='Issued to: '+hw+(notes?' · '+notes:'');
         const ok=await submit({action:st.action, lines:[{id, qty:q}], incident:nk&&st.kind==='Incident'?st.incident.trim():'', details:nk?st.details.trim():'', notes, kind:nk?st.kind:''});
-        if(ok){ closeSheet(); toast(`${ACTION_LABEL[st.action]}: ${q} × ${i.item}`); } };
+        if(ok){ closeSheet(); toast(hw? `Issued ${q} × ${i.item} to ${hLabel(hw)}` : `${ACTION_LABEL[st.action]}: ${q} × ${i.item}`); } };
     });
   draw();
 }
 
 const BIND = {
+admin(){
+  const A=S.adm;
+  const g=$('#admGo'); if(g){ const pinEl=$('#admPin'); setTimeout(()=>pinEl.focus(),50);
+    const go_=async()=>{ const pin=pinEl.value.trim(); if(!pin) return; g.disabled=true; g.textContent='Checking…';
+      try{ await api.adminLogin({name:S.me.name,pin}); A.pin=pin; A.ok=true; A.n=S.me.name; try{ sessionStorage.setItem('usar301_adm',JSON.stringify({n:S.me.name,p:pin})); }catch(e){} render(); }
+      catch(e){ toast(String(e.message||e)); g.disabled=false; g.textContent='Unlock admin'; pinEl.select(); } };
+    g.onclick=go_; pinEl.onkeydown=e=>{ if(e.key==='Enter') go_(); }; return; }
+  document.querySelectorAll('[data-admt]').forEach(b=>b.onclick=()=>{ A.tab=b.dataset.admt; render(); });
+  const ad=$('#admAdd'); if(ad) ad.onclick=()=>editItem(null);
+  const aq=$('#admQ'); if(aq) aq.oninput=()=>{ A.q=aq.value; const p=aq.selectionStart; render(); const n=$('#admQ'); n.focus(); n.setSelectionRange(p,p); };
+  document.querySelectorAll('[data-admi]').forEach(r=>r.onclick=()=>editItem(r.dataset.admi));
+  document.querySelectorAll('[data-cr]').forEach(x=>x.oninput=x.onchange=()=>{ A.crew[+x.dataset.cr][x.dataset.k]=x.value; if(x.dataset.k==='shift') render(); });
+  document.querySelectorAll('[data-crrm]').forEach(b=>b.onclick=()=>{ A.crew.splice(+b.dataset.crrm,1); render(); });
+  document.querySelectorAll('[data-cradd]').forEach(b=>b.onclick=()=>{ A.crew.push({shift:b.dataset.cradd,unit:'',pos:'',name:''}); render();
+    const ins=document.querySelectorAll(`[data-k="name"]`); const last=[...ins].find(n=>!n.value); last&&last.focus(); });
+  const cs=$('#crSave'); if(cs) cs.onclick=async()=>{ const rows=A.crew.filter(c=>String(c.name).trim()).map(c=>({shift:c.shift,unit:String(c.unit).trim(),pos:String(c.pos).trim(),name:String(c.name).trim()}));
+    if(await adminCall('saveCrew',rows)){ A.crew=null; toast('Roster saved · '+rows.length+' people'); } };
+  document.querySelectorAll('[data-as]').forEach(x=>x.oninput=x.onchange=()=>{ A.asg[x.dataset.as][x.dataset.k]=x.value; });
+  const as=$('#asSave'); if(as) as.onclick=async()=>{ const rows=Object.entries(A.asg).filter(([,a])=>a.shift||String(a.unit).trim()).map(([loc,a])=>({loc,shift:a.shift,unit:String(a.unit).trim(),every:a.every===''?'':Number(a.every)||''}));
+    if(await adminCall('saveAssignments',rows)){ A.asg=null; toast(rows.length+' section'+(rows.length===1?'':'s')+' assigned'); } };
+},
+squads(){
+  document.querySelectorAll('[data-ci]').forEach(b=>b.onclick=()=>itemSheet(b.dataset.cii,{action:'RETURNED', ret:b.dataset.ci}));
+  document.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>moveGear(b.dataset.mvi, b.dataset.mv));
+},
 home(){ document.querySelectorAll('[data-go]').forEach(c=>c.onclick=()=>go(c.dataset.go));
   document.querySelectorAll('[data-tile]').forEach(b=>b.onclick=()=>{ S.inv={q:'',cat:'All',st:b.dataset.tile}; go('inventory'); }); },
 inventory(){
@@ -1223,6 +1478,7 @@ checkoff(){
   upd();
   document.querySelectorAll('[data-cosec]').forEach(b=>b.onclick=()=>{ const l=b.dataset.cosec; coState[l]=!(coState[l]===true); sset(CO_KEY,JSON.stringify(coState));
     const y=b.getBoundingClientRect().top; render(); const n=document.querySelector(`[data-cosec="${CSS.escape(l)}"]`); if(n) window.scrollBy(0,n.getBoundingClientRect().top-y); });
+  document.querySelectorAll('[data-comine]').forEach(b=>b.onclick=()=>{ S.coMine=b.dataset.comine==='1'; render(); });
   const ca=$('#coAll'); if(ca) ca.onclick=()=>{ const open=ca.textContent.trim()==='Expand all'; Object.keys(byLoc).forEach(l=>coState[l]=open); sset(CO_KEY,JSON.stringify(coState)); render(); };
   document.querySelectorAll('[data-snote]').forEach(x=>x.oninput=()=>{ C.sn[x.dataset.snote]=x.value; });
   $('#cTNotes').oninput=e=>{ C.tnotes=e.target.value; upd(); };
