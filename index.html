@@ -334,7 +334,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795634660";
+<script>window.USAR301_BUILD="1795635096";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -893,7 +893,7 @@ cuts(){
       <li><b>Nails:</b> 8d = 0.131" × 2½" coated; 16d = 0.148" × 3¼" sinker. Duplex nails at wedges if they may need adjusting.</li>
     </ul>
     <div class="muted" style="font-size:12px;margin-top:8px">Lumber yields allow ⅛" saw kerf per cut. Your Paratech Technical Rescue Field Guide covers the same shores – go by your team's standard if it differs.</div></div>
-  <div class="noprint" style="margin-top:12px;display:grid;gap:8px"><button class="btn primary block" id="cutShore">🔨 Build a shore</button><button class="btn block" id="cutPrint">Print / Save PDF</button></div>`;
+  <div class="noprint" style="margin-top:12px;display:grid;gap:8px"><button class="btn primary block" id="cutShore">🔨 Build a shore</button><a class="btn block" href="https://www.catf-4.org/wp-content/uploads/2019/02/2015-US-Army-Corps-Shoring-Operation-Guide-SOG.pdf" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">📖 Open the USACE Shoring Operations Guide (PDF)</a><button class="btn block" id="cutPrint">Print / Save PDF</button></div>`;
 },
 history(){
   const R=S.rep, Hs=S.hist;
@@ -1336,7 +1336,7 @@ function openShoreBuilder(){
     const cutRows = R? (()=>{ const m={}; R.parts.filter(x=>x.q>0||x.tote).forEach(x=>{ const k=x.label+'|'+x.size+'|'+x.len; const o=(m[k]=m[k]||{...x,q:0,tote:0}); o.q+=x.q+(x.tote||0); o.tote+=(x.tote||0); }); return Object.values(m); })() : [];
     openSheet(`<h3>Build a shore</h3><p class="sub">Pick the shore and size. The app works out every cut, which boards to cut them from, and logs it all in one step. Sizes per the USACE Shoring Operations Guide.</p>
       ${groups.map(g=>`<div class="muted" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px">${g}</div><div class="chips" style="margin:0">${SHORES.filter(s=>s.g===g).map(s=>`<button class="chip ${st.k===s.k?'on':''}" data-sbk="${s.k}">${esc(s.name)}</button>`).join('')}</div>`).join('')}
-      <div class="card" style="margin-top:12px;padding:10px 12px"><b style="font-size:17px">${esc(def.name)}</b> <span class="muted" style="font-size:12.5px">· ${esc(def.cls)} · ${esc(def.ref)}</span><div class="muted" style="font-size:12.5px;margin-top:2px">Capacity: ${esc(def.load)}</div></div>
+      <div class="card" style="margin-top:12px;padding:10px 12px"><b style="font-size:17px">${esc(def.name)}</b> <span class="muted" style="font-size:12.5px">· ${esc(def.cls)} · ${esc(def.ref)}</span><div class="muted" style="font-size:12.5px;margin-top:2px">Capacity: ${esc(def.load)}</div><a href="https://www.catf-4.org/wp-content/uploads/2019/02/2015-US-Army-Corps-Shoring-Operation-Guide-SOG.pdf" target="_blank" rel="noopener" style="font-size:12.5px;font-weight:700">Open the SOG (PDF) – see ${esc(def.ref)} ›</a></div>
       ${def.f.map(field).join('')}${field('size')!==''&&!def.f.includes('size')?'':''}
       <label class="f">Cut from</label><div class="seg">${[['best','Best fit'],['12',"12' boards"],['16',"16' boards"]].map(([k,l])=>`<button data-sbst="${k}" class="${st.stock===k?'on':''}">${l}</button>`).join('')}</div>
       ${err?`<div class="empty" style="color:var(--miss)">${esc(err)}</div>`:''}
