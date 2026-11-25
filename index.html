@@ -114,6 +114,7 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .board{background:#fff;border:1px solid var(--line);border-left:4px solid #c8a06a;border-radius:9px;padding:8px 10px;margin:0 0 6px;font-size:14px}
 .printonly{display:none}@media print{.printonly{display:block}}
 .admcost summary{cursor:pointer;list-style:none;font-size:15px}.admcost summary::-webkit-details-marker{display:none}.admcost summary::after{content:' ▸';color:var(--muted)}.admcost[open] summary::after{content:' ▾'}
+.sbcard{border-color:#f2c48d;background:#fff9f2}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
@@ -335,7 +336,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795635843";
+<script>window.USAR301_BUILD="1795637608";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -696,6 +697,7 @@ home(){
   </div>
   <h2 class="hh">Truck</h2>
   <div class="card navcard" data-go="inventory"><h3>Logistics</h3><p>Everything on USAR 301 by location, with Full Load, On Hand and status.</p><span class="tag">View</span></div>
+  <div class="card navcard sbcard" id="ovShore"><h3>🔨 Shore Builder</h3><p>Pick the shore, punch in the height, and get the cut list and board plan. Logs all the lumber, wedges, gussets and nails at once.</p><span class="tag">Open</span></div>
   <div class="card navcard" data-go="quick"><h3>Log Used / Returned</h3><p>After a call or training: log what was used, what came back, and what needs replacing.</p><span class="tag">Open</span></div>
   <div class="card navcard" data-go="checkoff"><h3>Check-Off ${(()=>{ const due=[...new Set(S.items.map(i=>i.loc))].filter(locDue), my=due.filter(l=>isMine(asgFor(l)));
     return due.length?`<span class="tag accent">${due.length} due${my.length?` · ${my.length} yours`:''}</span>`:''; })()}</h3><p>Truck check (mileage, fluids, engine, radios, lights, sirens, lift gate, tires), then walk the truck section by section. ${lastTruck()?'Last check: '+esc(fmtTime(lastTruck().ts))+' by '+esc(lastTruck().name)+(lastMiles()!=null?' · '+lastMiles().toLocaleString('en-US')+' mi':'')+'.':lc?'Last count: '+esc(fmtTime(lc.ts))+' by '+esc(lc.name)+'.':'No check-off logged yet.'}</p><span class="tag">Start</span></div>
@@ -1129,6 +1131,9 @@ const halfIn = x => Math.floor(x*2)/2;              // round to nearest 1/2" (FE
 const upIn = x => Math.ceil(x*2)/2;
 const fmtLen = x => { x=Math.round(x*2)/2; const f=Math.floor(x/12), i=x-f*12; return (f?f+"'-":'')+(Math.floor(i))+(i%1?'½':'')+'"'; };
 const hyp = (a,b) => Math.sqrt(a*a+b*b);
+const fmtIn = x => { x=Math.round(x*2)/2; return Math.floor(x)+(x%1?'½':'')+'"'; };
+const sbUnit = () => { try{ return localStorage.getItem('usar301_sbunit')||'in'; }catch(e){ return 'in'; } };
+const fmtL = x => sbUnit()==='in' ? fmtIn(x) : fmtLen(x);   // cut list shows what the crew measures in
 const braceSize = s => s==='6x6'?'2x6':'2x4';
 const wedgeSize = s => s==='6x6'?'2x6':'2x4';
 // A wedge "set" = 2 wedges, married. Deduct the thickness of one wedge (1½") from post length (FEMA SM 2b).
@@ -1360,6 +1365,7 @@ function openShoreBuilder(){
   const draw=()=>{ const def=SHORES.find(s=>s.k===st.k); if(!def.sizes.includes(st.v.size)) st.v.size=def.sizes[0];
     const p={...st.v, stock:st.stock}; let R=null, err=''; try{ R=sbCompute(def,p); }catch(e){ err=String(e.message||e); }
     const ftIn=(k,f)=>{ const v=st.v[k]||0, F=Math.floor(v/12), I=Math.round((v-F*12)*2)/2;
+      if(sbUnit()==='in') return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="decimal" data-sbi="${k}" value="${Math.round(v*2)/2}" style="max-width:120px"><span>inches</span><span class="muted" style="font-weight:600;margin-left:6px">= ${fmtLen(v)}</span></div>`;
       return `<label class="f">${f.label}</label><div class="ftin"><input class="in" inputmode="numeric" data-sbf="${k}" data-u="ft" value="${F}"><span>ft</span><input class="in" inputmode="decimal" data-sbf="${k}" data-u="in" value="${I}"><span>in</span></div>`; };
     const field=k=>{ const f=SB_FIELDS[k]; if(k==='size') return def.sizes.length>1?`<label class="f">${f.label}</label><div class="seg">${def.sizes.map(s=>`<button data-sbs="${s}" class="${st.v.size===s?'on':''}">${s.replace('x','×')}</button>`).join('')}</div>`:'';
       if(f.ft) return ftIn(k,f); if(f.check) return `<label class="ckline"><input type="checkbox" data-sbc="${k}" ${st.v[k]?'checked':''}><span>${f.label}</span></label>`;
@@ -1368,17 +1374,18 @@ function openShoreBuilder(){
     const groups=[...new Set(SHORES.map(s=>s.g))];
     const cutRows = R? (()=>{ const m={}; R.parts.filter(x=>x.q>0||x.tote).forEach(x=>{ const k=x.label+'|'+x.size+'|'+x.len; const o=(m[k]=m[k]||{...x,q:0,tote:0}); o.q+=x.q+(x.tote||0); o.tote+=(x.tote||0); }); return Object.values(m); })() : [];
     openSheet(`<h3>Build a shore</h3><p class="sub">Pick the shore and size. The app works out every cut, which boards to cut them from, and logs it all in one step. Sizes per the USACE Field Operations Guide (FOG, Ed. 9).</p>
-      ${groups.map(g=>`<div class="muted" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px">${g}</div><div class="chips" style="margin:0">${SHORES.filter(s=>s.g===g).map(s=>`<button class="chip ${st.k===s.k?'on':''}" data-sbk="${s.k}">${esc(s.name)}</button>`).join('')}</div>`).join('')}
+      ${groups.map(g=>`<div class="muted" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px">${g}</div><div class="chips" style="margin:0;flex-wrap:wrap;overflow:visible">${SHORES.filter(s=>s.g===g).map(s=>`<button class="chip ${st.k===s.k?'on':''}" data-sbk="${s.k}">${esc(s.name)}</button>`).join('')}</div>`).join('')}
       <div class="card" style="margin-top:12px;padding:10px 12px"><b style="font-size:17px">${esc(def.name)}</b> <span class="muted" style="font-size:12.5px">· ${esc(def.cls)} · ${esc(def.ref)}</span><div class="muted" style="font-size:12.5px;margin-top:2px">Capacity: ${esc(def.load)}</div><a href="https://firemarshal.ks.gov/DocumentCenter/View/189/US-Army-Corps-of-Engineers-Field-Operations-Guide---05-2022-PDF" target="_blank" rel="noopener" style="font-size:12.5px;font-weight:700">Open the FOG (PDF) – see ${esc(def.ref)} ›</a></div>
+      <div class="row" style="margin-top:12px;gap:8px"><span class="muted" style="font-size:12.5px;font-weight:700">Measure in</span><div class="seg" style="flex:1;margin:0">${[['in','Inches'],['ftin','Ft + in']].map(([k,l])=>`<button data-sbu="${k}" class="${sbUnit()===k?'on':''}">${l}</button>`).join('')}</div></div>
       ${def.f.map(field).join('')}${field('size')!==''&&!def.f.includes('size')?'':''}
       <label class="f">Cut from</label><div class="seg">${[['best','Best fit'],['12',"12' boards"],['16',"16' boards"]].map(([k,l])=>`<button data-sbst="${k}" class="${st.stock===k?'on':''}">${l}</button>`).join('')}</div>
       ${err?`<div class="empty" style="color:var(--miss)">${esc(err)}</div>`:''}
       ${R?`${R.warn.length?`<div class="card" style="border-color:#f1d491;background:#fff8e7;margin-top:12px">${R.warn.map(w=>`<div>⚠ ${esc(w)}</div>`).join('')}</div>`:''}
       <h3 style="margin:16px 0 6px">Cut list${st.v.n>1?` (${st.v.n} ${def.g==='Rakers'?'rakers':'shores'})`:''}</h3>
       <div class="card" style="padding:4px 10px"><table class="rp"><tr><th>Piece</th><th>Size</th><th>Length</th><th>Qty</th></tr>
-        ${cutRows.map(x=>`<tr><td>${esc(x.label)}${x.est?' <span class="muted" style="font-size:11px">(cut to fit)</span>':''}${x.tote?` <span class="muted" style="font-size:11px">(${x.tote} pre-cut from Entry tote)</span>`:''}</td><td>${x.size.replace('x','×')}</td><td><b>${fmtLen(x.len)}</b></td><td>${x.q}</td></tr>`).join('')}</table></div>
+        ${cutRows.map(x=>`<tr><td>${esc(x.label)}${x.est?' <span class="muted" style="font-size:11px">(cut to fit)</span>':''}${x.tote?` <span class="muted" style="font-size:11px">(${x.tote} pre-cut from Entry tote)</span>`:''}</td><td>${x.size.replace('x','×')}</td><td><b>${fmtL(x.len)}</b></td><td>${x.q}</td></tr>`).join('')}</table></div>
       ${R.lumber.filter(g=>g.plan).map(g=>`<div class="muted" style="font-weight:800;margin:12px 2px 4px">${g.size.replace('x','×')} boards: ${g.plan.length}</div>${g.plan.map((b,i)=>{ const used=b.cuts.reduce((s,c)=>s+c.len,0)+KERF*(b.cuts.length-1);
-        return `<div class="board"><b>${b.st.len/12}' ${g.size.replace('x','×')}</b> <span class="muted">#${i+1}</span><div>${b.cuts.map(c=>`${esc(c.label)} ${fmtLen(c.len)}`).join(' + ')}</div><div class="muted" style="font-size:12px">scrap ${fmtLen(Math.max(0,b.st.len-used))}</div></div>`; }).join('')}`).join('')}
+        return `<div class="board"><b>${b.st.len/12}' ${g.size.replace('x','×')}</b> <span class="muted">#${i+1}</span><div>${b.cuts.map(c=>`${esc(c.label)} ${fmtL(c.len)}`).join(' + ')}</div><div class="muted" style="font-size:12px">scrap ${fmtL(Math.max(0,b.st.len-used))}</div></div>`; }).join('')}`).join('')}
       ${R.from.length?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">From the Shoring Cache / Entry tote</div><div class="card" style="padding:8px 12px">${R.from.map(f=>`<div>${f.q} × ${esc(f.label)}</div>`).join('')}</div>`:''}
       ${R.sheets?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Plywood: ${R.sheets} sheet${R.sheets>1?'s':''} (¾" 4×8)</div><div class="card" style="padding:8px 12px">${R.ply.map(x=>`<div>${x.q} × ${esc(x.label)}</div>`).join('')}</div>`:''}
       ${Object.keys(R.nails).length?`<div class="muted" style="font-weight:800;margin:12px 2px 4px">Nails (logged – adjust if you used more or less)</div><div class="card" style="padding:8px 12px">${Object.entries(R.nails).map(([k,q])=>{ const nb=nailBox(k), v=st.nails[k]??q;
@@ -1392,6 +1399,8 @@ function openShoreBuilder(){
       document.querySelectorAll('[data-sbk]').forEach(b=>b.onclick=()=>{ st.k=b.dataset.sbk; st.nails={}; draw(); });
       document.querySelectorAll('[data-sbnail]').forEach(x=>x.onchange=()=>{ st.nails[x.dataset.sbnail]=Math.max(0,Math.round(Number(x.value)||0)); draw(); });
       document.querySelectorAll('[data-sbs]').forEach(b=>b.onclick=()=>{ st.v.size=b.dataset.sbs; if(st.v.oc===48||st.v.oc===60) st.v.oc=st.v.size==='6x6'?60:48; draw(); });
+      document.querySelectorAll('[data-sbu]').forEach(b=>b.onclick=()=>{ try{ localStorage.setItem('usar301_sbunit',b.dataset.sbu); }catch(e){} draw(); });
+      document.querySelectorAll('[data-sbi]').forEach(x=>x.onchange=()=>{ st.v[x.dataset.sbi]=Math.max(0,Number(String(x.value).replace(/[^\d.]/g,''))||0); st.nails={}; draw(); });
       document.querySelectorAll('[data-sbst]').forEach(b=>b.onclick=()=>{ st.stock=b.dataset.sbst; draw(); });
       document.querySelectorAll('[data-sbo]').forEach(b=>b.onclick=()=>{ st.v[b.dataset.sbo]=Number(b.dataset.val); draw(); });
       document.querySelectorAll('[data-sbc]').forEach(b=>b.onchange=()=>{ st.v[b.dataset.sbc]=b.checked; draw(); });
@@ -1879,7 +1888,7 @@ squads(){
   document.querySelectorAll('[data-ci]').forEach(b=>b.onclick=()=>itemSheet(b.dataset.cii,{action:'RETURNED', ret:b.dataset.ci}));
   document.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>moveGear(b.dataset.mvi, b.dataset.mv));
 },
-home(){ document.querySelectorAll('[data-go]').forEach(c=>c.onclick=()=>go(c.dataset.go));
+home(){ document.querySelectorAll('[data-go]').forEach(c=>c.onclick=()=>go(c.dataset.go)); { const s=$('#ovShore'); if(s) s.onclick=()=>openShoreBuilder(); }
   document.querySelectorAll('[data-tile]').forEach(b=>b.onclick=()=>{ S.inv={q:'',cat:'All',st:b.dataset.tile}; go('inventory'); }); },
 inventory(){
   const q=$('#invQ'); q.oninput=()=>{ S.inv.q=q.value; const pos=q.selectionStart; render(); const n=$('#invQ'); n.focus(); n.setSelectionRange(pos,pos); };
