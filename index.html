@@ -70,9 +70,14 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .lochd{display:flex;align-items:center;gap:8px;width:100%;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lochd .chev{font-size:17px;width:18px;opacity:.85}
 .lochd .seccnt{font-family:var(--body,inherit);font-size:14px;font-weight:700;letter-spacing:0;background:rgba(255,255,255,.18);border-radius:12px;padding:3px 10px}
+.pcrow{display:flex;align-items:center;gap:8px}
+.pcrow .stepper{margin-left:auto}
+.pcrow.on .nm{color:#7a4f00;font-weight:800}
+.pcav{display:block;font-size:11.5px;font-weight:600;color:var(--muted)}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
+.kitpcs{font-size:12.5px;font-weight:700;color:#7a4f00;margin-top:3px}
 .item.tone-short{background:#fff8e7;border-color:#f1d491;box-shadow:inset 5px 0 0 #e3a21a}
 .item.tone-missing{background:#fdeceb;border-color:#eba8a2;box-shadow:inset 5px 0 0 var(--miss)}
 .item.tone-missing .cnt b{color:var(--miss)}
@@ -287,7 +292,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795619435";
+<script>window.USAR301_BUILD="1795619961";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -338,9 +343,11 @@ const demo = {
     (e.lines||[]).forEach(l=>{
       const it = d.items.find(x=>x.id===l.id); if(!it) return;
       const q = Math.max(0, Number(l.qty)||0); if(e.action!=='COUNT' && !q) return;
-      const after = e.action==='COUNT' ? q : Math.max(0, (it.onHand||0) + SIGN[e.action]*q);
-      it.onHand = after; it.updated = now; it.updatedBy = e.name + (e.unit? ' – '+e.unit:'');
-      d.log.unshift({ts:now, action:e.action, id:it.id, item:it.item, qty:q, after, incident:e.incident||'', name:e.name, unit:e.unit||'', notes:l.note||e.notes||'', kind:e.kind||'', details:e.details||''});
+      const pc = l.piece ? String(l.piece) : ''; if(pc && e.action==='COUNT') return;
+      const after = pc ? (it.onHand||0) : e.action==='COUNT' ? q : Math.max(0, (it.onHand||0) + SIGN[e.action]*q);
+      if(!pc){ it.onHand = after; it.updated = now; it.updatedBy = e.name + (e.unit? ' – '+e.unit:''); }
+      const ln = l.note||e.notes||'';
+      d.log.unshift({ts:now, action:e.action, id:it.id, item:pc? it.item+' › '+pc : it.item, qty:q, after, incident:e.incident||'', name:e.name, unit:e.unit||'', notes:pc? 'Kit piece: '+pc+(ln?' · '+ln:'') : ln, kind:e.kind||'', details:e.details||''});
     });
     if(e.action==='COUNT' && Array.isArray(e.secNotes)) e.secNotes.slice().reverse().forEach(s=>{ if(s&&String(s.note||'').trim()) d.log.unshift({ts:now, action:'CHECK', id:'', item:'Section note – '+s.loc, qty:'', after:'', incident:'', name:e.name, unit:e.unit||'', notes:s.note, kind:'Check-off', details:''}); });
     if(e.action==='COUNT' && e.truck) d.log.unshift({ts:now, action:'CHECK', id:'', item:'Truck check', qty:'', after:'', incident:'', name:e.name, unit:e.unit||'', notes:e.truck, kind:'Check-off', details:''});
@@ -409,7 +416,7 @@ async function refresh(silent){
   try{
     const d = await api.getData(); lastSync=new Date();
     const sig = JSON.stringify([d.items.map(i=>[i.id,i.onHand,i.full,i.item,i.loc]), d.log.length, d.log[0]&&d.log[0].ts]);
-    S.items=d.items; S.log=d.log; if(d.crew&&d.crew.length){ S.crew=d.crew; syncMe(); } idle();
+    S.items=d.items; S.log=d.log; S.apiv = LIVE ? (d.apiVersion||1) : 2; if(d.crew&&d.crew.length){ S.crew=d.crew; syncMe(); } idle();
     if(sig!==lastSig || !silent) S.rep.all=null;
     if(!silent || sig!==lastSig) render();
     lastSig=sig;
@@ -425,7 +432,7 @@ $('#refreshBtn').onclick = ()=>refresh(false);
 $('#homeBtn').onclick = ()=>go('home');
 // Returning/restocking more than the truck carries: warn and require a note on where the extra came from
 function overLines(entry){ if(entry.action!=='RETURNED'&&entry.action!=='RESTOCKED') return [];
-  return (entry.lines||[]).map(l=>{ const it=S.items.find(x=>x.id===l.id); if(!it) return null;
+  return (entry.lines||[]).filter(l=>!l.piece).map(l=>{ const it=S.items.find(x=>x.id===l.id); if(!it) return null;
     const full=Number(it.full); if(it.full===''||it.full==null||!isFinite(full)) return null;
     const after=(Number(it.onHand)||0)+(Number(l.qty)||0); return after>full? {l,it,after,full,extra:after-full} : null; }).filter(Boolean); }
 function overWarn(entry, ov){ return new Promise(res=>{
@@ -581,7 +588,7 @@ inventory(){
   const f=S.inv; const cats=['All',...new Set(S.items.map(i=>i.cat))];
   const q=f.q.toLowerCase();
   const list=S.items.filter(i=> (f.cat==='All'||i.cat===f.cat) &&
-     (f.st==='All' || (f.st==='Short'&&['short','missing'].includes(status(i))) || (f.st==='OK'&&['ok','out'].includes(status(i))) || (f.st==='TBD'&&['tbd','unchecked'].includes(status(i)))) &&
+     (f.st==='All' || (f.st==='Short'&&['short','missing','pcs'].includes(tone(i))) || (f.st==='OK'&&['ok','out'].includes(tone(i))) || (f.st==='TBD'&&['tbd','unchecked'].includes(status(i)))) &&
      (!q || (i.item+' '+i.spec+' '+i.loc+' '+i.notes).toLowerCase().includes(q)));
   const byLoc={}; list.forEach(i=>(byLoc[i.loc]=byLoc[i.loc]||[]).push(i));
   const catCount=c=> c==='All'? sumPieces(S.items) : sumPieces(S.items.filter(i=>i.cat===c));
@@ -596,7 +603,7 @@ inventory(){
   <div class="legend"><span><i class="lg low"></i>Low – some used</span><span><i class="lg out"></i>Out – none left</span><span><i class="lg iss"></i>Issued out</span></div>
   ${list.length? (()=>{ const filt=!!q||f.st!=='All'||f.cat!=='All', locs=Object.keys(byLoc), allOpen=locs.every(l=>secOpen(l,filt));
     return `<div class="row" style="justify-content:flex-end;margin:10px 0 -6px"><button class="btn" id="secAll" style="padding:6px 12px;font-size:13px">${allOpen?'Collapse all':'Expand all'}</button></div>`+
-    Object.entries(byLoc).map(([loc,its])=>{ const open=secOpen(loc,filt), lo=its.filter(i=>status(i)==='short').length, ou=its.filter(i=>status(i)==='missing').length;
+    Object.entries(byLoc).map(([loc,its])=>{ const open=secOpen(loc,filt), lo=its.filter(i=>['short','pcs'].includes(tone(i))).length, ou=its.filter(i=>status(i)==='missing').length;
       return `<button class="loc lochd" data-sec="${esc(loc)}" aria-expanded="${open}"><span class="chev">${open?'▾':'▸'}</span><span style="flex:1;text-align:left">${esc(loc)}</span>
         ${ou?`<span class="secbad">${ou} out</span>`:''}${lo?`<span class="secbad low">${lo} low</span>`:''}<span class="seccnt">${sumPieces(its)} pcs</span></button>`+(open?its.map(itemRow).join(''):''); }).join(''); })()
     : '<div class="empty">No items match these filters.</div>'}`;
@@ -697,9 +704,9 @@ reports(){
   const evs=repEvents(R.all);
   if(R.mode==='event' && !R.ev && evs.length) R.ev=evs[0].key;
   const rows=repFilter(R);
-  const pmap={}; S.items.forEach(i=>pmap[i.id]=i);
+  const pmap=priceMap();
   const agg={}; rows.forEach(l=>{ if(l.action==='COUNT'||l.action==='CHECK') return;
-    const a=agg[l.id]||(agg[l.id]={id:l.id,item:l.item,USED:0,RETURNED:0,REPLACE:0,RESTOCKED:0}); a[l.action]=(a[l.action]||0)+(Number(l.qty)||0); });
+    const a=agg[rid(l)]||(agg[rid(l)]={id:rid(l),item:l.item,USED:0,RETURNED:0,REPLACE:0,RESTOCKED:0}); a[l.action]=(a[l.action]||0)+(Number(l.qty)||0); });
   const list=Object.values(agg).map(a=>{ const it=pmap[a.id]||{}; const net=Math.max(0,a.USED+a.REPLACE-a.RETURNED);
     const cost=it.price!=null&&it.price!==''? net*Number(it.price):null; return {...a, unit:it.unit||'', color:it.color||'', loc:it.loc||'', price:it.price, net, cost}; })
     .sort((x,y)=>(x.loc+x.item).localeCompare(y.loc+y.item));
@@ -853,7 +860,7 @@ function repFilter(R){
     if(R.kind!=='All' && l.action!=='RESTOCKED' && l.kind!==R.kind) return false;
     return true; });
 }
-function repCost(rows,pmap){ const n={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(s) n[l.id]=(n[l.id]||0)+s*(Number(l.qty)||0); });
+function repCost(rows,pmap){ const n={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(s) n[rid(l)]=(n[rid(l)]||0)+s*(Number(l.qty)||0); });
   return Object.entries(n).reduce((t,[id,q])=>{ const p=pmap[id]&&pmap[id].price; return t+(p!=null&&p!==''&&q>0? q*Number(p):0); },0); }
 function repTitle(R,evs){
   if(R.mode==='event'){ const e=evs.find(x=>x.key===R.ev); return e? `${e.kind}: ${e.details||'—'}${e.incident?' · #'+e.incident:''}` : 'Pick an incident or training'; }
@@ -862,8 +869,8 @@ function repTitle(R,evs){
   return span + (R.kind==='All'?'':R.kind==='Incident'?' · Incidents only':' · Training only');
 }
 function repText(){
-  const R=S.rep, evs=repEvents(R.all), rows=repFilter(R); const pmap={}; S.items.forEach(i=>pmap[i.id]=i);
-  const agg={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(!s) return; agg[l.id]=(agg[l.id]||0)+s*(Number(l.qty)||0); });
+  const R=S.rep, evs=repEvents(R.all), rows=repFilter(R); const pmap=priceMap();
+  const agg={}; rows.forEach(l=>{ const s={USED:1,REPLACE:1,RETURNED:-1}[l.action]; if(!s) return; agg[rid(l)]=(agg[rid(l)]||0)+s*(Number(l.qty)||0); });
   let tot=0; const lines=Object.entries(agg).filter(([,q])=>q>0).map(([id,q])=>{ const i=pmap[id]||{item:id,unit:''}; const c=i.price!=null&&i.price!==''? q*Number(i.price):null; if(c) tot+=c;
     return `${q} ${i.unit}  ${i.item}${c!=null?'  '+money(c):''}`; });
   return `USAR 301 – Usage Report\n${repTitle(R,evs)}\n\n${lines.length?lines.join('\n'):'Nothing used.'}\n\nTotal before tax: ${money(tot)}\nWith 7% tax: ${money(tot*1.07)}`;
@@ -939,21 +946,33 @@ function kitMissing(i){
   return Object.entries(m).filter(([,q])=>q>0);
 }
 const kitMissTxt = arr => arr.map(([n,q])=>n+' ×'+q).join(', ');
+// Single pieces pulled from a kit (logged with notes "Kit piece: <name>"); a full kit check resets the count
+const pieceOf = l => { const m=/^Kit piece: (.+?)(?: · |$)/.exec(l.notes||''); return m? m[1] : null; };
+const rid = l => { const p=pieceOf(l); return p? l.id+'|'+p : l.id; };
+function pieceOut(i){ let m={};
+  S.log.filter(l=>l.id===i.id).slice().reverse().forEach(l=>{
+    if(l.action==='COUNT' && /^Kit check/.test(l.notes||'')){ m={}; return; }
+    const p=pieceOf(l); if(!p) return; const s={USED:1,REPLACE:1,RETURNED:-1,RESTOCKED:-1}[l.action]; if(!s) return;
+    m[p]=Math.max(0,(m[p]||0)+s*(Number(l.qty)||0)); });
+  return Object.entries(m).filter(([,q])=>q>0); }
+function priceMap(){ const pm={}; S.items.forEach(i=>{ pm[i.id]=i; (i.kit||[]).forEach(k=>{ pm[i.id+'|'+k.n]={item:i.item+' › '+k.n, unit:'EA', price:k.p, color:i.color, loc:i.loc}; }); }); return pm; }
+const tone = i => { const s=status(i); return s==='ok'&&isKit(i)&&pieceOut(i).length ? 'pcs' : s; };
 const lastKitCheck = id => S.log.find(l=>l.id===id && l.action==='COUNT' && /^Kit check/.test(l.notes||''));
 function itemRow(i){
   const s=status(i);
   const kh=isKit(i)?kitHolders(i.id):[];
-  const lbl = s==='short' ? `Low · ${i.onHand} left` : s==='missing' ? 'Out · none left' : ST_LABEL[s];
-  return `<div class="item tone-${s}" data-item="${i.id}">${ctab(i)}<div><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div>
+  const tn=tone(i), po=isKit(i)?pieceOut(i):[];
+  const lbl = tn==='pcs' ? 'Pieces out' : s==='short' ? `Low · ${i.onHand} left` : s==='missing' ? 'Out · none left' : ST_LABEL[s];
+  return `<div class="item tone-${tn==='pcs'?'short':s}" data-item="${i.id}">${ctab(i)}<div><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div>
     ${i.spec?`<div class="meta">${esc(i.spec)}</div>`:''}${isKit(i)?`<div class="meta">Each: ${esc(kitSummary(i))}</div>`:''}
     ${isKit(i)&&kitMissing(i).length?`<div class="kitmiss">Missing pieces: ${esc(kitMissTxt(kitMissing(i)))}</div>`:''}
-    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}<span class="st ${s}">${lbl}</span></div>
+    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}${po.length?`<div class="kitpcs">Pieces out: ${esc(kitMissTxt(po))}</div>`:''}<span class="st ${tn==='pcs'?'short':s}">${lbl}</span></div>
     <div class="cnt"><b>${i.onHand??'—'}</b> <span>/ ${i.full??'?'}</span><div class="muted" style="font-size:11px">${esc(i.unit)}</div></div></div>`;
 }
 
 function itemSheet(id){
   const i=S.items.find(x=>x.id===id); if(!i) return;
-  const st=linkCtx({action:'USED'}); let qty=1, note='', who='', missing=new Set(), kOpen=new Set(), rOpen=new Set(), ck={}, iss=[''], ret=null, rk={};
+  const st=linkCtx({action:'USED'}); let qty=1, note='', who='', missing=new Set(), kOpen=new Set(), rOpen=new Set(), ck={}, iss=[''], ret=null, rk={}, pq={}, pOpen=new Set();
   const kit=isKit(i), names=[...new Set(S.crew.map(c=>c.name))];
   const hist=S.log.filter(l=>l.id===id).slice(0,5);
   const draw=()=>openSheet(`${i.color?`<span class="tag c-${esc(i.color)}" style="margin-bottom:6px">${esc(i.color)}</span>`:''}<h3>${esc(i.item)}</h3>
@@ -977,7 +996,10 @@ function itemSheet(id){
       ${lk?`<p class="muted" style="font-size:12px;margin-top:4px">Last kit check ${esc(fmtTime(lk.ts))} by ${esc(lk.name)}</p>`:''}`; })()+`
       ${(()=>{ const kh=kitHolders(i.id); return kh.length?`<p class="sub" style="margin-top:8px">Out with: <b>${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</b></p>`:''; })()}`:''}
     <label class="f">Log</label>
+    ${kit?`<div class="muted" style="font-size:12.5px;font-weight:700;margin:-2px 0 6px">Whole kit</div>`:''}
     <div class="seg">${['USED','RETURNED','REPLACE','RESTOCKED'].map(a=>`<button data-sa="${a}" class="${st.action===a?'on':''}">${kit&&a==='USED'?'Issue':kit&&a==='RETURNED'?'Check in':a==='REPLACE'?'Replace':ACTION_LABEL[a]}</button>`).join('')}</div>
+    ${kit&&S.apiv>=2?`<div class="muted" style="font-size:12.5px;font-weight:700;margin:12px 0 6px">Just some pieces</div>
+    <div class="seg">${[['PUSE','Pull pieces from kit'],['PRET','Put pieces back']].map(([a,l])=>`<button data-sa="${a}" class="${st.action===a?'on':''}">${l}</button>`).join('')}</div>`:''}
     ${kit&&st.action==='USED'?(()=>{ const avail=i.onHand??0;
       return `<label class="f">Issued to (one ${esc(i.item.toLowerCase())} each)</label>
       ${iss.map((n,x)=>`<div class="row" style="gap:6px;margin-bottom:6px"><input class="in" data-iss="${x}" list="crewNames" placeholder="Member ${x+1} – start typing a name" value="${esc(n)}" autocomplete="off" style="margin:0;flex:1">
@@ -997,12 +1019,23 @@ function itemSheet(id){
               <button class="kc ${rk[k.n]==='ok'?'on':''}" data-rc="${x}" aria-label="${esc(k.n)} is there">✓</button><button class="kx ${rk[k.n]==='x'?'on':''}" data-rx="${x}" aria-label="${esc(k.n)} missing">✕</button></div>`,rOpen,k=>rk[k.n],'rsk')}</div>
             <div class="row" style="gap:8px;margin-top:10px"><button class="btn" id="retCancel" style="flex:1">Cancel</button><button class="btn ${all?'primary':''}" id="retOk" style="flex:2" ${all?'':'disabled'}>${all?'Confirm check-in'+(i.kit.some(k=>rk[k.n]==='x')?` · ${i.kit.filter(k=>rk[k.n]==='x').length} missing`:''):`Check every piece (${done}/${i.kit.length})`}</button></div>`; })():''}
         </div>`).join('') : `<div class="empty" style="padding:14px">No ${esc(i.item.toLowerCase())}s are checked out right now.</div>`}`; })()
+    : kit&&(st.action==='PUSE'||st.action==='PRET')?(()=>{ const use=st.action==='PUSE', out=Object.fromEntries(pieceOut(i)), mis=Object.fromEntries(kitMissing(i)), kits=Math.max(0,Number(i.onHand)||0);
+      const max=k=> use? Math.max(0,(Number(k.q)||1)*kits-(out[k.n]||0)-(mis[k.n]||0)) : (out[k.n]||0);
+      const list=use? i.kit : i.kit.filter(k=>out[k.n]>0), tot=Object.values(pq).reduce((a,b)=>a+b,0);
+      if(use&&!kits) return `<div class="empty" style="padding:14px;margin-top:10px">The ${esc(i.item)} isn't on the truck right now, so there are no pieces to pull.</div>`;
+      if(!use&&!list.length) return `<div class="empty" style="padding:14px;margin-top:10px">No pieces are out of this kit right now.</div>`;
+      return `<p class="muted" style="font-size:12.5px;margin:10px 0 6px">${use?'Set how many of each piece were pulled out. The kit stays on the truck.':'Set how many of each piece came back to the kit.'}</p>
+      <div class="kitlist" style="margin-top:0">${kitBody(list,(k)=>{ const x=i.kit.indexOf(k), v=pq[k.n]||0, m=max(k);
+        return `<div class="kr pcrow ${v?'on':''}"><span class="nm" style="flex:1">${esc(k.n)}<span class="pcav">${use?`${m} available in kit`:`${m} out`}</span></span>
+          <div class="stepper"><button data-pm="${x}" ${v?'':'disabled'}>−</button><input data-pv="${x}" inputmode="numeric" value="${v}"><button data-pp="${x}" ${v<m?'':'disabled'}>+</button></div></div>`; },pOpen,k=>pq[k.n]?'ok':undefined,'psk')}</div>
+      <label class="f">Notes (optional)</label><input class="in" id="sNote" value="${esc(note)}">
+      <div style="height:12px"></div><button class="btn primary block" id="pSave" ${tot?'':'disabled'}>${tot?`${use?'Log':'Put back'} ${tot} piece${tot>1?'s':''}${use?' pulled from kit':' into kit'}`:'Pick at least one piece'}</button>`; })()
     : `<div class="row" style="margin-top:12px"><span class="muted">Quantity (${esc(i.unit)})</span>
       <div class="stepper" style="margin-left:auto"><button id="sDec">−</button><input id="sQty" inputmode="numeric" value="${qty}"><button id="sInc">+</button></div></div>
     ${kit?`<label class="f">${st.action==='RESTOCKED'?'Pieces replaced':'Pieces missing or damaged'} (tap any)</label><div>${i.kit.map((k,x)=>`<button class="pchip ${missing.has(k.n)?'on':''}" data-pc="${x}">${esc(k.n)}</button>`).join('')}</div>`:''}
     <label class="f">Notes (optional)</label><input class="in" id="sNote" value="${esc(note)}">
     <div style="height:12px"></div><button class="btn primary block" id="sSave">Save as ${ACTION_LABEL[st.action]}</button>`}
-    ${hist.length?`<label class="f">Recent</label>`+hist.map(l=>`<div class="muted" style="font-size:12.5px;padding:3px 0">${esc(fmtTime(l.ts))} · ${ACTION_LABEL[l.action]} ${esc(l.qty)} · ${esc(l.name)}</div>`).join(''):''}`, ()=>{
+    ${hist.length?`<label class="f">Recent</label>`+hist.map(l=>`<div class="muted" style="font-size:12.5px;padding:3px 0">${esc(fmtTime(l.ts))} · ${ACTION_LABEL[l.action]} ${esc(l.qty)}${pieceOf(l)?' '+esc(pieceOf(l)):''} · ${esc(l.name)}</div>`).join(''):''}`, ()=>{
       const keep=()=>{ if($('#sQty')) qty=Number($('#sQty').value)||1; if($('#sNote')) note=$('#sNote').value; document.querySelectorAll('[data-iss]').forEach(x=>iss[+x.dataset.iss]=x.value); };
       const needCtx=()=>{ closeSheet(); if(S.route!=='inventory') go('inventory');
         setTimeout(()=>{ const c=document.querySelector('[data-p="l"]')?.closest('.card'); if(c){ c.classList.add('needctx'); c.scrollIntoView({block:'center'}); } },60);
@@ -1047,7 +1080,22 @@ function itemSheet(id){
       const ks=$('#kSave'); if(ks) ks.onclick=()=>saveCheck(false);
       document.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{ const n=i.kit[+b.dataset.pc].n; missing.has(n)?missing.delete(n):missing.add(n); b.classList.toggle('on');
         const r=$('#retOk'); if(r) r.textContent='Confirm check-in'+(missing.size?` · ${missing.size} missing`:''); });
-      document.querySelectorAll('[data-sa]').forEach(b=>b.onclick=()=>{ keep(); st.action=b.dataset.sa; draw(); });
+      document.querySelectorAll('[data-sa]').forEach(b=>b.onclick=()=>{ keep(); if(st.action!==b.dataset.sa) pq={}; st.action=b.dataset.sa; draw(); });
+      // pieces pulled from / put back into the kit
+      { const use=st.action==='PUSE', out=Object.fromEntries(pieceOut(i)), mis=Object.fromEntries(kitMissing(i)), kits=Math.max(0,Number(i.onHand)||0);
+        const max=k=> use? Math.max(0,(Number(k.q)||1)*kits-(out[k.n]||0)-(mis[k.n]||0)) : (out[k.n]||0);
+        const setq=(x,v)=>{ keep(); const k=i.kit[x]; v=Math.max(0,Math.min(max(k),Number(v)||0)); if(v) pq[k.n]=v; else delete pq[k.n]; draw(); };
+        document.querySelectorAll('[data-pp]').forEach(b=>b.onclick=()=>setq(+b.dataset.pp,(pq[i.kit[+b.dataset.pp].n]||0)+1));
+        document.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>setq(+b.dataset.pm,(pq[i.kit[+b.dataset.pm].n]||0)-1));
+        document.querySelectorAll('[data-pv]').forEach(n=>n.onchange=()=>setq(+n.dataset.pv,n.value));
+        document.querySelectorAll('[data-psk]').forEach(b=>b.onclick=()=>{ keep(); const g=b.dataset.psk; pOpen.has(g)?pOpen.delete(g):pOpen.add(g); draw(); });
+        const ps=$('#pSave'); if(ps) ps.onclick=async()=>{ keep(); const ent=Object.entries(pq).filter(([,q])=>q>0); if(!ent.length) return;
+          let kind=st.kind, details=st.details, incident=st.incident;
+          if(!ctxReady()){ const src=!use && S.log.find(l=>l.id===id && l.action==='USED' && pieceOf(l) && l.kind);
+            if(src){ kind=src.kind; details=src.details; incident=src.incident; } else { needCtx(); return; } }
+          const ok=await submit({action:use?'USED':'RETURNED', lines:ent.map(([n,q])=>({id, qty:q, piece:n, note:note.trim()})), incident:kind==='Incident'?(incident||'').trim():'', details:(details||'').trim(), notes:'', kind});
+          if(ok){ const n=ent.reduce((a,[,q])=>a+q,0); pq={}; closeSheet(); toast(use?`Logged ${n} piece${n>1?'s':''} pulled from ${i.item}`:`Put ${n} piece${n>1?'s':''} back in ${i.item}`); } };
+      }
       if(!$('#sSave')) return;
       $('#sDec').onclick=()=>{ $('#sQty').value=Math.max(0,(Number($('#sQty').value)||0)-1); };
       $('#sInc').onclick=()=>{ $('#sQty').value=(Number($('#sQty').value)||0)+1; };
