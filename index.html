@@ -70,8 +70,19 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .lochd{display:flex;align-items:center;gap:8px;width:100%;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lochd .chev{font-size:17px;width:18px;opacity:.85}
 .lochd .seccnt{font-family:var(--body,inherit);font-size:14px;font-weight:700;letter-spacing:0;background:rgba(255,255,255,.18);border-radius:12px;padding:3px 10px}
+.lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
+.item.tone-short{background:#fff8e7;border-color:#f1d491;box-shadow:inset 5px 0 0 #e3a21a}
+.item.tone-missing{background:#fdeceb;border-color:#eba8a2;box-shadow:inset 5px 0 0 var(--miss)}
+.item.tone-missing .cnt b{color:var(--miss)}
+.item.tone-short .cnt b{color:var(--short)}
+.item.tone-out{background:#eef4fc;border-color:#b9cde8;box-shadow:inset 5px 0 0 #3b6fb6}
+.st.missing{font-weight:800}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin:2px 2px 10px}
+.legend span{display:flex;align-items:center;gap:6px}
+.lg{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid}
+.lg.low{background:#fff8e7;border-color:#e3a21a}.lg.out{background:#fdeceb;border-color:var(--miss)}.lg.iss{background:#eef4fc;border-color:#3b6fb6}
 .item{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin:6px 0;cursor:pointer}
 .item .nm{font-weight:600;font-size:14.5px}
 .ctab{flex:none;align-self:stretch;width:74px;margin:-11px 0 -11px -12px;border-radius:10px 0 0 10px;display:grid;place-items:center;
@@ -276,7 +287,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795618545";
+<script>window.USAR301_BUILD="1795619435";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -581,12 +592,13 @@ inventory(){
   </div>
   <input class="search" id="invQ" placeholder="Search items, model #, location" value="${esc(f.q)}">
   <div class="chips">${cats.map(c=>`<button class="chip ${f.cat===c?'on':''}" data-cat="${esc(c)}">${esc(c)}<small>${catCount(c)} pcs</small></button>`).join('')}</div>
-  <div class="chips">${['All','Short','OK','TBD'].map(s=>`<button class="chip ${f.st===s?'on':''}" data-st="${s}">${s==='Short'?'Short / Missing':s==='TBD'?'TBD / Not counted':s}</button>`).join('')}</div>
+  <div class="chips">${['All','Short','OK','TBD'].map(s=>`<button class="chip ${f.st===s?'on':''}" data-st="${s}">${s==='Short'?'Low / Out':s==='TBD'?'TBD / Not counted':s}</button>`).join('')}</div>
+  <div class="legend"><span><i class="lg low"></i>Low – some used</span><span><i class="lg out"></i>Out – none left</span><span><i class="lg iss"></i>Issued out</span></div>
   ${list.length? (()=>{ const filt=!!q||f.st!=='All'||f.cat!=='All', locs=Object.keys(byLoc), allOpen=locs.every(l=>secOpen(l,filt));
     return `<div class="row" style="justify-content:flex-end;margin:10px 0 -6px"><button class="btn" id="secAll" style="padding:6px 12px;font-size:13px">${allOpen?'Collapse all':'Expand all'}</button></div>`+
-    Object.entries(byLoc).map(([loc,its])=>{ const open=secOpen(loc,filt), sh=its.filter(i=>['short','missing'].includes(status(i))).length;
+    Object.entries(byLoc).map(([loc,its])=>{ const open=secOpen(loc,filt), lo=its.filter(i=>status(i)==='short').length, ou=its.filter(i=>status(i)==='missing').length;
       return `<button class="loc lochd" data-sec="${esc(loc)}" aria-expanded="${open}"><span class="chev">${open?'▾':'▸'}</span><span style="flex:1;text-align:left">${esc(loc)}</span>
-        ${sh?`<span class="secbad">${sh} short</span>`:''}<span class="seccnt">${sumPieces(its)} pcs</span></button>`+(open?its.map(itemRow).join(''):''); }).join(''); })()
+        ${ou?`<span class="secbad">${ou} out</span>`:''}${lo?`<span class="secbad low">${lo} low</span>`:''}<span class="seccnt">${sumPieces(its)} pcs</span></button>`+(open?its.map(itemRow).join(''):''); }).join(''); })()
     : '<div class="empty">No items match these filters.</div>'}`;
 },
 quick(){
@@ -931,10 +943,11 @@ const lastKitCheck = id => S.log.find(l=>l.id===id && l.action==='COUNT' && /^Ki
 function itemRow(i){
   const s=status(i);
   const kh=isKit(i)?kitHolders(i.id):[];
-  return `<div class="item" data-item="${i.id}">${ctab(i)}<div><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div>
+  const lbl = s==='short' ? `Low · ${i.onHand} left` : s==='missing' ? 'Out · none left' : ST_LABEL[s];
+  return `<div class="item tone-${s}" data-item="${i.id}">${ctab(i)}<div><div class="nm">${isKit(i)?'<span class="kittag">KIT</span>':''}${esc(i.item)}</div>
     ${i.spec?`<div class="meta">${esc(i.spec)}</div>`:''}${isKit(i)?`<div class="meta">Each: ${esc(kitSummary(i))}</div>`:''}
     ${isKit(i)&&kitMissing(i).length?`<div class="kitmiss">Missing pieces: ${esc(kitMissTxt(kitMissing(i)))}</div>`:''}
-    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}<span class="st ${s}">${ST_LABEL[s]}</span></div>
+    ${kh.length?`<div class="kitout">Out with: ${esc(kh.map(([n,q])=>n+(q>1?' ('+q+')':'')).join(', '))}</div>`:''}<span class="st ${s}">${lbl}</span></div>
     <div class="cnt"><b>${i.onHand??'—'}</b> <span>/ ${i.full??'?'}</span><div class="muted" style="font-size:11px">${esc(i.unit)}</div></div></div>`;
 }
 
