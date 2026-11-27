@@ -363,7 +363,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795797217";
+<script>window.USAR301_BUILD="1795798027";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -473,7 +473,8 @@ async function wxDirect(lat,lon){
 // keep the signed-in member's unit/title in step with the Crew tab
 function syncMe(){ if(!S.me||!S.crew) return; const c=S.crew.find(c=>c.name===S.me.name); if(!c) return;
   const u=c.shift==='Staff'||!c.shift? c.unit : `${c.unit} · ${c.shift} Shift`; if(u!==S.me.unit){ S.me.unit=u; S.me.shift=c.shift; sset('usar301_me', JSON.stringify(S.me)); } }
-const S = { tk:{list:null, loading:false, filter:'open', form:{type:'Idea', where:'Whole app', priority:'Normal', title:'', details:''}}, hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:(()=>{ try{ const c=JSON.parse(localStorage.getItem('usar301_ctx')||'null'); if(c&&c.kind&&Date.now()-(c.ts||0)<36*3600e3) return {action:'USED', kind:c.kind, details:c.details||'', incident:c.incident||''}; }catch(e){} return {action:'USED', kind:'', details:'', incident:''}; })(), items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
+const CTX_KEEP = 5*24*3600e3;   // a call / training stays 'going' until 5 days with no entries (multi-day events)
+const S = { tk:{list:null, loading:false, filter:'open', form:{type:'Idea', where:'Whole app', priority:'Normal', title:'', details:''}}, hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:(()=>{ try{ const c=JSON.parse(localStorage.getItem('usar301_ctx')||'null'); if(c&&c.kind&&Date.now()-(c.ts||0)<CTX_KEEP) return {action:'USED', kind:c.kind, details:c.details||'', incident:c.incident||''}; }catch(e){} return {action:'USED', kind:'', details:'', incident:''}; })(), items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
   inv:{q:'', cat:'All', st:'All'}, logf:{q:'', a:'All'}, quick:null, check:null, crew:CREW_SEED,
   wx:{loc:(()=>{ try{ return JSON.parse(sget('usar301_wx')||'null'); }catch(e){ return null; } })() || {lat:33.0185, lon:-80.1756, name:'Summerville, SC', src:'default'}, data:null, at:0, loading:false, err:'', msg:'', results:null},
   rep:{charge:(()=>{ try{ return localStorage.getItem('usar301_charge')||'board'; }catch(e){ return 'board'; } })(), mode:'range', ev:'', from:new Date().getFullYear()+'-01-01', to:'', kind:'All', all:null, loading:false, err:''} };
@@ -1561,18 +1562,24 @@ const ctxReady = () => S.ctx.kind && String(S.ctx.details||'').trim();
 let _ctxSaved='';
 function saveCtx(){ const c=S.ctx, k=ctxReady()? JSON.stringify([c.kind,c.details,c.incident]) : ''; if(k===_ctxSaved) return; _ctxSaved=k;
   try{ if(k) localStorage.setItem('usar301_ctx', JSON.stringify({kind:c.kind, details:c.details, incident:c.incident||'', ts:Date.now()})); else localStorage.removeItem('usar301_ctx'); }catch(e){} }
+/* keep my saved call alive while anyone is still logging to it; let it go after 5 quiet days */
+function touchCtx(){ if(!ctxReady()) return; try{ const c=JSON.parse(localStorage.getItem('usar301_ctx')||'null'); if(!c) return;
+  const e=activeEvents(true).find(sameCtx), last=Math.max(c.ts||0, e?e.last:0);
+  if(Date.now()-last>CTX_KEEP){ setCtx(null); S.ctxEdit=false; return; }
+  if(last>(c.ts||0)){ c.ts=last; localStorage.setItem('usar301_ctx', JSON.stringify(c)); } }catch(e){} }
 function setCtx(e){ S.ctx.kind=e?e.kind:''; S.ctx.details=e?e.details:''; S.ctx.incident=e?(e.incident||''):''; S.ctxEdit=!e; saveCtx(); }
 /* incidents / trainings logged in the last 36 h, newest first (what crews are working right now) */
-function activeEvents(){ const cut=Date.now()-36*3600e3, m={};
+function activeEvents(all){ const cut=Date.now()-CTX_KEEP, m={};
   S.log.forEach(l=>{ if(!(l.kind==='Incident'||l.kind==='Training')||!String(l.details||'').trim()) return; const t=new Date(l.ts).getTime(); if(!(t>cut)) return;
     const k=repKey(l), e=m[k]||(m[k]={key:k, kind:l.kind, details:l.details.trim(), incident:l.incident||'', last:0, who:new Set(), n:0});
-    e.n++; e.who.add(l.name); if(t>e.last) e.last=t; if(!e.incident&&l.incident) e.incident=l.incident; });
-  return Object.values(m).sort((a,b)=>b.last-a.last).slice(0,5); }
+    e.n++; e.who.add(l.name); if(t>e.last) e.last=t; if(t<(e.first||1e15)) e.first=t; if(!e.incident&&l.incident) e.incident=l.incident; });
+  const v=Object.values(m).sort((a,b)=>b.last-a.last); return all? v : v.slice(0,6); }
 const sameCtx = e => ctxReady() && repKey({kind:S.ctx.kind, details:String(S.ctx.details).trim(), incident:S.ctx.incident||''})===e.key;
-const agoTxt = t => { const m=Math.round((Date.now()-t)/60000); return m<1?'just now':m<60?m+' min ago':Math.round(m/60)+' h ago'; };
+const agoTxt = t => { const m=Math.round((Date.now()-t)/60000); return m<1?'just now':m<60?m+' min ago':m<36*60?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'; };
+const dayTxt = e => { const d=Math.floor((new Date(e.last).setHours(0,0,0,0)-new Date(e.first).setHours(0,0,0,0))/864e5)+1; return d>1? 'day '+d+' · ' : ''; };
 function activePicks(p){ const ev=activeEvents().filter(e=>!sameCtx(e)); if(!ev.length) return '';
   return `<label class="f">Already going – tap to join</label><div class="actpicks">${ev.map((e,i)=>`<button class="actpick ${e.kind==='Training'?'trn':'inc'}" data-act="${p}" data-ai="${i}">
-    <span>${e.kind==='Training'?'🎓':'🚒'}</span><span class="apt"><b>${esc(e.details)}</b><small>${e.incident?'#'+esc(e.incident)+' · ':''}${esc(agoTxt(e.last))} · ${e.who.size} ${e.who.size===1?'person':'people'}</small></span></button>`).join('')}</div>
+    <span>${e.kind==='Training'?'🎓':'🚒'}</span><span class="apt"><b>${esc(e.details)}</b><small>${e.incident?'#'+esc(e.incident)+' · ':''}${dayTxt(e)}last entry ${esc(agoTxt(e.last))} · ${e.who.size} ${e.who.size===1?'person':'people'}</small></span></button>`).join('')}</div>
     <div class="ornew">or start a new one</div>`; }
 function ctxSummary(p){
   return `<div class="ctxsum ${S.ctx.kind==='Training'?'trn':'inc'}"><div><span class="ctxk">${S.ctx.kind==='Training'?'🎓 Training':'🚒 Incident'}</span>
@@ -1755,14 +1762,14 @@ function editItem(id){
   draw();
 }
 async function loadTickets(){ const T=S.tk; T.loading=true; try{ T.list=await api.getTickets(); S.ticketsOpen=T.list.filter(x=>x.status==='New').length; }catch(e){ T.list=[]; toast('Could not load tickets: '+(e.message||e)); } T.loading=false; if(S.route==='tickets') render(); }
-function drawCtxBar(){ const b=$('#ctxbar'); if(!b) return; { const h=document.querySelector('header.top'); if(h) document.documentElement.style.setProperty('--hdr', h.offsetHeight+'px'); } if(!S.me){ b.innerHTML=''; return; }
+function drawCtxBar(){ const b=$('#ctxbar'); if(!b) return; touchCtx(); { const h=document.querySelector('header.top'); if(h) document.documentElement.style.setProperty('--hdr', h.offsetHeight+'px'); } if(!S.me){ b.innerHTML=''; return; }
   if(ctxReady()){ const c=S.ctx; b.className='on '+(c.kind==='Training'?'trn':'inc');
     b.innerHTML=`<button id="cbOpen" class="cbmain"><span class="cbk">${c.kind==='Training'?'🎓 Training':'🚒 Incident'}</span><span class="cbd">${esc(c.details)}${c.kind==='Incident'&&c.incident?' · #'+esc(c.incident):''}</span></button><button id="cbOpen2" class="cbchg">Change</button>`; }
   else { const ev=activeEvents(); b.className=ev.length?'off':''; b.innerHTML=ev.length? `<button id="cbOpen" class="cbmain"><span class="cbk">Working a call or training?</span><span class="cbd">${ev.length===1? 'Tap to join '+esc(ev[0].details) : ev.length+' going now – tap to pick one'}</span></button><button id="cbOpen2" class="cbchg">Pick</button>` : ''; }
   ['#cbOpen','#cbOpen2'].forEach(s=>{ const x=$(s); if(x) x.onclick=ctxSheet; }); }
 function ctxSheet(){
   const draw=()=>{ const ev=activeEvents(), c=S.ctx;
-    openSheet(`<h2 style="margin:0 0 4px">What are you working?</h2><p class="muted" style="margin:0 0 12px;font-size:14px">Everything you log, issue, return or build goes to this one until you change it – even if you close the app.</p>
+    openSheet(`<h2 style="margin:0 0 4px">What are you working?</h2><p class="muted" style="margin:0 0 12px;font-size:14px">Everything you log, issue, return or build goes to this one until you tap Done – even if you close the app or it runs over several days.</p>
       ${ctxReady()?`<label class="f" style="margin-top:0">Now set to</label>`+`<div class="ctxsum ${c.kind==='Training'?'trn':'inc'}"><div><span class="ctxk">${c.kind==='Training'?'🎓 Training':'🚒 Incident'}</span><div class="ctxd">${esc(c.details)}${c.kind==='Incident'&&c.incident?' · #'+esc(c.incident):''}</div></div><button class="btn" id="csClear">Done with it</button></div>`:''}
       ${ev.filter(e=>!sameCtx(e)).length? activePicks('cs').replace('<div class="ornew">or start a new one</div>','') : ''}
       <label class="f">Start a new one</label><div class="kindseg"><button data-new="Incident">🚒 New incident</button><button data-new="Training">🎓 New training</button></div>
