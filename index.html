@@ -351,11 +351,11 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795785002";
+<script>window.USAR301_BUILD="1795790141";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
-      if(m&&m[1]!==window.USAR301_BUILD&&!sessionStorage.getItem('usar301_upd_'+m[1])){ sessionStorage.setItem('usar301_upd_'+m[1],'1'); location.replace(u+'?v='+m[1]); } }).catch(function(){}); }catch(e){} }
+      if(m&&m[1]!==window.USAR301_BUILD&&!sessionStorage.getItem('usar301_upd_'+m[1])){ sessionStorage.setItem('usar301_upd_'+m[1],'1'); location.replace(u+'?v='+m[1]+(/[?&]sandbox/i.test(location.search)?'&sandbox=1':'')); } }).catch(function(){}); }catch(e){} }
   window.addEventListener('load',chk); document.addEventListener('visibilitychange',function(){ if(!document.hidden) chk(); });
 })();</script>
 <script>
@@ -379,7 +379,8 @@ function sset(k,v){ mem[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
 /* Two ways to be live: inside Google Apps Script (google.script.run), or the GitHub Pages copy that
    calls the Apps Script web app URL set in config.js (window.USAR301_API). Otherwise: preview/demo. */
 const GAS = !!(window.google && google.script && google.script.run);
-const API_URL = String(window.USAR301_API || '').trim();
+const SANDBOX = /[?&]sandbox/i.test(location.search);
+const API_URL = SANDBOX ? '' : String(window.USAR301_API || '').trim();
 const LIVE = GAS || !!API_URL;
 function gas(fn, ...args){
   if (GAS) return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
@@ -515,7 +516,7 @@ function fmtTime(ts){ if(!ts) return ''; const d=new Date(ts); if(isNaN(d)) retu
 function setStatus(kind, text){ const el=$('#status'); el.className='pill '+kind; el.textContent=text; }
 let lastSync=null;
 const hhmm = d => d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-function idle(){ const t=lastSync? ' · '+hhmm(lastSync):''; LIVE ? setStatus('live','Live'+t) : setStatus('demo','Preview'+t); }
+function idle(){ const t=lastSync? ' · '+hhmm(lastSync):''; LIVE ? setStatus('live','Live'+t) : setStatus('demo',(SANDBOX?'Sandbox':'Preview')+t); }
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2600); }
 
 let lastSig='';
@@ -715,7 +716,7 @@ home(){
   const lc = lastCheck(); const rs = S.items.filter(i=>need(i)>0);
   return `<div class="wm" aria-hidden="true"></div><div class="hero"><h1>USAR 301</h1>
   <p class="sub">Summerville Fire-Rescue<br>Special Operations</p></div>
-  ${LIVE?'':'<div class="banner"><b>Preview mode.</b> Changes save only on this device. Once deployed on Google, everyone shares the same live inventory.</div>'}
+  ${LIVE?'':SANDBOX?'<div class="banner"><b>Sandbox – practice only.</b> Nothing here touches the real USAR 301 inventory, and changes stay on this phone. Try anything. To see admin screens, sign in as Chris Savage and use PIN 0000.</div>':'<div class="banner"><b>Preview mode.</b> Changes save only on this device. Once deployed on Google, everyone shares the same live inventory.</div>'}
   <div class="tiles">
     <button class="tile" data-tile="All"><b>${sumPieces(S.items)}</b><span>Pieces on a full load</span><em>${S.items.length} line items · View all ›</em></button>
     <button class="tile" data-tile="OK"><b style="color:var(--ok)">${cnt.ok}</b><span>Full</span><em>View ›</em></button>
