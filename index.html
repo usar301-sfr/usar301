@@ -351,7 +351,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795784784";
+<script>window.USAR301_BUILD="1795785002";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -861,7 +861,7 @@ checkoff(){
   <button class="btn primary block" id="cSave" ${tcDone?'':'disabled'}>${tcDone?`Submit check-off (truck check + ${done} item${done===1?'':'s'} counted)`:'Finish the Truck Check at the top to submit'}</button>`;
 },
 tickets(){
-  const T=S.tk; if(S.apiv<4) return `<h1>Ideas &amp; Issues</h1><div class="empty">This needs the latest Google update. Ask Chief Savage or Capt. Lobo.</div>`;
+  const T=S.tk; if(S.apiv<4) return `<h1>Ideas &amp; Issues</h1><div class="empty">This needs the latest Google update. Ask Chief Savage or Chad Lobo.</div>`;
   if(!T.list&&!T.loading){ loadTickets(); }
   const f=T.form, types=[['Idea','💡'],['Problem','🐞'],['Inventory fix','📦'],['Question','❓']];
   const where=['Whole app','Overview','Logistics','Check-Off','Log Used / Returned','Shore Builder','Squads & Issued Gear','History','Restock List','Reports','Admin','Truck / equipment'];
@@ -869,7 +869,7 @@ tickets(){
   const mine=x=>S.me&&x.name.toLowerCase()===S.me.name.toLowerCase(), open=x=>!['Done',"Won't do"].includes(x.status);
   const list=(T.list||[]).filter(x=> T.filter==='open'?open(x) : T.filter==='mine'?mine(x) : T.filter==='done'?!open(x) : true);
   return `<h1>Ideas &amp; Issues <small>USAR 301</small></h1>
-  <p class="sub">Something not working, missing from the truck, or an idea to make the app better? Send it here. Chief Savage and Capt. Lobo review every one and reply.</p>
+  <p class="sub">Something not working, missing from the truck, or an idea to make the app better? Send it here. Chief Savage and Chad Lobo review every one and reply.</p>
   <div class="card">
     <label class="f" style="margin-top:0">What is it?</label><div class="seg">${types.map(([k,ic])=>`<button data-tkt="${k}" class="${f.type===k?'on':''}">${ic} ${k}</button>`).join('')}</div>
     <label class="f" for="tkTitle">Short title <span class="req">(required)</span></label><input class="in" id="tkTitle" maxlength="120" value="${esc(f.title)}" placeholder="${f.type==='Problem'?'e.g. Check-Off will not save on my phone':f.type==='Inventory fix'?'e.g. Lumber rack shows 8 plywood, we carry 10':f.type==='Question'?'e.g. How do I return a kit for someone else?':'e.g. Add photos of each kit'}">
