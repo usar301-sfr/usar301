@@ -115,6 +115,11 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .printonly{display:none}@media print{.printonly{display:block}}
 .admcost summary{cursor:pointer;list-style:none;font-size:15px}.admcost summary::-webkit-details-marker{display:none}.admcost summary::after{content:' ▸';color:var(--muted)}.admcost[open] summary::after{content:' ▾'}
 .sbcard{border-color:#f2c48d;background:#fff9f2}
+.tkcard{padding:12px 14px}
+.tkst{font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap;background:#eef1f4;color:var(--muted)}
+.tkst.tk-new{background:var(--accent);color:#fff}.tkst.tk-rev{background:#ffefc7;color:#7a4f00}.tkst.tk-plan{background:#e3edf9;color:#24508c}.tkst.tk-done{background:#1f7a3a;color:#fff}.tkst.tk-no{background:#e5e7ea;color:#555}
+.tkreply{margin-top:10px;background:#f4f8fd;border:1px solid #d4e1f2;border-radius:9px;padding:8px 10px;font-size:14px}
+.tkadm{display:grid;grid-template-columns:120px 1fr auto;gap:6px;margin-top:10px}.tkadm .in{margin:0;padding:8px}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
@@ -204,6 +209,16 @@ input.in,textarea.in,select.in{width:100%;border:1px solid var(--line);border-ra
 .drawer a{display:block;padding:11px 18px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
 .drawer a.on{border-left-color:var(--accent);font-weight:600}
 .drawer .who{margin:20px 18px 0;font-size:13px;color:var(--muted)}
+.drawer .mhead{display:flex;gap:12px;align-items:center;background:var(--navy);color:#fff;padding:max(18px,env(safe-area-inset-top)) 16px 16px}
+.drawer .mhead b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.drawer .mhead div div{font-size:12.5px;color:#b9c7d6}
+.drawer .mav{flex:0 0 44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+.drawer .macct{display:flex;gap:6px;margin-top:6px;font-size:13px;color:#b9c7d6}.drawer .macct a{display:inline;padding:0;color:#fff;border:0;text-decoration:underline;font-weight:600}
+.drawer a.mi{display:flex;align-items:center;gap:12px;padding:10px 16px;font-size:15.5px}
+.drawer .mic{width:24px;text-align:center;font-size:17px}.drawer .mtx{flex:1}
+.drawer a.mi.on{background:#f4f6f8}
+.drawer h4{margin:16px 16px 2px;font-size:12px}
+.mbadge{font-size:11px;font-weight:800;background:var(--accent);color:#fff;border-radius:999px;padding:2px 8px}.mbadge.blue{background:#3b6fb6}
+.drawer .mfoot{margin:22px 16px 26px;font-size:11.5px;color:var(--muted)}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:#fff;border-radius:16px 16px 0 0;max-height:92vh;overflow:auto;
   padding:16px 16px calc(env(safe-area-inset-bottom) + 18px);transform:translateY(105%);transition:transform .2s;max-width:760px;margin:0 auto}
 .sheet.open{transform:none}
@@ -336,7 +351,7 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795637811";
+<script>window.USAR301_BUILD="1795784784";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -381,7 +396,11 @@ const demo = {
     return {items, log:[]};
   },
   save(d){ sset('usar301_demo_v61', JSON.stringify(d)); },
-  async getData(){ const d = this.load(); d.admins=['Chris Savage','Chad Lobo']; d.assign=d.assign||[]; return d; },
+  async getData(){ const d = this.load(); d.admins=['Chris Savage','Chad Lobo']; d.assign=d.assign||[]; d.ticketsOpen=(d.tickets||[]).filter(x=>x.status==='New').length; return d; },
+  async submitTicket(tk){ const d=this.load(); d.tickets=d.tickets||[]; const id='T'+String(d.tickets.length+1).padStart(3,'0');
+    d.tickets.unshift({id, ts:new Date().toISOString(), name:tk.name, unit:tk.unit||'', type:tk.type, where:tk.where||'', priority:tk.priority||'Normal', title:tk.title, details:tk.details||'', status:'New', reply:'', updated:'', updatedBy:''}); this.save(d); return d.tickets; },
+  async getTickets(){ return this.load().tickets||[]; },
+  async updateTicket(a,id,st,rp){ const who=this.auth(a); const d=this.load(); const x=(d.tickets||[]).find(t=>t.id===id); if(!x) throw new Error('Ticket not found'); Object.assign(x,{status:st, reply:rp||'', updated:new Date().toISOString(), updatedBy:who}); this.save(d); return d.tickets; },
   // preview only: admin PIN is 0000
   auth(a){ if(!a||!['chris savage','chad lobo'].includes(String(a.name||'').toLowerCase())||String(a.pin)!=='0000') throw new Error('Wrong PIN, or not an admin'); return a.name; },
   alog(d,who,id,item,notes){ d.log.unshift({ts:new Date().toISOString(), action:'ADMIN', id:id||'', item, qty:'', after:'', incident:'', name:who, unit:'Admin', notes, kind:'Admin', details:''}); },
@@ -423,6 +442,9 @@ const api = {
   deleteItem: (a,id) => LIVE ? gas('deleteItem', a, id) : demo.deleteItem(a,id),
   saveCrew: (a,r) => LIVE ? gas('saveCrew', a, r) : demo.saveCrew(a,r),
   saveAssignments: (a,r) => LIVE ? gas('saveAssignments', a, r) : demo.saveAssignments(a,r),
+  submitTicket: (tk) => LIVE ? gas('submitTicket', tk) : demo.submitTicket(tk),
+  getTickets: () => LIVE ? gas('getTickets') : demo.getTickets(),
+  updateTicket: (a,id,st,rp) => LIVE ? gas('updateTicket', a, id, st, rp) : demo.updateTicket(a,id,st,rp),
   weather: (lat,lon) => LIVE ? gas('getWeather', lat, lon) : wxDirect(lat,lon),
   place: (q) => LIVE ? gas('searchPlace', q) : fetch('https://geocoding-api.open-meteo.com/v1/search?count=5&language=en&countryCode=US&name='+encodeURIComponent(q)).then(r=>r.json())
 };
@@ -438,7 +460,7 @@ async function wxDirect(lat,lon){
 // keep the signed-in member's unit/title in step with the Crew tab
 function syncMe(){ if(!S.me||!S.crew) return; const c=S.crew.find(c=>c.name===S.me.name); if(!c) return;
   const u=c.shift==='Staff'||!c.shift? c.unit : `${c.unit} · ${c.shift} Shift`; if(u!==S.me.unit){ S.me.unit=u; S.me.shift=c.shift; sset('usar301_me', JSON.stringify(S.me)); } }
-const S = { hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:{action:'USED', kind:'', details:'', incident:''}, items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
+const S = { tk:{list:null, loading:false, filter:'open', form:{type:'Idea', where:'Whole app', priority:'Normal', title:'', details:''}}, hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:{action:'USED', kind:'', details:'', incident:''}, items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
   inv:{q:'', cat:'All', st:'All'}, logf:{q:'', a:'All'}, quick:null, check:null, crew:CREW_SEED,
   wx:{loc:(()=>{ try{ return JSON.parse(sget('usar301_wx')||'null'); }catch(e){ return null; } })() || {lat:33.0185, lon:-80.1756, name:'Summerville, SC', src:'default'}, data:null, at:0, loading:false, err:'', msg:'', results:null},
   rep:{charge:(()=>{ try{ return localStorage.getItem('usar301_charge')||'board'; }catch(e){ return 'board'; } })(), mode:'range', ev:'', from:new Date().getFullYear()+'-01-01', to:'', kind:'All', all:null, loading:false, err:''} };
@@ -502,7 +524,7 @@ async function refresh(silent){
   try{
     const d = await api.getData(); lastSync=new Date();
     const sig = JSON.stringify([d.items.map(i=>[i.id,i.onHand,i.full,i.item,i.loc]), d.log.length, d.log[0]&&d.log[0].ts]);
-    S.items=d.items; S.log=d.log; S.apiv = LIVE ? (d.apiVersion||1) : 3; S.admins=d.admins||[]; S.assign=d.assign||[]; if(d.crew&&d.crew.length){ S.crew=d.crew; syncMe(); } idle();
+    S.items=d.items; S.log=d.log; S.apiv = LIVE ? (d.apiVersion||1) : 4; S.admins=d.admins||[]; S.assign=d.assign||[]; S.ticketsOpen=d.ticketsOpen||0; if(d.crew&&d.crew.length){ S.crew=d.crew; syncMe(); } idle();
     if(sig!==lastSig || !silent) S.rep.all=null;
     if(!silent || sig!==lastSig) render();
     lastSig=sig;
@@ -552,19 +574,24 @@ async function submit(entry){
 
 /* ---------- navigation ---------- */
 const MENU = [
-  ['TRUCK', [['home','Overview'],['inventory','Logistics'],['checkoff','Check-Off'],['weather','Weather']]],
-  ['TRACKING', [['quick','Log Used / Returned'],['squads','Squads & Issued Gear'],['history','History'],['restock','Restock List'],['log','Activity Log'],['reports','Reports']]],
-  ['HELP', [['help','How to use'],['cuts','Shoring Cut Sheet']]]
+  ['Truck', [['home','Overview','🏠'],['inventory','Logistics','📦'],['checkoff','Check-Off','✅']]],
+  ['On scene', [['quick','Log Used / Returned','📝'],['shore','Shore Builder','🔨'],['squads','Squads & Issued Gear','👥'],['weather','Weather','🌦️']]],
+  ['Records', [['history','History','📜'],['restock','Restock List','🛒'],['log','Activity Log','🗂️'],['reports','Reports','📊']]],
+  ['Help', [['tickets','Ideas & Issues','💡'],['cuts','Shoring Cut Sheet','📐'],['help','How to use','❓']]]
 ];
 // Prices and costs are shown to admins only – crews just build and log
 const canCost = () => isAdmin();
 const isAdmin = () => !!(S.me && S.apiv>=3 && (S.admins||[]).some(n=>n.toLowerCase()===S.me.name.toLowerCase()));
 function drawMenu(){
   const MN = MENU.map(([h,ls])=>[h, ls.filter(([r])=>r!=='reports'||canCost())]);
-  $('#drawer').innerHTML = (isAdmin()? [...MN.slice(0,2),['ADMIN',[['admin','Admin']]],...MN.slice(2)] : MN).map(([h,links])=>`<h4>${h}</h4>`+links.map(([r,t])=>`<a href="#" data-route="${r}" class="${S.route===r?'on':''}">${t}</a>`).join('')).join('')
-   + `<h4>Signed in</h4><div class="who" style="margin-top:4px">${S.me? esc(S.me.name)+(S.me.unit?' – '+esc(S.me.unit):'') : 'Not signed in'}</div>
-      <a href="#" id="swapUser">${S.me?'Switch user':'Sign in'}</a>${S.me?'<a href="#" id="signOut">Sign out</a>':''}`;
-  document.querySelectorAll('[data-route]').forEach(a=>a.onclick=e=>{ e.preventDefault(); go(a.dataset.route); });
+  if(isAdmin()) MN.push(['Admin',[['admin','Admin','⚙️']]]);
+  const ini = S.me? S.me.name.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() : '?';
+  const badge = r => r==='tickets'&&isAdmin()&&S.ticketsOpen? `<span class="mbadge">${S.ticketsOpen} new</span>` : r==='squads'&&Object.keys(allHolders()).length? `<span class="mbadge blue">${Object.values(allHolders()).reduce((a,x)=>a+x.reduce((b,[,q])=>b+q,0),0)} out</span>` : '';
+  $('#drawer').innerHTML = `<div class="mhead"><div class="mav">${esc(ini)}</div><div style="min-width:0"><b>${S.me?esc(S.me.name):'Not signed in'}</b><div>${S.me&&S.me.unit?esc(S.me.unit):''}</div>
+      <div class="macct"><a href="#" id="swapUser">${S.me?'Switch user':'Sign in'}</a>${S.me?'<span>·</span><a href="#" id="signOut">Sign out</a>':''}</div></div></div>`
+   + MN.map(([h,links])=>`<h4>${h}</h4>`+links.map(([r,t,ic])=>`<a href="#" data-route="${r}" class="mi ${S.route===r?'on':''}"><span class="mic">${ic}</span><span class="mtx">${t}</span>${badge(r)}</a>`).join('')).join('')
+   + `<div class="mfoot">USAR 301 · Summerville Fire-Rescue</div>`;
+  document.querySelectorAll('[data-route]').forEach(a=>a.onclick=e=>{ e.preventDefault(); if(a.dataset.route==='shore'){ closeDrawer(); openShoreBuilder(); return; } go(a.dataset.route); });
   $('#swapUser').onclick = e=>{ e.preventDefault(); closeDrawer(); signIn(()=>render()); };
   const so=$('#signOut'); if(so) so.onclick = e=>{ e.preventDefault(); signOut(); };
 }
@@ -585,7 +612,7 @@ window.addEventListener('popstate', e=>{
   if($('#sheet').classList.contains('open')||$('#drawer').classList.contains('open')){ closeSheet(); closeDrawer(); try{ history.pushState(navState(),''); }catch(x){} return; }
   navIdx=s.i||0; S.route=s.r||'home'; if(S.route==='history') S.hist.ev=s.ev||null; window.scrollTo(0,0); render(); });
 try{ history.replaceState({r:'home',ev:null,i:0},''); }catch(e){}
-function go(r){ if(ctxReady()) S.ctxEdit=false; const same=S.route===r && !(r==='history'&&S.hist.ev); if(r==='history') S.hist.ev=null;
+function go(r){ if(ctxReady()) S.ctxEdit=false; const same=S.route===r && !(r==='history'&&S.hist.ev); if(r==='history') S.hist.ev=null; if(r==='tickets'){ S.tk.filter='open'; S.tk.list=null; }
   S.route=r; closeDrawer(); closeSheet(); window.scrollTo(0,0); if(!same) pushNav(); render(); }
 
 function openSheet(html, onMount){ const sh=$('#sheet'), was=sh.classList.contains('open'), y=sh.scrollTop; sh.style.transform=''; sh.style.transition='';
@@ -708,6 +735,7 @@ home(){
     return `<div class="card navcard" data-go="squads"><h3>Squads &amp; Issued Gear ${n?`<span class="tag" style="background:#3b6fb6;color:#fff">${n} out</span>`:''}</h3><p>${n? `${n} piece${n>1?'s':''} of gear out with ${sq?sq+' squad'+(sq>1?'s':''):''}${sq&&hs.length-sq?' and ':''}${hs.length-sq?(hs.length-sq)+' '+(hs.length-sq>1?'people':'person'):''}. Check gear in or move it between squads.` : 'Who has what off the truck. Issue gear to a squad (Exterior Shoring, Interior Shoring…) or a person from any item.'}</p><span class="tag">Open</span></div>`; })()}
   <div class="card navcard" data-go="restock"><h3>Restock List ${rs.length?`<span class="tag accent">${rs.length}</span>`:''}</h3><p>${rs.length? rs.length+' item'+(rs.length>1?'s':'')+' below full load, grouped by where to buy.':'Everything is at full load.'}</p><span class="tag">Open</span></div>
   <div class="card navcard" data-go="log"><h3>Activity Log</h3><p>Every entry: who, when, which incident. Use it for reimbursement requests.</p><span class="tag">View</span></div>
+  <div class="card navcard" data-go="tickets"><h3>💡 Ideas &amp; Issues ${isAdmin()&&S.ticketsOpen?`<span class="tag accent">${S.ticketsOpen} new</span>`:''}</h3><p>Something broken, missing from the truck, or an idea for the app? Send it to the admins and follow the reply.</p><span class="tag">Open</span></div>
   <div class="card navcard" data-go="history"><h3>History</h3><p>Every incident and training, entry by entry: who logged what, what each squad had, and what never came back. Print or export any call.</p><span class="tag">Open</span></div>
   ${canCost()?'':'<!--'}<div class="card navcard" data-go="reports"><h3>Reports</h3><p>Totals and cost by incident, training or date range: end of a call or end of the year. Print or copy for reimbursement.</p><span class="tag">Open</span></div>${canCost()?'':'-->'}`;
 },
@@ -831,6 +859,35 @@ checkoff(){
 
   <div style="height:12px"></div>
   <button class="btn primary block" id="cSave" ${tcDone?'':'disabled'}>${tcDone?`Submit check-off (truck check + ${done} item${done===1?'':'s'} counted)`:'Finish the Truck Check at the top to submit'}</button>`;
+},
+tickets(){
+  const T=S.tk; if(S.apiv<4) return `<h1>Ideas &amp; Issues</h1><div class="empty">This needs the latest Google update. Ask Chief Savage or Capt. Lobo.</div>`;
+  if(!T.list&&!T.loading){ loadTickets(); }
+  const f=T.form, types=[['Idea','💡'],['Problem','🐞'],['Inventory fix','📦'],['Question','❓']];
+  const where=['Whole app','Overview','Logistics','Check-Off','Log Used / Returned','Shore Builder','Squads & Issued Gear','History','Restock List','Reports','Admin','Truck / equipment'];
+  const stc={New:'tk-new',Reviewing:'tk-rev',Planned:'tk-plan',Done:'tk-done',"Won't do":'tk-no'};
+  const mine=x=>S.me&&x.name.toLowerCase()===S.me.name.toLowerCase(), open=x=>!['Done',"Won't do"].includes(x.status);
+  const list=(T.list||[]).filter(x=> T.filter==='open'?open(x) : T.filter==='mine'?mine(x) : T.filter==='done'?!open(x) : true);
+  return `<h1>Ideas &amp; Issues <small>USAR 301</small></h1>
+  <p class="sub">Something not working, missing from the truck, or an idea to make the app better? Send it here. Chief Savage and Capt. Lobo review every one and reply.</p>
+  <div class="card">
+    <label class="f" style="margin-top:0">What is it?</label><div class="seg">${types.map(([k,ic])=>`<button data-tkt="${k}" class="${f.type===k?'on':''}">${ic} ${k}</button>`).join('')}</div>
+    <label class="f" for="tkTitle">Short title <span class="req">(required)</span></label><input class="in" id="tkTitle" maxlength="120" value="${esc(f.title)}" placeholder="${f.type==='Problem'?'e.g. Check-Off will not save on my phone':f.type==='Inventory fix'?'e.g. Lumber rack shows 8 plywood, we carry 10':f.type==='Question'?'e.g. How do I return a kit for someone else?':'e.g. Add photos of each kit'}">
+    <label class="f" for="tkDet">Details</label><textarea class="in" id="tkDet" rows="4" placeholder="What happened, what you expected, or what you would like to see.">${esc(f.details)}</textarea>
+    <div class="edgrid"><div><label class="f">Where</label><select class="in" id="tkWhere">${where.map(w=>`<option ${f.where===w?'selected':''}>${w}</option>`).join('')}</select></div>
+    <div><label class="f">How urgent</label><select class="in" id="tkPri">${['Low','Normal','Urgent'].map(w=>`<option ${f.priority===w?'selected':''}>${w}</option>`).join('')}</select></div></div>
+    <div style="height:12px"></div><button class="btn primary block" id="tkSend">Send to admins</button>
+    <p class="muted" style="font-size:12px;margin:8px 0 0">Sent as ${S.me?esc(S.me.name):'—'}. Urgent safety or equipment problems: tell your officer right away too.</p></div>
+  <div class="chips" style="margin-top:16px">${[['open','Open'],['mine','Mine'],['done','Done'],['all','All']].map(([k,l])=>`<button class="chip ${T.filter===k?'on':''}" data-tkf="${k}">${l}</button>`).join('')}</div>
+  ${T.loading&&!T.list? '<div class="empty">Loading…</div>' : !list.length? `<div class="empty">${T.filter==='mine'?'You have not sent anything yet.':'Nothing here.'}</div>` :
+    list.map(x=>`<div class="card tkcard"><div class="row" style="gap:8px;align-items:flex-start"><span style="font-size:20px">${(types.find(y=>y[0]===x.type)||['','💬'])[1]}</span>
+      <div style="flex:1;min-width:0"><b style="font-size:16px">${esc(x.title)}</b><div class="muted" style="font-size:12.5px;margin-top:2px">${esc(x.id)} · ${esc(x.name)} · ${esc(new Date(x.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'}))}${x.where?' · '+esc(x.where):''}${x.priority==='Urgent'?' · <b style="color:var(--miss)">Urgent</b>':''}</div></div>
+      <span class="tkst ${stc[x.status]||''}">${esc(x.status)}</span></div>
+      ${x.details?`<div style="margin-top:8px;white-space:pre-wrap;font-size:14.5px">${esc(x.details)}</div>`:''}
+      ${x.reply?`<div class="tkreply"><b>Reply from ${esc(x.updatedBy||'admin')}:</b> ${esc(x.reply)}</div>`:''}
+      ${isAdmin()&&S.adm.ok?`<div class="tkadm"><select class="in" data-tks="${esc(x.id)}">${['New','Reviewing','Planned','Done',"Won't do"].map(s=>`<option ${x.status===s?'selected':''}>${s}</option>`).join('')}</select>
+        <input class="in" data-tkr="${esc(x.id)}" value="${esc(x.reply)}" placeholder="Reply to ${esc(x.name.split(' ')[0])}"><button class="btn dark" data-tksave="${esc(x.id)}">Save</button></div>`:''}</div>`).join('')}
+  ${isAdmin()&&!S.adm.ok?`<p class="muted" style="font-size:12.5px">To change a status or reply, unlock <a href="#" id="tkUnlock">Admin</a> with your PIN first.</p>`:''}`;
 },
 admin(){
   if(!isAdmin()) return `<h1>Admin</h1><div class="empty">Admins only. Sign in as an admin to use this screen.</div>`;
@@ -1663,6 +1720,7 @@ function editItem(id){
   });
   draw();
 }
+async function loadTickets(){ const T=S.tk; T.loading=true; try{ T.list=await api.getTickets(); S.ticketsOpen=T.list.filter(x=>x.status==='New').length; }catch(e){ T.list=[]; toast('Could not load tickets: '+(e.message||e)); } T.loading=false; if(S.route==='tickets') render(); }
 function moveGear(id, from){
   const i=S.items.find(x=>x.id===id); if(!i) return; const have=Object.fromEntries(kitHolders(id))[from]||0; let q=have, to='';
   const okTo=()=>{ const h=normHolder(to); return h&&h!==from&&!/^Squad: ?$/.test(h) ? h : ''; };
@@ -1855,6 +1913,21 @@ function itemSheet(id, opt){
 }
 
 const BIND = {
+tickets(){
+  const T=S.tk, f=T.form, keep=()=>{ const a=$('#tkTitle'), b=$('#tkDet'), c=$('#tkWhere'), d=$('#tkPri'); if(a) f.title=a.value; if(b) f.details=b.value; if(c) f.where=c.value; if(d) f.priority=d.value; };
+  document.querySelectorAll('[data-tkt]').forEach(b=>b.onclick=()=>{ keep(); f.type=b.dataset.tkt; render(); });
+  document.querySelectorAll('[data-tkf]').forEach(b=>b.onclick=()=>{ keep(); T.filter=b.dataset.tkf; render(); });
+  ['#tkTitle','#tkDet','#tkWhere','#tkPri'].forEach(s=>{ const e=$(s); if(e) e.oninput=e.onchange=keep; });
+  const u=$('#tkUnlock'); if(u) u.onclick=e=>{ e.preventDefault(); go('admin'); };
+  const sd=$('#tkSend'); if(sd) sd.onclick=async()=>{ keep(); if(!S.me){ signIn(()=>render()); return; } if(!f.title.trim()){ toast('Give it a short title'); $('#tkTitle').focus(); return; }
+    sd.disabled=true; sd.textContent='Sending…';
+    try{ T.list=await api.submitTicket({name:S.me.name, unit:S.me.unit||'', type:f.type, where:f.where, priority:f.priority, title:f.title.trim(), details:f.details.trim()});
+      S.tk.form={type:'Idea', where:'Whole app', priority:'Normal', title:'', details:''}; T.filter='mine'; render(); window.scrollTo(0,0); toast('Sent – thanks! You can follow it under Mine.'); }
+    catch(e){ toast('Not sent: '+(e.message||e)); sd.disabled=false; sd.textContent='Send to admins'; } };
+  document.querySelectorAll('[data-tksave]').forEach(b=>b.onclick=async()=>{ const id=b.dataset.tksave, st=document.querySelector(`[data-tks="${id}"]`).value, rp=document.querySelector(`[data-tkr="${id}"]`).value;
+    b.disabled=true; try{ T.list=await api.updateTicket({name:S.me.name,pin:S.adm.pin}, id, st, rp.trim()); S.ticketsOpen=T.list.filter(x=>x.status==='New').length; render(); toast(id+' saved'); }
+    catch(e){ toast('Not saved: '+(e.message||e)); b.disabled=false; if(/PIN|admin/i.test(String(e.message))){ S.adm.ok=false; render(); } } });
+},
 admin(){
   const A=S.adm;
   const g=$('#admGo'); if(g){ const pinEl=$('#admPin'); setTimeout(()=>pinEl.focus(),50);
