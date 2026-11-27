@@ -120,6 +120,17 @@ h2.hh{font-size:26px;margin:22px 0 10px;letter-spacing:.6px}
 .tkst.tk-new{background:var(--accent);color:#fff}.tkst.tk-rev{background:#ffefc7;color:#7a4f00}.tkst.tk-plan{background:#e3edf9;color:#24508c}.tkst.tk-done{background:#1f7a3a;color:#fff}.tkst.tk-no{background:#e5e7ea;color:#555}
 .tkreply{margin-top:10px;background:#f4f8fd;border:1px solid #d4e1f2;border-radius:9px;padding:8px 10px;font-size:14px}
 .tkadm{display:grid;grid-template-columns:120px 1fr auto;gap:6px;margin-top:10px}.tkadm .in{margin:0;padding:8px}
+#ctxbar.on,#ctxbar.off{position:sticky;top:var(--hdr,56px);z-index:19;display:flex;gap:8px;align-items:center;padding:7px 12px;border-bottom:1.5px solid}
+#ctxbar.inc{background:#e8f0fb;border-color:#1f4f8f}#ctxbar.trn{background:#efeaff;border-color:#5b3fb0}#ctxbar.off{background:#fff8e6;border-color:#e3a21a}
+#ctxbar button{font:inherit;border:0;background:none;color:inherit;cursor:pointer}
+#ctxbar .cbmain{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:0}
+#ctxbar .cbk{font-weight:800;font-size:12.5px}#ctxbar .cbd{font-size:13.5px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#2a3542}
+#ctxbar .cbchg{flex:none;background:#fff!important;border:1.5px solid #c9d2dc!important;border-radius:9px;padding:6px 12px!important;font-weight:700;font-size:13.5px}
+.actpicks{display:flex;flex-direction:column;gap:6px}
+.actpick{display:flex;gap:10px;align-items:center;text-align:left;border:1.5px solid;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer;background:#fff}
+.actpick.inc{border-color:#1f4f8f;background:#f3f7fd}.actpick.trn{border-color:#5b3fb0;background:#f6f3ff}.actpick>span:first-child{font-size:20px}
+.apt{display:flex;flex-direction:column;min-width:0}.apt b{font-size:15px;overflow-wrap:anywhere}.apt small{font-size:12.5px;color:var(--muted)}
+.ornew{text-align:center;font-size:12px;color:var(--muted);margin:10px 0 -4px;text-transform:uppercase;letter-spacing:.06em}
 .lochd .secbad.low{background:#ffefc7;color:#7a4f00}
 .lochd .secbad{font-family:var(--body,inherit);font-size:13px;font-weight:800;letter-spacing:.2px;text-transform:none;background:#fde0dc;color:#9b1c13;border-radius:10px;padding:2px 8px}
 .loc{font-family:var(--head);font-size:22px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--navy2);padding:14px 14px;border-radius:11px;margin:14px 0 8px;min-height:54px;line-height:1.15}
@@ -345,13 +356,14 @@ table.rp tr.tot td{border-top:2px solid var(--ink,#222);border-bottom:none;font-
 
 <div class="drawer-bg" id="drawerBg"></div>
 <nav class="drawer" id="drawer"></nav>
+<div id="ctxbar"></div>
 <main id="view"></main>
 <div class="sheet-bg" id="sheetBg"></div>
 <div class="sheet" id="sheet"></div>
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
-<script>window.USAR301_BUILD="1795790141";
+<script>window.USAR301_BUILD="1795797217";
 (function(){ // auto-update: if a newer version is on GitHub, load it (skips while a pop-up is open)
   function chk(){ try{ if(location.protocol!=='https:'||document.querySelector('#sheet.open')) return; var u=location.pathname;
     fetch(u+'?nc='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){ var m=t.match(/USAR301_BUILD="(\d+)"/);
@@ -461,7 +473,7 @@ async function wxDirect(lat,lon){
 // keep the signed-in member's unit/title in step with the Crew tab
 function syncMe(){ if(!S.me||!S.crew) return; const c=S.crew.find(c=>c.name===S.me.name); if(!c) return;
   const u=c.shift==='Staff'||!c.shift? c.unit : `${c.unit} · ${c.shift} Shift`; if(u!==S.me.unit){ S.me.unit=u; S.me.shift=c.shift; sset('usar301_me', JSON.stringify(S.me)); } }
-const S = { tk:{list:null, loading:false, filter:'open', form:{type:'Idea', where:'Whole app', priority:'Normal', title:'', details:''}}, hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:{action:'USED', kind:'', details:'', incident:''}, items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
+const S = { tk:{list:null, loading:false, filter:'open', form:{type:'Idea', where:'Whole app', priority:'Normal', title:'', details:''}}, hist:{tab:'Incident', q:'', ev:null}, adm:(()=>{ try{ const s=JSON.parse(sessionStorage.getItem('usar301_adm')||'null'); return s? {n:s.n, pin:s.p, ok:true, tab:'items', q:''} : {tab:'items', q:''}; }catch(e){ return {tab:'items', q:''}; } })(), ctx:(()=>{ try{ const c=JSON.parse(localStorage.getItem('usar301_ctx')||'null'); if(c&&c.kind&&Date.now()-(c.ts||0)<36*3600e3) return {action:'USED', kind:c.kind, details:c.details||'', incident:c.incident||''}; }catch(e){} return {action:'USED', kind:'', details:'', incident:''}; })(), items:[], log:[], me: (()=>{ const m=JSON.parse(sget('usar301_me')||'null'); if(m && m.unit===undefined) m.unit=''; return m; })(), route:'home',
   inv:{q:'', cat:'All', st:'All'}, logf:{q:'', a:'All'}, quick:null, check:null, crew:CREW_SEED,
   wx:{loc:(()=>{ try{ return JSON.parse(sget('usar301_wx')||'null'); }catch(e){ return null; } })() || {lat:33.0185, lon:-80.1756, name:'Summerville, SC', src:'default'}, data:null, at:0, loading:false, err:'', msg:'', results:null},
   rep:{charge:(()=>{ try{ return localStorage.getItem('usar301_charge')||'board'; }catch(e){ return 'board'; } })(), mode:'range', ev:'', from:new Date().getFullYear()+'-01-01', to:'', kind:'All', all:null, loading:false, err:''} };
@@ -680,7 +692,8 @@ function render(){
       <div class="card" style="text-align:center;padding:22px 16px;max-width:440px;margin:0 auto"><h3 style="margin:0 0 6px">You're signed out</h3>
       <p class="muted" style="margin:0 0 16px">Sign in with your name to use the truck app. Everything you log is saved under your name.</p>
       <button class="btn primary block" id="soIn" style="font-size:17px;padding:14px">Sign in</button></div>`;
-    $('#soIn').onclick=()=>signIn(()=>render()); return; }
+    $('#ctxbar').innerHTML=''; $('#soIn').onclick=()=>signIn(()=>render()); return; }
+  saveCtx(); drawCtxBar();
   v.innerHTML = (VIEWS[r]||VIEWS.home)();
   (BIND[r]||BIND.home||(()=>{}))();
   if (['home','inventory'].includes(r)){
@@ -1545,6 +1558,22 @@ const ctab = i => i.color ? `<div class="ctab c-${esc(i.color)}">${esc(i.color)}
 const NEEDS_KIND = a => a!=='RESTOCKED';
 function linkCtx(o){ ['kind','details','incident'].forEach(k=>Object.defineProperty(o,k,{get:()=>S.ctx[k],set:v=>{S.ctx[k]=v;},enumerable:true,configurable:true})); return o; }
 const ctxReady = () => S.ctx.kind && String(S.ctx.details||'').trim();
+let _ctxSaved='';
+function saveCtx(){ const c=S.ctx, k=ctxReady()? JSON.stringify([c.kind,c.details,c.incident]) : ''; if(k===_ctxSaved) return; _ctxSaved=k;
+  try{ if(k) localStorage.setItem('usar301_ctx', JSON.stringify({kind:c.kind, details:c.details, incident:c.incident||'', ts:Date.now()})); else localStorage.removeItem('usar301_ctx'); }catch(e){} }
+function setCtx(e){ S.ctx.kind=e?e.kind:''; S.ctx.details=e?e.details:''; S.ctx.incident=e?(e.incident||''):''; S.ctxEdit=!e; saveCtx(); }
+/* incidents / trainings logged in the last 36 h, newest first (what crews are working right now) */
+function activeEvents(){ const cut=Date.now()-36*3600e3, m={};
+  S.log.forEach(l=>{ if(!(l.kind==='Incident'||l.kind==='Training')||!String(l.details||'').trim()) return; const t=new Date(l.ts).getTime(); if(!(t>cut)) return;
+    const k=repKey(l), e=m[k]||(m[k]={key:k, kind:l.kind, details:l.details.trim(), incident:l.incident||'', last:0, who:new Set(), n:0});
+    e.n++; e.who.add(l.name); if(t>e.last) e.last=t; if(!e.incident&&l.incident) e.incident=l.incident; });
+  return Object.values(m).sort((a,b)=>b.last-a.last).slice(0,5); }
+const sameCtx = e => ctxReady() && repKey({kind:S.ctx.kind, details:String(S.ctx.details).trim(), incident:S.ctx.incident||''})===e.key;
+const agoTxt = t => { const m=Math.round((Date.now()-t)/60000); return m<1?'just now':m<60?m+' min ago':Math.round(m/60)+' h ago'; };
+function activePicks(p){ const ev=activeEvents().filter(e=>!sameCtx(e)); if(!ev.length) return '';
+  return `<label class="f">Already going – tap to join</label><div class="actpicks">${ev.map((e,i)=>`<button class="actpick ${e.kind==='Training'?'trn':'inc'}" data-act="${p}" data-ai="${i}">
+    <span>${e.kind==='Training'?'🎓':'🚒'}</span><span class="apt"><b>${esc(e.details)}</b><small>${e.incident?'#'+esc(e.incident)+' · ':''}${esc(agoTxt(e.last))} · ${e.who.size} ${e.who.size===1?'person':'people'}</small></span></button>`).join('')}</div>
+    <div class="ornew">or start a new one</div>`; }
 function ctxSummary(p){
   return `<div class="ctxsum ${S.ctx.kind==='Training'?'trn':'inc'}"><div><span class="ctxk">${S.ctx.kind==='Training'?'🎓 Training':'🚒 Incident'}</span>
     <div class="ctxd">${esc(S.ctx.details)}${S.ctx.kind==='Incident'&&S.ctx.incident?' · #'+esc(S.ctx.incident):''}</div></div>
@@ -1553,7 +1582,8 @@ function ctxSummary(p){
 function kindBlock(st, p){
   if(!NEEDS_KIND(st.action)) return '';
   const k=st.kind;
-  return `<label class="f">Was this for an incident or training? <span class="req">(required)</span></label>
+  if(ctxReady() && !S.ctxEdit && st.kind===S.ctx.kind && st.details===S.ctx.details) return `<label class="f">Logging for</label>`+ctxSummary(p);
+  return activePicks(p)+`<label class="f">Was this for an incident or training? <span class="req">(required)</span></label>
     <div class="kindseg">
       <button data-kind="Incident" data-p="${p}" class="${k==='Incident'?'on inc':''}">🚒 Incident</button>
       <button data-kind="Training" data-p="${p}" class="${k==='Training'?'on trn':''}">🎓 Training</button>
@@ -1573,9 +1603,12 @@ function kindError(st, p){
   return false;
 }
 function bindKind(st, p, redraw){
+  const ev=activeEvents().filter(e=>!sameCtx(e));
+  document.querySelectorAll(`[data-act="${p}"]`).forEach(b=>b.onclick=()=>{ const e=ev[+b.dataset.ai]; if(!e) return; setCtx(e); redraw(); toast((e.kind==='Training'?'🎓 ':'🚒 ')+e.details+' – stays set until you change it'); });
+  const cc=$('#'+p+'CtxChg'); if(cc) cc.onclick=()=>{ S.ctxEdit=true; redraw(); };
   document.querySelectorAll(`[data-p="${p}"]`).forEach(b=>b.onclick=()=>{ if(st.kind!==b.dataset.kind){ st.details=''; st.incident=''; } st.kind=b.dataset.kind; redraw(); });
-  const d=$('#'+p+'Det'); if(d) d.oninput=e=>{ st.details=e.target.value; e.target.classList.remove('bad'); };
-  const i=$('#'+p+'Inc'); if(i) i.oninput=e=>{ st.incident=e.target.value; };
+  const d=$('#'+p+'Det'); if(d) d.oninput=e=>{ st.details=e.target.value; e.target.classList.remove('bad'); saveCtx(); drawCtxBar(); };
+  const i=$('#'+p+'Inc'); if(i) i.oninput=e=>{ st.incident=e.target.value; saveCtx(); };
 }
 
 const isKit = i => Array.isArray(i.kit) && i.kit.length>0;
@@ -1722,6 +1755,24 @@ function editItem(id){
   draw();
 }
 async function loadTickets(){ const T=S.tk; T.loading=true; try{ T.list=await api.getTickets(); S.ticketsOpen=T.list.filter(x=>x.status==='New').length; }catch(e){ T.list=[]; toast('Could not load tickets: '+(e.message||e)); } T.loading=false; if(S.route==='tickets') render(); }
+function drawCtxBar(){ const b=$('#ctxbar'); if(!b) return; { const h=document.querySelector('header.top'); if(h) document.documentElement.style.setProperty('--hdr', h.offsetHeight+'px'); } if(!S.me){ b.innerHTML=''; return; }
+  if(ctxReady()){ const c=S.ctx; b.className='on '+(c.kind==='Training'?'trn':'inc');
+    b.innerHTML=`<button id="cbOpen" class="cbmain"><span class="cbk">${c.kind==='Training'?'🎓 Training':'🚒 Incident'}</span><span class="cbd">${esc(c.details)}${c.kind==='Incident'&&c.incident?' · #'+esc(c.incident):''}</span></button><button id="cbOpen2" class="cbchg">Change</button>`; }
+  else { const ev=activeEvents(); b.className=ev.length?'off':''; b.innerHTML=ev.length? `<button id="cbOpen" class="cbmain"><span class="cbk">Working a call or training?</span><span class="cbd">${ev.length===1? 'Tap to join '+esc(ev[0].details) : ev.length+' going now – tap to pick one'}</span></button><button id="cbOpen2" class="cbchg">Pick</button>` : ''; }
+  ['#cbOpen','#cbOpen2'].forEach(s=>{ const x=$(s); if(x) x.onclick=ctxSheet; }); }
+function ctxSheet(){
+  const draw=()=>{ const ev=activeEvents(), c=S.ctx;
+    openSheet(`<h2 style="margin:0 0 4px">What are you working?</h2><p class="muted" style="margin:0 0 12px;font-size:14px">Everything you log, issue, return or build goes to this one until you change it – even if you close the app.</p>
+      ${ctxReady()?`<label class="f" style="margin-top:0">Now set to</label>`+`<div class="ctxsum ${c.kind==='Training'?'trn':'inc'}"><div><span class="ctxk">${c.kind==='Training'?'🎓 Training':'🚒 Incident'}</span><div class="ctxd">${esc(c.details)}${c.kind==='Incident'&&c.incident?' · #'+esc(c.incident):''}</div></div><button class="btn" id="csClear">Done with it</button></div>`:''}
+      ${ev.filter(e=>!sameCtx(e)).length? activePicks('cs').replace('<div class="ornew">or start a new one</div>','') : ''}
+      <label class="f">Start a new one</label><div class="kindseg"><button data-new="Incident">🚒 New incident</button><button data-new="Training">🎓 New training</button></div>
+      <div style="height:6px"></div>`, ()=>{
+      const evs=ev.filter(e=>!sameCtx(e));
+      document.querySelectorAll('[data-act="cs"]').forEach(x=>x.onclick=()=>{ setCtx(evs[+x.dataset.ai]); closeSheet(); render(); toast('Set – everything you log goes to this one'); });
+      const cl=$('#csClear'); if(cl) cl.onclick=()=>{ setCtx(null); S.ctxEdit=false; closeSheet(); render(); toast('Cleared. Pick an incident or training next time you log.'); };
+      document.querySelectorAll('[data-new]').forEach(x=>x.onclick=()=>{ S.ctx.kind=x.dataset.new; S.ctx.details=''; S.ctx.incident=''; S.ctxEdit=true; S.quick&&(S.quick.action='USED'); closeSheet(); go('quick'); setTimeout(()=>{ const d=$('#qDet')||$('#lDet'); if(d) d.focus(); },150); });
+    }); };
+  draw(); }
 function moveGear(id, from){
   const i=S.items.find(x=>x.id===id); if(!i) return; const have=Object.fromEntries(kitHolders(id))[from]||0; let q=have, to='';
   const okTo=()=>{ const h=normHolder(to); return h&&h!==from&&!/^Squad: ?$/.test(h) ? h : ''; };
